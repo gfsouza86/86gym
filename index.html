@@ -147,7 +147,7 @@
   .row{display:flex;gap:10px;}
   .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
     padding:16px;margin-bottom:14px;}
-  input[type=text],input[type=number],input[type=date],input[type=time],select,textarea{
+  input[type=text],input[type=number],input[type=date],input[type=time],input[type=password],select,textarea{
     width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);
     padding:12px;border-radius:10px;font-size:14px;font-family:'Inter';margin-top:6px;}
   textarea{resize:vertical;min-height:60px;}
@@ -480,6 +480,12 @@
     box-shadow:0 8px 24px rgba(0,0,0,0.5);}
   .err-overlay button{margin-top:8px;background:#fff;color:var(--danger);border:none;
     padding:6px 14px;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px;}
+  .sync-badge{display:inline-block;width:8px;height:8px;border-radius:50%;
+    background:var(--muted);margin-right:6px;vertical-align:middle;}
+  .sync-badge.ok{background:var(--lime);box-shadow:0 0 6px var(--lime);}
+  .sync-badge.syncing{background:var(--orange);animation:syncPulse 1s ease-in-out infinite;}
+  .sync-badge.err{background:var(--danger);}
+  @keyframes syncPulse{0%,100%{opacity:0.4;} 50%{opacity:1;}}
   @media (min-width: 768px){
     #app{max-width:760px;}
     nav.tabbar{max-width:760px;}
@@ -544,6 +550,11 @@ const KEYS = {
   photos:'86gym_photos_v5', challenges:'86gym_challenges_v5', annual:'86gym_annual_v5',
   goals:'86gym_goals_v5', idb:'86gym_idb_v5',
   onboarded:'86gym_onboarded_v5', lastBackup:'86gym_last_backup_v5'
+};
+const GIST_KEYS = {
+  token:'86gym_gist_token', id:'86gym_gist_id', lastSync:'86gym_gist_last_sync',
+  enabled:'86gym_gist_enabled', autoSync:'86gym_gist_autosync',
+  localModified:'86gym_local_modified'
 };
 const LEGACY_KEYS = [
   '86gym_treinos_v1','86gym_treinos_v2','86gym_treinos_v3','86gym_treinos_v4',
@@ -643,13 +654,49 @@ let DB = {
 };
 
 /* ============================================================
-   AUTO-BACKUP SILENCIOSO — timer global
+   TIMERS GLOBAIS
 ============================================================ */
 var _autoBackupTimer = null;
+var _gistSyncTimer = null;
+var _suppressGistSync = false;
 
-const saveTreinos   = () => { safeSet(KEYS.treinos, JSON.stringify(DB.treinos)); scheduleAutoBackup(); };
-const saveHistorico = () => { safeSet(KEYS.hist, JSON.stringify(DB.historico)); scheduleAutoBackup(); };
-const saveCardios   = () => { safeSet(KEYS.cardios, JSON.stringify(DB.cardios)); scheduleAutoBackup(); };
+/* ============================================================
+   GIST SYNC — configuração
+============================================================ */
+function loadGistConfig(){
+  return {
+    token: safeGet(GIST_KEYS.token) || '',
+    id: safeGet(GIST_KEYS.id) || '',
+    lastSync: Number(safeGet(GIST_KEYS.lastSync) || 0),
+    enabled: safeGet(GIST_KEYS.enabled) === '1',
+    autoSync: safeGet(GIST_KEYS.autoSync) !== '0',
+    localModified: Number(safeGet(GIST_KEYS.localModified) || 0)
+  };
+}
+function saveGistConfig(c){
+  if(c.token!==undefined) safeSet(GIST_KEYS.token, c.token);
+  if(c.id!==undefined) safeSet(GIST_KEYS.id, c.id);
+  if(c.lastSync!==undefined) safeSet(GIST_KEYS.lastSync, String(c.lastSync));
+  if(c.enabled!==undefined) safeSet(GIST_KEYS.enabled, c.enabled ? '1' : '0');
+  if(c.autoSync!==undefined) safeSet(GIST_KEYS.autoSync, c.autoSync ? '1' : '0');
+  if(c.localModified!==undefined) safeSet(GIST_KEYS.localModified, String(c.localModified));
+}
+function touchLocalModified(){
+  safeSet(GIST_KEYS.localModified, String(Date.now()));
+  updateSyncBadge('syncing');
+}
+function updateSyncBadge(state){
+  const badge = document.getElementById('sync-badge');
+  if(!badge) return;
+  badge.className = 'sync-badge ' + (state || '');
+}
+
+/* ============================================================
+   SAVE functions (adicionam touch + schedule)
+============================================================ */
+const saveTreinos   = () => { safeSet(KEYS.treinos, JSON.stringify(DB.treinos)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
+const saveHistorico = () => { safeSet(KEYS.hist, JSON.stringify(DB.historico)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
+const saveCardios   = () => { safeSet(KEYS.cardios, JSON.stringify(DB.cardios)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 
 function loadPerfil(){
   const p = safeJSON(KEYS.perfil, null) || {};
@@ -667,7 +714,7 @@ function loadPerfil(){
   if(!p.fotos) p.fotos = [];
   return p;
 }
-const savePerfil = p => { safeSet(KEYS.perfil, JSON.stringify(p)); scheduleAutoBackup(); };
+const savePerfil = p => { safeSet(KEYS.perfil, JSON.stringify(p)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 
 function loadSettings(){
   const s = safeJSON(KEYS.settings, {});
@@ -684,20 +731,20 @@ function loadSettings(){
   if(s.autoBackup===undefined) s.autoBackup = true;
   return s;
 }
-const saveSettings = s => { safeSet(KEYS.settings, JSON.stringify(s)); scheduleAutoBackup(); };
+const saveSettings = s => { safeSet(KEYS.settings, JSON.stringify(s)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 
 const loadCustomExercises = () => safeJSON(KEYS.customEx, []);
-const saveCustomExercises = a => { safeSet(KEYS.customEx, JSON.stringify(a)); scheduleAutoBackup(); };
+const saveCustomExercises = a => { safeSet(KEYS.customEx, JSON.stringify(a)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 const loadBadges = () => safeJSON(KEYS.badges, {});
-const saveBadges = b => { safeSet(KEYS.badges, JSON.stringify(b)); scheduleAutoBackup(); };
+const saveBadges = b => { safeSet(KEYS.badges, JSON.stringify(b)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 const loadPhotos = () => safeJSON(KEYS.photos, []);
-const savePhotos = p => { safeSet(KEYS.photos, JSON.stringify(p)); scheduleAutoBackup(); };
+const savePhotos = p => { safeSet(KEYS.photos, JSON.stringify(p)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 const loadChallenges = () => safeJSON(KEYS.challenges, {});
-const saveChallenges = c => { safeSet(KEYS.challenges, JSON.stringify(c)); scheduleAutoBackup(); };
+const saveChallenges = c => { safeSet(KEYS.challenges, JSON.stringify(c)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 const loadAnnual = () => safeJSON(KEYS.annual, {});
-const saveAnnual = a => { safeSet(KEYS.annual, JSON.stringify(a)); scheduleAutoBackup(); };
+const saveAnnual = a => { safeSet(KEYS.annual, JSON.stringify(a)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 const loadGoals = () => safeJSON(KEYS.goals, { volumeMes:0 });
-const saveGoals = g => { safeSet(KEYS.goals, JSON.stringify(g)); scheduleAutoBackup(); };
+const saveGoals = g => { safeSet(KEYS.goals, JSON.stringify(g)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 
 function todayKey(d){ const dt = new Date(d||Date.now()); return dt.getFullYear()+'-'+(dt.getMonth()+1)+'-'+dt.getDate(); }
 function loadHydration(){
@@ -710,15 +757,9 @@ function saveHydration(h){ safeSet(KEYS.hydration, JSON.stringify(h)); }
 
 const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 
-/* ============================================================
-   HAPTICS
-============================================================ */
 const HAPTIC = {
-  light: 20,
-  medium: 40,
-  success: [60,40,60,40,120],
-  error: [200,80,200],
-  tap: 15
+  light: 20, medium: 40,
+  success: [60,40,60,40,120], error: [200,80,200], tap: 15
 };
 function haptic(kind){
   const s = loadSettings();
@@ -766,9 +807,6 @@ function isCustomExercise(name){
 }
 const demoVideoUrl = n => 'https://www.youtube.com/results?search_query='+encodeURIComponent(n+' execução correta');
 
-/* ============================================================
-   TEMPLATES
-============================================================ */
 const TEMPLATES = [
   {id:'ppl', name:'Push · Pull · Legs', desc:'3-6x/sem · Empurrar, puxar e pernas',
    build:()=>({nome:'PPL', divisoes:[
@@ -938,7 +976,9 @@ const ICONS = {
   calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 11h18M8 3v4M16 3v4"/></svg>',
   refresh:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 019-9 9 9 0 016.4 2.6L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 01-9 9 9 9 0 01-6.4-2.6L3 16"/><path d="M3 21v-5h5"/></svg>',
   eye:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>',
-  folder:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>'
+  folder:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>',
+  cloud:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 18a4 4 0 100-8 6 6 0 00-11.6 1.5A4 4 0 007 18z"/></svg>',
+  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>'
 };
 
 /* ============================================================
@@ -1041,7 +1081,7 @@ function undoableAction(msg, action, undo){
 }
 
 /* ============================================================
-   ONBOARDING — aceita modo manual (sem setup)
+   ONBOARDING
 ============================================================ */
 function needsOnboarding(){ return !safeGet(KEYS.onboarded); }
 function showOnboarding(opts = {}){
@@ -1052,8 +1092,8 @@ function showOnboarding(opts = {}){
         desc:'Seu companheiro completo de treino. Vamos te mostrar o essencial em 30 segundos.' },
       { icon:'clipboard', title:'Monte seus <span class="accent">treinos</span>',
         desc:'Escolha um template pronto (PPL, ABC, Upper/Lower...) ou crie do zero. Cada treino tem divisões A/B/C com exercícios, séries e cargas.' },
-      { icon:'play', title:'Execute com <span class="accent">timer</span> e PR ao vivo',
-        desc:'Durante o treino, o app cronometra descanso, mostra recordes pessoais em tempo real, sugere progressão e analisa seu desempenho.' },
+      { icon:'cloud', title:'Sincronize entre <span class="accent">dispositivos</span>',
+        desc:'Configure o Gist nas Preferências do Perfil. Depois disso, tudo que você faz no PC aparece no celular automaticamente — e vice-versa.' },
       { icon:'chart', title:'Acompanhe <span class="accent">padrões</span>',
         desc:'Sono, energia, humor, PRs, volume, heatmap anual. O app correlaciona tudo pra você treinar melhor. Pronto pra começar?' }
     ];
@@ -1145,6 +1185,212 @@ async function askInitialSetup(){
       resolve();
     };
   });
+}
+
+/* ============================================================
+   MODAL: SOBRE O APP
+============================================================ */
+function openAboutModal(){
+  const bg = openModal(`
+    <button class="close-x" aria-label="Fechar">&times;</button>
+    <div style="text-align:center; padding:8px 0 18px 0;">
+      <div class="plate-badge" style="margin:0 auto 14px auto; width:64px; height:64px; border-width:3px;">
+        <span class="pnum" style="font-size:20px;">86</span>
+      </div>
+      <h2 style="font-family:var(--font-display); font-size:22px; margin:0 0 4px 0;">86 Training & Grind</h2>
+      <p style="color:var(--muted); font-size:12.5px; margin:0;">Versão 5.0</p>
+    </div>
+    <div class="divider"></div>
+    <h3 style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:10px;">Desenvolvido por</h3>
+    <div class="card" style="margin:0 0 14px 0; display:flex; align-items:center; gap:12px;">
+      <div style="width:46px; height:46px; border-radius:50%; background:var(--lime);
+        color:#0A0B0D; display:flex; align-items:center; justify-content:center;
+        font-weight:800; font-family:var(--font-display); font-size:16px;">GF</div>
+      <div style="flex:1;">
+        <b style="font-size:14.5px; display:block;">G. F. Souza</b>
+        <small style="color:var(--muted); font-size:11.5px;">Desenvolvedor</small>
+      </div>
+    </div>
+    <h3 style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin:16px 0 10px 0;">Sobre o app</h3>
+    <p style="color:var(--muted); font-size:13px; line-height:1.6; margin:0 0 14px 0;">
+      Um app pessoal de treino criado pra acompanhar divisões, registrar cargas,
+      analisar padrões (sono, energia, humor) e evoluir com consistência.
+    </p>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <a href="https://github.com/gfsouza86" target="_blank" rel="noopener" style="display:flex; justify-content:space-between; align-items:center; padding:11px 14px; background:var(--surface-2); border-radius:10px; text-decoration:none; color:var(--text);">
+        <span style="font-size:12.5px; color:var(--muted); font-weight:600;">💻 GitHub</span>
+        <span style="font-size:12.5px; color:var(--lime); font-weight:700;">@gfsouza86</span>
+      </a>
+      <a href="https://github.com/gfsouza86/86gym" target="_blank" rel="noopener" style="display:flex; justify-content:space-between; align-items:center; padding:11px 14px; background:var(--surface-2); border-radius:10px; text-decoration:none; color:var(--text);">
+        <span style="font-size:12.5px; color:var(--muted); font-weight:600;">⭐ Código-fonte</span>
+        <span style="font-size:12.5px; color:var(--lime); font-weight:700;">Ver no GitHub</span>
+      </a>
+    </div>
+    <div class="divider"></div>
+    <p style="color:var(--muted); font-size:11.5px; text-align:center; line-height:1.6; margin:0;">
+      Feito com 💪 e ☕ em ${new Date().getFullYear()}<br>
+      Seus dados ficam salvos no seu dispositivo + Gist privado.
+    </p>
+    <button class="btn secondary" style="margin-top:16px;" id="about-close">Fechar</button>
+  `);
+  bg.querySelector('.close-x').onclick = ()=> closeModal(bg);
+  bg.querySelector('#about-close').onclick = ()=> closeModal(bg);
+}
+
+/* ============================================================
+   GIST API
+============================================================ */
+async function gistFetch(url, opts={}){
+  const cfg = loadGistConfig();
+  if(!cfg.token) throw new Error('Token não configurado');
+  const r = await fetch(url, {
+    ...opts,
+    headers: {
+      'Accept': 'application/vnd.github+json',
+      'Authorization': 'Bearer ' + cfg.token,
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Content-Type': 'application/json',
+      ...(opts.headers || {})
+    }
+  });
+  if(!r.ok){
+    const txt = await r.text().catch(()=> '');
+    let msg = `GitHub ${r.status}`;
+    try{ const j = JSON.parse(txt); if(j.message) msg += ': ' + j.message; }catch(e){ if(txt) msg += ': ' + txt.slice(0,120); }
+    throw new Error(msg);
+  }
+  return r.json();
+}
+
+function buildSyncPayload(){
+  const data = buildBackupPayload();
+  if(data.settings){
+    delete data.settings.gistToken;
+    delete data.settings.gistId;
+  }
+  return data;
+}
+
+async function gistCreate(){
+  const payload = buildSyncPayload();
+  const body = {
+    description: '86 Training & Grind — backup automático',
+    public: false,
+    files: {
+      '86gym-data.json': { content: JSON.stringify(payload, null, 2) }
+    }
+  };
+  const d = await gistFetch('https://api.github.com/gists', {
+    method: 'POST', body: JSON.stringify(body)
+  });
+  const now = Date.now();
+  saveGistConfig({ id: d.id, lastSync: now, enabled: true, localModified: now });
+  return d;
+}
+
+async function gistPush(){
+  const cfg = loadGistConfig();
+  if(!cfg.token || !cfg.id) throw new Error('Sincronização não configurada');
+  const payload = buildSyncPayload();
+  const body = {
+    files: { '86gym-data.json': { content: JSON.stringify(payload, null, 2) } }
+  };
+  await gistFetch(`https://api.github.com/gists/${cfg.id}`, {
+    method: 'PATCH', body: JSON.stringify(body)
+  });
+  saveGistConfig({ lastSync: Date.now() });
+  updateSyncBadge('ok');
+}
+
+async function gistPull(){
+  const cfg = loadGistConfig();
+  if(!cfg.token || !cfg.id) throw new Error('Sincronização não configurada');
+  const d = await gistFetch(`https://api.github.com/gists/${cfg.id}`);
+  const file = d.files['86gym-data.json'] || Object.values(d.files)[0];
+  if(!file) throw new Error('Arquivo não encontrado no Gist');
+  let content = file.content;
+  if(file.truncated && file.raw_url){
+    const r = await fetch(file.raw_url, {headers:{'Accept':'application/vnd.github.raw'}});
+    content = await r.text();
+  }
+  const data = JSON.parse(content);
+  applySyncPayload(data);
+  const now = Date.now();
+  saveGistConfig({ lastSync: now, localModified: now });
+  updateSyncBadge('ok');
+  return data;
+}
+
+function applySyncPayload(data){
+  if(!data) return;
+  _suppressGistSync = true;
+  try{
+    DB.treinos = data.treinos || [];
+    DB.historico = data.historico || [];
+    DB.cardios = data.cardios || [];
+    saveTreinos(); saveHistorico(); saveCardios();
+    if(data.perfil) savePerfil(data.perfil);
+    if(data.customExercises){ CUSTOM_EXERCISES = data.customExercises; saveCustomExercises(CUSTOM_EXERCISES); }
+    if(data.settings){
+      const local = loadSettings();
+      const merged = { ...data.settings };
+      saveSettings(merged);
+    }
+    if(data.checkin) safeSet(KEYS.checkin, JSON.stringify(data.checkin));
+    if(data.badges) saveBadges(data.badges);
+    if(data.hydration) safeSet(KEYS.hydration, JSON.stringify(data.hydration));
+    if(data.photos) savePhotos(data.photos);
+    if(data.challenges) saveChallenges(data.challenges);
+    if(data.goals) saveGoals(data.goals);
+    if(data.annual) saveAnnual(data.annual);
+    else rebuildAnnualRecords();
+  } finally {
+    _suppressGistSync = false;
+  }
+}
+
+async function gistSmartSync(){
+  const cfg = loadGistConfig();
+  if(!cfg.enabled || !cfg.token || !cfg.id) return { status: 'disabled' };
+  try{
+    updateSyncBadge('syncing');
+    const d = await gistFetch(`https://api.github.com/gists/${cfg.id}`);
+    const remoteUpdated = new Date(d.updated_at).getTime();
+    const localMod = cfg.localModified || 0;
+    const lastSync = cfg.lastSync || 0;
+    const TOLERANCE = 5000;
+
+    if(remoteUpdated > lastSync + TOLERANCE && remoteUpdated >= localMod){
+      await gistPull();
+      return { status: 'pulled', remoteUpdated };
+    }
+    if(localMod > lastSync + TOLERANCE && localMod > remoteUpdated){
+      await gistPush();
+      return { status: 'pushed' };
+    }
+    saveGistConfig({ lastSync: Math.max(remoteUpdated, localMod, lastSync) });
+    updateSyncBadge('ok');
+    return { status: 'up-to-date' };
+  }catch(e){
+    updateSyncBadge('err');
+    return { status: 'error', error: e.message };
+  }
+}
+
+function scheduleGistSync(delayMs = 3000){
+  if(_suppressGistSync) return;
+  const cfg = loadGistConfig();
+  if(!cfg.enabled || !cfg.autoSync) return;
+  if(!cfg.token || !cfg.id) return;
+  clearTimeout(_gistSyncTimer);
+  _gistSyncTimer = setTimeout(async ()=>{
+    try{
+      await gistPush();
+    }catch(e){
+      console.warn('[86gym gist push]', e);
+      updateSyncBadge('err');
+    }
+  }, delayMs);
 }
 
 /* ============================================================
@@ -1361,29 +1607,23 @@ function encodeTreino(treino){
       n: treino.nome,
       d: treino.divisoes.map(d=>({
         l: d.letra, nm: d.nome||'',
-        e: d.exercicios.map(ex=>({
-          n: ex.nome, s: ex.series, r: ex.repeticoes, c: ex.carga||0, ds: ex.descanso||60
-        }))
+        e: d.exercicios.map(ex=>({ n: ex.nome, s: ex.series, r: ex.repeticoes, c: ex.carga||0, ds: ex.descanso||60 }))
       }))
     };
     const json = JSON.stringify(clean);
-    const b64 = btoa(unescape(encodeURIComponent(json))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-    return b64;
+    return btoa(unescape(encodeURIComponent(json))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
   }catch(e){ return null; }
 }
 function decodeTreino(str){
   try{
     let b64 = str.replace(/-/g,'+').replace(/_/g,'/');
     while(b64.length % 4) b64 += '=';
-    const json = decodeURIComponent(escape(atob(b64)));
-    const clean = JSON.parse(json);
+    const clean = JSON.parse(decodeURIComponent(escape(atob(b64))));
     return {
       id: uid(),
       nome: clean.n || 'Treino importado',
       divisoes: (clean.d||[]).map(d=>({
-        id: uid(),
-        letra: d.l || 'A',
-        nome: d.nm || '',
+        id: uid(), letra: d.l || 'A', nome: d.nm || '',
         exercicios: (d.e||[]).map(ex=>({
           nome: ex.n, series: ex.s||3, repeticoes: ex.r||10,
           carga: ex.c||0, descanso: ex.ds||60, nota:'', aquecimento:false, grupo:'', dropSet:false, rirAlvo:null
@@ -1398,18 +1638,13 @@ async function shareTreinoLink(treino){
   const url = location.origin + location.pathname + '#import=' + code;
   const texto = `Confira meu treino "${treino.nome}" no 86 Training & Grind:\n${url}`;
   try{
-    if(navigator.share){
-      await navigator.share({title:'Meu treino', text:texto, url});
-      return;
-    }
-    if(navigator.clipboard){
-      await navigator.clipboard.writeText(url);
-      showToast('Link copiado!');
-    } else {
+    if(navigator.share){ await navigator.share({title:'Meu treino', text:texto, url}); return; }
+    if(navigator.clipboard){ await navigator.clipboard.writeText(url); showToast('Link copiado!'); }
+    else {
       const bg = openModal(`
-        <button class="close-x" aria-label="Fechar">&times;</button>
+        <button class="close-x">&times;</button>
         <h3 style="margin-bottom:8px;">Compartilhar treino</h3>
-        <p style="color:var(--muted); font-size:13px; margin-bottom:12px;">Copie o link abaixo:</p>
+        <p style="color:var(--muted); font-size:13px; margin-bottom:12px;">Copie o link:</p>
         <textarea style="min-height:120px; font-family:monospace; font-size:11px;" readonly>${escapeHtml(url)}</textarea>
       `);
       bg.querySelector('.close-x').onclick = ()=> closeModal(bg);
@@ -1417,8 +1652,7 @@ async function shareTreinoLink(treino){
   }catch(e){ showToast('Não foi possível compartilhar'); }
 }
 function checkImportFromURL(){
-  const hash = location.hash;
-  const m = hash.match(/#import=(.+)$/);
+  const m = location.hash.match(/#import=(.+)$/);
   if(!m) return;
   const treino = decodeTreino(m[1]);
   if(!treino){ showToast('Link inválido'); history.replaceState(null,'',location.pathname); return; }
@@ -1507,6 +1741,13 @@ async function requestWakeLock(){
 function releaseWakeLock(){ try{ if(wakeLock){ wakeLock.release(); wakeLock = null; } }catch(e){} }
 document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState==='visible' && (ROUTE.name==='treino_exec' || ROUTE.name==='cardio_exec')) requestWakeLock();
+  if(document.visibilityState==='hidden'){
+    autoBackup(false);
+    const cfg = loadGistConfig();
+    if(cfg.enabled && cfg.autoSync && cfg.token && cfg.id && !_suppressGistSync){
+      gistPush().catch(()=>{});
+    }
+  }
 });
 
 /* ============================================================
@@ -1563,19 +1804,16 @@ function startMediaSession(label){
   if(!('mediaSession' in navigator)) return;
   try{
     navigator.mediaSession.metadata = new MediaMetadata({
-      title: label || 'Treino em andamento',
-      artist: '86 Training & Grind', album: 'Sessão ativa'
+      title: label || 'Treino em andamento', artist: '86 Training & Grind', album: 'Sessão ativa'
     });
     clearInterval(mediaSessionInterval);
     mediaSessionInterval = setInterval(()=>{
       if(!SESSION && !CARDIO_SESSION){ clearInterval(mediaSessionInterval); return; }
-      const t = SESSION
-        ? formatSeconds((Date.now()-SESSION.startTime)/1000)
+      const t = SESSION ? formatSeconds((Date.now()-SESSION.startTime)/1000)
         : CARDIO_SESSION ? formatSeconds((Date.now()-CARDIO_SESSION.startTime)/1000) : '--:--';
       try{
         navigator.mediaSession.metadata = new MediaMetadata({
-          title: label || 'Treino em andamento',
-          artist: 'Tempo: ' + t, album: '86 Training & Grind'
+          title: label || 'Treino em andamento', artist: 'Tempo: ' + t, album: '86 Training & Grind'
         });
       }catch(e){}
     }, 5000);
@@ -1602,7 +1840,7 @@ function buildSvgLineChart(points, opts={}){
   const path = coords.map((c,i)=> (i===0?'M':'L')+c[0].toFixed(1)+','+c[1].toFixed(1)).join(' ');
   const dots = coords.map(c=> `<circle cx="${c[0].toFixed(1)}" cy="${c[1].toFixed(1)}" r="3.5" fill="#C9FF4D"/>`).join('');
   const firstLbl = points[0].x, lastLbl = points[points.length-1].x;
-  return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" aria-label="Gráfico">
+  return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
     <line x1="${pad}" y1="${h-pad}" x2="${w-pad}" y2="${h-pad}" stroke="var(--line)" stroke-width="1"/>
     <path d="${path}" fill="none" stroke="#C9FF4D" stroke-width="2.5"/>
     ${dots}
@@ -1658,8 +1896,7 @@ function isStagnant(name, weeks=3){
   const h = cargaHistoryFor(name);
   if(h.length<weeks) return false;
   const recent = h.slice(-weeks);
-  const first = recent[0].y, last = recent[recent.length-1].y;
-  return last <= first && (Date.now() - h[h.length-1].ts) < 14*86400000;
+  return recent[recent.length-1].y <= recent[0].y && (Date.now() - h[h.length-1].ts) < 14*86400000;
 }
 function suggestProgression(name){
   const last = lastSessionFor(name);
@@ -1802,8 +2039,7 @@ function pushPullBalance(){
     (h.exercicios||[]).forEach(e=>{
       const g = exerciseGroup(e.nome);
       const vol = (Number(e.carga)||0)*(Number(e.setsFeitas)||0)*(Number(e.repsMedias)||0);
-      if(push.has(g)) pv += vol;
-      else if(pull.has(g)) pu += vol;
+      if(push.has(g)) pv += vol; else if(pull.has(g)) pu += vol;
     });
   });
   if(!pv || !pu) return null;
@@ -1868,9 +2104,7 @@ function checkNewBadges(){
   const owned = loadBadges();
   const novos = [];
   BADGES.forEach(b=>{
-    if(!owned[b.id]){
-      try{ if(b.check(stats)){ owned[b.id] = Date.now(); novos.push(b); } }catch(e){}
-    }
+    if(!owned[b.id]){ try{ if(b.check(stats)){ owned[b.id] = Date.now(); novos.push(b); } }catch(e){} }
   });
   if(novos.length){
     saveBadges(owned);
@@ -1929,13 +2163,15 @@ function saveCheckinHoje(c){
   const all = safeJSON(KEYS.checkin, {});
   all[todayKey()] = c;
   safeSet(KEYS.checkin, JSON.stringify(all));
+  touchLocalModified();
+  scheduleGistSync();
 }
 async function askPreCheckin(){
   if(loadCheckinHoje()) return;
   return new Promise(resolve=>{
     const estado = { horaDormir:'', horaAcordar:'', energia:3, estresse:3 };
     const bg = openModal(`
-      <button class="close-x" aria-label="Fechar">&times;</button>
+      <button class="close-x">&times;</button>
       <h3 style="margin-bottom:4px;">Como você está hoje?</h3>
       <p style="color:var(--muted); font-size:13px; margin-bottom:18px;">10 segundos para rastrear padrões.</p>
       <div class="row">
@@ -1946,11 +2182,11 @@ async function askPreCheckin(){
       </div>
       <label class="field">Energia (1-5)</label>
       <div class="checkin-slider" data-slider="energia">
-        ${[1,2,3,4,5].map(n=>`<button type="button" data-val="${n}" class="${n===3?'active':''}" aria-label="Energia ${n}">${n}</button>`).join('')}
+        ${[1,2,3,4,5].map(n=>`<button type="button" data-val="${n}" class="${n===3?'active':''}">${n}</button>`).join('')}
       </div>
       <label class="field">Estresse (1-5)</label>
       <div class="checkin-slider" data-slider="estresse">
-        ${[1,2,3,4,5].map(n=>`<button type="button" data-val="${n}" class="${n===3?'active':''}" aria-label="Estresse ${n}">${n}</button>`).join('')}
+        ${[1,2,3,4,5].map(n=>`<button type="button" data-val="${n}" class="${n===3?'active':''}">${n}</button>`).join('')}
       </div>
       <button class="btn" id="ci-ok" style="margin-top:20px;">Começar treino</button>
     `, {dismissable:false});
@@ -1975,7 +2211,7 @@ async function askPostCheckin(){
       <h3 style="margin-bottom:4px;">Como se sente após o treino?</h3>
       <p style="color:var(--muted); font-size:13px; margin-bottom:18px;">Ajuda a correlacionar com desempenho.</p>
       <div class="checkin-slider" data-slider="humor">
-        ${[1,2,3,4,5].map(n=>`<button type="button" data-val="${n}" class="${n===4?'active':''}" aria-label="Humor ${n}">${n}</button>`).join('')}
+        ${[1,2,3,4,5].map(n=>`<button type="button" data-val="${n}" class="${n===4?'active':''}">${n}</button>`).join('')}
       </div>
       <p style="color:var(--muted); font-size:11px; text-align:center; margin-top:8px;">1 = péssimo · 5 = ótimo</p>
       <button class="btn" id="pc-ok" style="margin-top:20px;">Salvar</button>
@@ -2031,7 +2267,7 @@ function openDemoModal(name){
   const warm = calcWarmup(cargaRef);
   const plates = calcPlates(cargaRef);
   const bg = openModal(`
-    <button class="close-x" aria-label="Fechar">&times;</button>
+    <button class="close-x">&times;</button>
     <h3 style="margin-bottom:2px;">${escapeHtml(name)}</h3>
     <p style="color:var(--muted); font-size:13px; margin-bottom:14px;">${escapeHtml(exerciseGroup(name))}</p>
     <div class="demo-photo-wrap" id="demo-photo-wrap"><span class="loading-txt">Buscando foto…</span></div>
@@ -2097,7 +2333,6 @@ function openDemoModal(name){
   }
   const testBtn = bg.querySelector('#test-1rm');
   if(testBtn) testBtn.addEventListener('click', ()=>{ closeModal(bg); start1RMTest(name); });
-
   const editBtn = bg.querySelector('#edit-custom');
   if(editBtn) editBtn.addEventListener('click', async ()=>{
     closeModal(bg);
@@ -2126,7 +2361,6 @@ function openDemoModal(name){
     saveCustomExercises(CUSTOM_EXERCISES);
     showToast('Exercício excluído'); render();
   });
-
   fetchExercisePhoto(name).then(url=>{
     const wrap = bg.querySelector('#demo-photo-wrap');
     if(!wrap) return;
@@ -2155,7 +2389,7 @@ function start1RMTest(name){
   const baseCarga = best ? best.carga : 0;
   let step = 0;
   const bg = openModal(`
-    <button class="close-x" aria-label="Fechar">&times;</button>
+    <button class="close-x">&times;</button>
     <h3 style="margin-bottom:4px;">Teste de 1RM · ${escapeHtml(name)}</h3>
     <p style="color:var(--muted); font-size:13px; margin-bottom:16px;">Protocolo guiado em 4 etapas.</p>
     <div id="step-container"></div>
@@ -2168,8 +2402,7 @@ function start1RMTest(name){
   function renderStep(){
     const s = steps[step];
     const sugest = baseCarga ? Math.round((baseCarga / (best ? (1 + best.reps/30) : 1)) * s.pct / 2.5) * 2.5 : 0;
-    const container = bg.querySelector('#step-container');
-    container.innerHTML = `
+    bg.querySelector('#step-container').innerHTML = `
       <div style="text-align:center; margin-bottom:16px;">
         <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; font-weight:700;">Etapa ${step+1} de ${steps.length}</div>
         <h3 style="margin-top:8px; font-size:18px;">${escapeHtml(s.titulo)}</h3>
@@ -2213,7 +2446,7 @@ function swapExerciseModal(sessionExIdx){
   const sameGroup = exerciseFlat().filter(e=> e.group === g && e.name !== currentName);
   const allOthers = exerciseFlat().filter(e=> e.name !== currentName);
   const bg = openModal(`
-    <button class="close-x" aria-label="Fechar">&times;</button>
+    <button class="close-x">&times;</button>
     <h3 style="margin-bottom:4px;">Trocar exercício</h3>
     <p style="color:var(--muted); font-size:13px; margin-bottom:14px;">Atual: ${escapeHtml(currentName)} (${escapeHtml(g)})</p>
     <input type="text" id="swap-search" placeholder="Buscar..." autocomplete="off">
@@ -2235,8 +2468,7 @@ function swapExerciseModal(sessionExIdx){
     listEl.querySelectorAll('[data-pick-swap]').forEach(el=>{
       el.addEventListener('click', ()=>{
         const novo = el.dataset.pickSwap;
-        const ex = SESSION.exercicios[sessionExIdx];
-        ex.nome = novo;
+        SESSION.exercicios[sessionExIdx].nome = novo;
         persistSession(); closeModal(bg); render();
         showToast('Exercício trocado!');
       });
@@ -2279,14 +2511,13 @@ function parseWorkoutText(text){
 }
 
 /* ============================================================
-   BACKUP — payload, FS Access API
+   BACKUP (arquivo local)
 ============================================================ */
 function shouldRemindBackup(){
   const s = loadSettings();
   if(!s.backupReminder) return false;
   const last = Number(safeGet(KEYS.lastBackup) || 0);
-  const daysSince = (Date.now() - last) / 86400000;
-  return daysSince >= 7 && DB.historico.length > 0;
+  return (Date.now() - last)/86400000 >= 7 && DB.historico.length > 0;
 }
 function markBackupDone(){ safeSet(KEYS.lastBackup, Date.now().toString()); }
 function canUseFS(){ return 'showSaveFilePicker' in window; }
@@ -2323,21 +2554,16 @@ async function autoBackup(force){
   const handle = await IDB.get('backupFileHandle');
   if(!handle) return false;
   let perm = 'denied';
-  try{ perm = await handle.queryPermission({ mode: 'readwrite' }); }
-  catch(e){ return false; }
+  try{ perm = await handle.queryPermission({ mode: 'readwrite' }); }catch(e){ return false; }
   if(perm !== 'granted'){
     if(force){
-      try{ perm = await handle.requestPermission({ mode: 'readwrite' }); }
-      catch(e){ return false; }
+      try{ perm = await handle.requestPermission({ mode: 'readwrite' }); }catch(e){ return false; }
       if(perm !== 'granted') return false;
-    } else {
-      return false;
-    }
+    } else return false;
   }
   try{
-    const payload = buildBackupPayload();
     const writable = await handle.createWritable();
-    await writable.write(JSON.stringify(payload, null, 2));
+    await writable.write(JSON.stringify(buildBackupPayload(), null, 2));
     await writable.close();
     safeSet(KEYS.lastBackup, Date.now().toString());
     return true;
@@ -2353,11 +2579,6 @@ function scheduleAutoBackup(delayMs = 4000){
   clearTimeout(_autoBackupTimer);
   _autoBackupTimer = setTimeout(()=> autoBackup(false), delayMs);
 }
-document.addEventListener('visibilitychange', ()=>{
-  if(document.visibilityState === 'hidden'){
-    autoBackup(false);
-  }
-});
 
 /* ============================================================
    HOME
@@ -2402,25 +2623,25 @@ function HomeScreen(){
   const challengePct = challenge.meta ? Math.min(100, Math.round(challenge.progresso/challenge.meta*100)) : 0;
   const deload = detectDeload();
   const backupDue = shouldRemindBackup();
+  const gistCfg = loadGistConfig();
+  const gistBadge = !gistCfg.enabled ? '' :
+    (!gistCfg.lastSync ? 'syncing' :
+      ((Date.now() - gistCfg.lastSync) < 120000 ? 'ok' : ''));
 
   return `
-<div class="hero">
-  <div style="position:absolute; top:18px; right:18px; display:flex; gap:8px; z-index:2;">
-    <button id="btn-open-about" aria-label="Sobre o app"
-      style="width:34px; height:34px;
-             border-radius:50%; background:var(--surface-2);
-             border:1px solid var(--line); color:var(--muted);
-             font-weight:800; font-size:14px; cursor:pointer;
-             display:flex; align-items:center; justify-content:center;
-             font-family:'Inter';">i</button>
-    <button id="btn-open-help" aria-label="Como usar o app"
-      style="width:34px; height:34px;
-             border-radius:50%; background:var(--surface-2);
-             border:1px solid var(--line); color:var(--lime);
-             font-weight:800; font-size:15px; cursor:pointer;
-             display:flex; align-items:center; justify-content:center;
-             font-family:'Inter';">?</button>
-  </div>
+  <div class="hero">
+    <div style="position:absolute; top:18px; right:18px; display:flex; gap:8px; z-index:2;">
+      <button id="btn-open-about" aria-label="Sobre o app"
+        style="width:34px; height:34px; border-radius:50%; background:var(--surface-2);
+               border:1px solid var(--line); color:var(--muted);
+               font-weight:800; font-size:14px; cursor:pointer;
+               display:flex; align-items:center; justify-content:center; font-family:'Inter';">i</button>
+      <button id="btn-open-help" aria-label="Como usar o app"
+        style="width:34px; height:34px; border-radius:50%; background:var(--surface-2);
+               border:1px solid var(--line); color:var(--lime);
+               font-weight:800; font-size:15px; cursor:pointer;
+               display:flex; align-items:center; justify-content:center; font-family:'Inter';">?</button>
+    </div>
     <div class="brandmark">
       <div class="plate-badge"><span class="pnum">86</span><span class="pkg">TG</span></div>
       <div class="wordmark-gym">TRAINING &<br><span class="accent">GRIND</span></div>
@@ -2429,7 +2650,7 @@ function HomeScreen(){
     <div class="tagline">Monte divisões, registre cargas, acompanhe padrões. Seu painel completo de treino.</div>
   </div>
 
-  <div class="profile-strip" id="open-profile" role="button" tabindex="0" aria-label="Abrir perfil">
+  <div class="profile-strip" id="open-profile" role="button" tabindex="0">
     <div class="avatar-wrap">
       <div class="avatar-circle">${p.avatar? `<img src="${p.avatar}" alt="Avatar">` : ICONS.person}</div>
       ${reminderDue() ? '<span class="avatar-badge"></span>' : ''}
@@ -2438,13 +2659,22 @@ function HomeScreen(){
     <div class="chev">${ICONS.chevron}</div>
   </div>
 
+  ${gistCfg.enabled ? `
+    <div class="card" style="padding:10px 14px; margin-bottom:14px; display:flex; align-items:center; gap:10px;">
+      <span id="sync-badge" class="sync-badge ${gistBadge}"></span>
+      <span style="font-size:12px; color:var(--muted); flex:1;">
+        Sincronização ativa${gistCfg.lastSync ? ' · ' + new Date(gistCfg.lastSync).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : ''}
+      </span>
+      <button class="btn mini secondary" id="home-sync-now" style="padding:4px 10px;">Sincronizar</button>
+    </div>` : ''}
+
   <div class="stat-grid">
     <div class="stat-box"><div class="v">${DB.historico.length}</div><div class="l">Treinos</div></div>
     <div class="stat-box"><div class="v">${streak}</div><div class="l">Sem. seguidas</div></div>
     <div class="stat-box"><div class="v">${weekCount}/${meta}</div><div class="l">Meta semanal</div></div>
   </div>
 
-  <div class="card challenge-card ${challenge.done?'done':''}" data-go="challenges" style="cursor:pointer;" role="button" tabindex="0" aria-label="Abrir desafios">
+  <div class="card challenge-card ${challenge.done?'done':''}" data-go="challenges" style="cursor:pointer;" role="button" tabindex="0">
     <div class="challenge-head">
       <b>${challenge.done ? '✓ Desafio concluído' : '🎯 Desafio da semana'}</b>
       <span>${challenge.done?'FEITO':challengePct+'%'}</span>
@@ -2467,7 +2697,7 @@ function HomeScreen(){
 
   ${backupDue ? `<div class="insight-alert" style="border-left-color:var(--gold);">
     <b>💾 Hora do backup semanal</b>
-    <small>Você não exporta seus dados há mais de 7 dias. Um clique no Perfil → Exportar evita perder tudo.</small>
+    <small>Você não exporta seus dados há mais de 7 dias. Toque no Perfil → Exportar.</small>
     <div class="row" style="margin-top:10px;">
       <button class="btn mini secondary" data-action="backup-now" style="flex:1;">Exportar agora</button>
       <button class="btn mini ghost" data-action="backup-later" style="flex:1;">Lembrar depois</button>
@@ -2481,7 +2711,7 @@ function HomeScreen(){
 
   ${deload ? `<div class="insight-alert" style="border-left-color:var(--gold);">
     <b>💡 Considere um deload</b>
-    <small>Muitas séries até a falha nas últimas sessões. Uma semana leve ajuda na recuperação.</small>
+    <small>Muitas séries até a falha. Uma semana leve ajuda na recuperação.</small>
   </div>` : ''}
 
   ${imbalance ? `<div class="insight-alert">
@@ -2508,7 +2738,7 @@ function HomeScreen(){
       <b style="color:var(--lime); font-family:var(--font-display); font-size:16px;">${copos}/${metaAgua}</b>
     </div>
     <div class="hydration-row">
-      ${Array.from({length: metaAgua}).map((_,i)=>`<div class="glass ${i<copos?'filled':''}" data-glass="${i+1}" role="button" tabindex="0" aria-label="Copo ${i+1}"></div>`).join('')}
+      ${Array.from({length: metaAgua}).map((_,i)=>`<div class="glass ${i<copos?'filled':''}" data-glass="${i+1}" role="button" tabindex="0"></div>`).join('')}
     </div>
     ${treinouHoje && s.metaAguaSmart ? '<p style="color:var(--blue); font-size:11px; margin-top:8px;">💧 Meta elevada: você treinou hoje</p>' : ''}
   </div>
@@ -2544,9 +2774,7 @@ function renderCalendar(){
   for(let d=1; d<=lastDay; d++){
     const dt = new Date(CAL_YEAR, CAL_MONTH, d);
     const k = todayKey(dt);
-    const isTrained = trained.has(k);
-    const isToday = k === hoje;
-    cells.push(`<div class="cal-day ${isTrained?'trained':''} ${isToday?'today':''}" title="${k}">${d}</div>`);
+    cells.push(`<div class="cal-day ${trained.has(k)?'trained':''} ${k===hoje?'today':''}" title="${k}">${d}</div>`);
   }
   return `
   <div class="card">
@@ -2555,12 +2783,8 @@ function renderCalendar(){
       <b>${monthNames[CAL_MONTH]} ${CAL_YEAR}</b>
       <button class="icon-btn mini" data-cal-next aria-label="Próximo mês" style="transform:rotate(180deg);">${ICONS.back}</button>
     </div>
-    <div class="cal-weekdays">
-      <span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span><span>D</span>
-    </div>
-    <div class="cal-grid">
-      ${cells.map(c=> c || '<div></div>').join('')}
-    </div>
+    <div class="cal-weekdays"><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span><span>D</span></div>
+    <div class="cal-grid">${cells.map(c=> c || '<div></div>').join('')}</div>
   </div>`;
 }
 
@@ -2573,7 +2797,7 @@ function ChallengesScreen(){
   const historico = Object.entries(ch).sort((a,b)=> b[1].ts - a[1].ts);
   return `
   <div class="top-actions">
-    <button class="icon-btn" id="btn-back-home" aria-label="Voltar">${ICONS.back}</button>
+    <button class="icon-btn" id="btn-back-home">${ICONS.back}</button>
     <h1 class="page-title" style="margin:0;">Desafios</h1>
     <div style="width:38px;"></div>
   </div>
@@ -2597,8 +2821,7 @@ function ChallengesScreen(){
           <span style="color:var(--lime);">✓</span>
           <span style="flex:1;">Semana ${wk.split('-')[1]} · ${d.tipo} (${d.meta})</span>
           <span style="color:var(--muted); font-size:11px;">${dateShort(d.ts)}</span>
-        </div>
-      `).join('')}
+        </div>`).join('')}
     </div>
   `:''}`;
 }
@@ -2609,6 +2832,7 @@ function ChallengesScreen(){
 function PerfilScreen(){
   const p = loadPerfil();
   const s = loadSettings();
+  const cfg = loadGistConfig();
   const chartPeso = p.pesos.map(w=>({x:dateShort(w.data), y:Number(w.peso), ts:w.data})).sort((a,b)=>a.ts-b.ts);
   const nextDate = p.pesos.length ? new Date(p.pesos[p.pesos.length-1].data + (p.periodicidadeDias||14)*86400000) : null;
   const medidasDefs = [['braco','Braço (cm)'],['peito','Peito (cm)'],['cintura','Cintura (cm)'],['quadril','Quadril (cm)'],['coxa','Coxa (cm)']];
@@ -2631,6 +2855,56 @@ function PerfilScreen(){
       <input type="file" accept="image/*" id="avatar-file-input" style="display:none;">
       ${p.avatar? `<button class="btn small ghost" id="btn-remove-avatar" style="margin-left:6px; width:auto;">Remover</button>`:''}
     </div>
+  </div>
+
+  <!-- ======= SINCRONIZAÇÃO ======= -->
+  <div class="card" style="${cfg.enabled ? 'border-color:var(--lime);' : ''}">
+    <h3 style="font-size:15px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+      ${ICONS.cloud} Sincronização
+      ${cfg.enabled ? '<span class="sync-badge ok" style="margin-left:auto;"></span>' : ''}
+    </h3>
+    <p style="color:var(--muted); font-size:12.5px; margin:0 0 12px 0; line-height:1.5;">
+      Sincroniza automaticamente entre celular e computador usando um Gist privado do GitHub.
+    </p>
+
+    ${!cfg.enabled ? `
+      <div style="background:var(--surface-2); padding:12px; border-radius:10px; margin-bottom:12px;">
+        <p style="font-size:12px; color:var(--muted); margin:0; line-height:1.55;">
+          <b style="color:var(--lime);">Como ativar:</b><br>
+          1. Vá em <a href="https://github.com/settings/tokens" target="_blank" rel="noopener" style="color:var(--blue);">github.com/settings/tokens</a><br>
+          2. Gere um token classic com permissão <code style="background:var(--surface); padding:1px 4px; border-radius:4px;">gist</code><br>
+          3. Cole aqui abaixo e clique em "Criar novo Gist"
+        </p>
+      </div>
+
+      <label class="field" style="margin-top:0;">Token do GitHub</label>
+      <input type="password" id="gist-token-input" placeholder="ghp_..." value="${escapeHtml(cfg.token)}" autocomplete="off">
+
+      <div class="row" style="margin-top:12px;">
+        <button class="btn" id="gist-connect-new" style="flex:1;">Criar novo Gist</button>
+      </div>
+      <button class="btn secondary" id="gist-connect-existing" style="margin-top:8px;">Usar Gist existente</button>
+    ` : `
+      <div class="settings-row">
+        <div><div class="lbl">Sincronização ativa</div>
+          <div class="sub">${cfg.lastSync ? 'Última: ' + new Date(cfg.lastSync).toLocaleString('pt-BR') : 'Nunca sincronizado'}</div>
+        </div>
+        <label class="switch"><input type="checkbox" id="gist-toggle" ${cfg.enabled?'checked':''}><span class="slider"></span></label>
+      </div>
+      <div class="settings-row">
+        <div><div class="lbl">Sincronização automática</div>
+          <div class="sub">Envia mudanças sozinho após 3s</div>
+        </div>
+        <label class="switch"><input type="checkbox" id="gist-auto-toggle" ${cfg.autoSync?'checked':''}><span class="slider"></span></label>
+      </div>
+      <div style="background:var(--surface-2); padding:10px 12px; border-radius:10px; margin-top:12px; font-size:11.5px; color:var(--muted); word-break:break-all; font-family:monospace;">
+        <b style="color:var(--lime); font-family:'Inter'; font-style:normal;">Gist ID:</b> ${escapeHtml(cfg.id)}
+      </div>
+      <div class="row" style="margin-top:12px;">
+        <button class="btn secondary" id="gist-sync-now" style="flex:1;">${ICONS.refresh} Sincronizar agora</button>
+      </div>
+      <button class="btn danger" id="gist-disconnect" style="margin-top:8px;">Desconectar</button>
+    `}
   </div>
 
   <div class="card">
@@ -2664,7 +2938,7 @@ function PerfilScreen(){
         <div class="big">${tmb.alvo} kcal</div>
         <div class="small">Alvo para ${p.objetivo==='cutting'?'emagrecimento':p.objetivo==='bulking'?'ganho':'manutenção'}</div>
       </div>
-    ` : '<p style="color:var(--muted); font-size:12px; margin-top:10px;">Preencha idade, altura e registre pelo menos um peso.</p>'}
+    ` : '<p style="color:var(--muted); font-size:12px; margin-top:10px;">Preencha idade, altura e registre peso.</p>'}
   </div>
 
   <div class="card">
@@ -2694,43 +2968,39 @@ function PerfilScreen(){
     <h3 style="font-size:15px; margin-bottom:8px;">Preferências</h3>
     <div class="settings-row">
       <div><div class="lbl">Tema claro</div><div class="sub">Alterna manualmente</div></div>
-      <label class="switch"><input type="checkbox" id="chk-theme" ${s.theme==='light'?'checked':''} ${s.themeAuto?'disabled':''} aria-label="Tema claro"><span class="slider"></span></label>
+      <label class="switch"><input type="checkbox" id="chk-theme" ${s.theme==='light'?'checked':''} ${s.themeAuto?'disabled':''}><span class="slider"></span></label>
     </div>
     <div class="settings-row">
       <div><div class="lbl">Tema automático</div><div class="sub">Escuro 20h-7h</div></div>
-      <label class="switch"><input type="checkbox" id="chk-theme-auto" ${s.themeAuto?'checked':''} aria-label="Tema automático"><span class="slider"></span></label>
+      <label class="switch"><input type="checkbox" id="chk-theme-auto" ${s.themeAuto?'checked':''}><span class="slider"></span></label>
     </div>
     <div class="settings-row">
       <div><div class="lbl">Som no descanso</div><div class="sub">Bipe</div></div>
-      <label class="switch"><input type="checkbox" id="chk-sound" ${s.sound?'checked':''} aria-label="Som"><span class="slider"></span></label>
+      <label class="switch"><input type="checkbox" id="chk-sound" ${s.sound?'checked':''}><span class="slider"></span></label>
     </div>
     <div class="settings-row">
       <div><div class="lbl">Vibrar</div><div class="sub">Haptics em marcos</div></div>
-      <label class="switch"><input type="checkbox" id="chk-vibrate" ${s.vibrate?'checked':''} aria-label="Vibrar"><span class="slider"></span></label>
+      <label class="switch"><input type="checkbox" id="chk-vibrate" ${s.vibrate?'checked':''}><span class="slider"></span></label>
     </div>
     <div class="settings-row">
       <div><div class="lbl">Pausa automática</div><div class="sub">Após 10min inativo</div></div>
-      <label class="switch"><input type="checkbox" id="chk-pausa" ${s.pausaAuto?'checked':''} aria-label="Pausa automática"><span class="slider"></span></label>
+      <label class="switch"><input type="checkbox" id="chk-pausa" ${s.pausaAuto?'checked':''}><span class="slider"></span></label>
     </div>
     <div class="settings-row">
       <div><div class="lbl">Aquecimento guiado</div><div class="sub">Antes de cada treino</div></div>
-      <label class="switch"><input type="checkbox" id="chk-warmup" ${s.warmupAtivado?'checked':''} aria-label="Aquecimento"><span class="slider"></span></label>
+      <label class="switch"><input type="checkbox" id="chk-warmup" ${s.warmupAtivado?'checked':''}><span class="slider"></span></label>
     </div>
     <div class="settings-row">
       <div><div class="lbl">Modo foco</div><div class="sub">Minimiza outros exercícios</div></div>
-      <label class="switch"><input type="checkbox" id="chk-focus" ${s.focusMode?'checked':''} aria-label="Modo foco"><span class="slider"></span></label>
+      <label class="switch"><input type="checkbox" id="chk-focus" ${s.focusMode?'checked':''}><span class="slider"></span></label>
     </div>
     <div class="settings-row">
       <div><div class="lbl">Hidratação inteligente</div><div class="sub">Dobra meta em dias de treino</div></div>
-      <label class="switch"><input type="checkbox" id="chk-water-smart" ${s.metaAguaSmart?'checked':''} aria-label="Hidratação inteligente"><span class="slider"></span></label>
-    </div>
-    <div class="settings-row">
-      <div><div class="lbl">Lembrete de backup</div><div class="sub">A cada 7 dias</div></div>
-      <label class="switch"><input type="checkbox" id="chk-backup-reminder" ${s.backupReminder?'checked':''} aria-label="Lembrete backup"><span class="slider"></span></label>
+      <label class="switch"><input type="checkbox" id="chk-water-smart" ${s.metaAguaSmart?'checked':''}><span class="slider"></span></label>
     </div>
     <div class="settings-row">
       <div><div class="lbl">Notificações</div><div class="sub">Lembretes do app</div></div>
-      <label class="switch"><input type="checkbox" id="chk-notif" ${s.notif?'checked':''} aria-label="Notificações"><span class="slider"></span></label>
+      <label class="switch"><input type="checkbox" id="chk-notif" ${s.notif?'checked':''}><span class="slider"></span></label>
     </div>
   </div>
 
@@ -2756,7 +3026,7 @@ function PerfilScreen(){
         <div class="hist-weight-row">
           <span>${dateShort(w.data)}</span>
           <span style="flex:1; text-align:center;"><b>${w.peso} kg</b></span>
-          <button class="icon-btn mini" data-del-peso="${w.id}" aria-label="Excluir peso">${ICONS.trash}</button>
+          <button class="icon-btn mini" data-del-peso="${w.id}">${ICONS.trash}</button>
         </div>`).join('')}
   </div>
 
@@ -2791,29 +3061,24 @@ function PerfilScreen(){
         <div class="photo-item">
           <img src="${f.dataUrl}" alt="Foto ${dateShort(f.data)}">
           <div class="date-lbl">${dateShort(f.data)}</div>
-          <button class="icon-btn mini" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);" data-del-foto="${f.id}" aria-label="Excluir foto">${ICONS.trash}</button>
+          <button class="icon-btn mini" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);" data-del-foto="${f.id}">${ICONS.trash}</button>
         </div>`).join('')}
     </div>`:''}
   </div>
 
   <div class="card">
-    <h3 style="font-size:15px; margin-bottom:8px;">Backup</h3>
+    <h3 style="font-size:15px; margin-bottom:8px;">Backup local</h3>
     <p style="color:var(--muted); font-size:12px; margin:0 0 10px 0;">${lastBackup ? 'Último: '+dateShort(lastBackup) : 'Nunca feito'}</p>
-
     <div class="settings-row">
-      <div><div class="lbl">Backup automático silencioso</div><div class="sub">Salva no mesmo arquivo a cada mudança</div></div>
-      <label class="switch"><input type="checkbox" id="chk-auto-backup" ${s.autoBackup?'checked':''} aria-label="Backup automático"><span class="slider"></span></label>
+      <div><div class="lbl">Backup em arquivo local</div><div class="sub">Salva JSON na pasta que você escolher</div></div>
+      <label class="switch"><input type="checkbox" id="chk-auto-backup" ${s.autoBackup?'checked':''}><span class="slider"></span></label>
     </div>
-
     <div id="backup-file-status" style="margin-top:12px; padding:10px; background:var(--surface-2); border-radius:10px;"></div>
-
     <div class="row" style="margin-top:12px;">
       <button class="btn secondary" id="btn-pick-backup" style="flex:1;">${ICONS.folder} Escolher arquivo</button>
       <button class="btn" id="btn-backup-now" style="flex:1;">Salvar agora</button>
     </div>
-
     <div class="divider"></div>
-
     <div class="row">
       <button class="btn secondary" id="btn-export" style="flex:1;">${ICONS.download} Exportar</button>
       <button class="btn secondary" id="btn-import" style="flex:1;">${ICONS.upload} Importar</button>
@@ -2836,9 +3101,9 @@ function openComparePhotos(){
   if(fotos.length < 2){ showToast('Adicione 2+ fotos'); return; }
   let idxA = 0, idxB = fotos.length - 1;
   const bg = openModal(`
-    <button class="close-x" aria-label="Fechar">&times;</button>
+    <button class="close-x">&times;</button>
     <h3 style="margin-bottom:4px;">Comparar progresso</h3>
-    <p style="color:var(--muted); font-size:13px; margin-bottom:14px;">Arraste a linha pra comparar as duas fotos.</p>
+    <p style="color:var(--muted); font-size:13px; margin-bottom:14px;">Arraste a linha pra comparar.</p>
     <div class="compare-wrap" id="cmp-wrap">
       <img id="cmp-imgA" src="${fotos[idxA].dataUrl}" alt="Antes">
       <div class="compare-overlay" id="cmp-overlay"><img id="cmp-imgB" src="${fotos[idxB].dataUrl}" alt="Depois"></div>
@@ -2849,16 +3114,11 @@ function openComparePhotos(){
       <span id="cmp-lblB">${dateLong(fotos[idxB].data)}</span>
     </div>
     <div class="row" style="margin-top:12px;">
-      <select id="cmp-selA" style="flex:1;">
-        ${fotos.map((f,i)=>`<option value="${i}" ${i===idxA?'selected':''}>${dateShort(f.data)}</option>`).join('')}
-      </select>
-      <select id="cmp-selB" style="flex:1;">
-        ${fotos.map((f,i)=>`<option value="${i}" ${i===idxB?'selected':''}>${dateShort(f.data)}</option>`).join('')}
-      </select>
+      <select id="cmp-selA" style="flex:1;">${fotos.map((f,i)=>`<option value="${i}" ${i===idxA?'selected':''}>${dateShort(f.data)}</option>`).join('')}</select>
+      <select id="cmp-selB" style="flex:1;">${fotos.map((f,i)=>`<option value="${i}" ${i===idxB?'selected':''}>${dateShort(f.data)}</option>`).join('')}</select>
     </div>
   `);
   bg.querySelector('.close-x').onclick = ()=> closeModal(bg);
-
   const wrap = bg.querySelector('#cmp-wrap');
   const overlay = bg.querySelector('#cmp-overlay');
   const handle = bg.querySelector('#cmp-handle');
@@ -2868,13 +3128,9 @@ function openComparePhotos(){
   const lblB = bg.querySelector('#cmp-lblB');
   const selA = bg.querySelector('#cmp-selA');
   const selB = bg.querySelector('#cmp-selB');
-
   function updateWidths(){
     const rect = wrap.getBoundingClientRect();
-    if(rect.width){
-      imgB.style.width = rect.width + 'px';
-      imgB.style.height = 'auto';
-    }
+    if(rect.width){ imgB.style.width = rect.width + 'px'; imgB.style.height = 'auto'; }
   }
   function setPos(pct){
     pct = Math.max(0, Math.min(100, pct));
@@ -2882,40 +3138,21 @@ function openComparePhotos(){
     handle.style.left = pct + '%';
   }
   function updatePhotos(){
-    idxA = Number(selA.value);
-    idxB = Number(selB.value);
-    imgA.src = fotos[idxA].dataUrl;
-    imgB.src = fotos[idxB].dataUrl;
-    lblA.textContent = dateLong(fotos[idxA].data);
-    lblB.textContent = dateLong(fotos[idxB].data);
+    idxA = Number(selA.value); idxB = Number(selB.value);
+    imgA.src = fotos[idxA].dataUrl; imgB.src = fotos[idxB].dataUrl;
+    lblA.textContent = dateLong(fotos[idxA].data); lblB.textContent = dateLong(fotos[idxB].data);
     updateWidths();
   }
-  selA.onchange = updatePhotos;
-  selB.onchange = updatePhotos;
+  selA.onchange = updatePhotos; selB.onchange = updatePhotos;
   setTimeout(updateWidths, 100);
-
   let dragging = false;
-  const startDrag = ()=> dragging = true;
-  const endDrag = ()=> dragging = false;
-  handle.addEventListener('mousedown', startDrag);
-  handle.addEventListener('touchstart', startDrag, {passive:true});
-  document.addEventListener('mousemove', (e)=>{
-    if(!dragging) return;
-    const rect = wrap.getBoundingClientRect();
-    setPos((e.clientX - rect.left) / rect.width * 100);
-  });
-  document.addEventListener('touchmove', (e)=>{
-    if(!dragging) return;
-    const rect = wrap.getBoundingClientRect();
-    setPos((e.touches[0].clientX - rect.left) / rect.width * 100);
-  }, {passive:true});
-  document.addEventListener('mouseup', endDrag);
-  document.addEventListener('touchend', endDrag);
-  wrap.addEventListener('click', (e)=>{
-    if(e.target === handle) return;
-    const rect = wrap.getBoundingClientRect();
-    setPos((e.clientX - rect.left) / rect.width * 100);
-  });
+  handle.addEventListener('mousedown', ()=> dragging = true);
+  handle.addEventListener('touchstart', ()=> dragging = true, {passive:true});
+  document.addEventListener('mousemove', e=>{ if(!dragging) return; const rect = wrap.getBoundingClientRect(); setPos((e.clientX - rect.left) / rect.width * 100); });
+  document.addEventListener('touchmove', e=>{ if(!dragging) return; const rect = wrap.getBoundingClientRect(); setPos((e.touches[0].clientX - rect.left) / rect.width * 100); }, {passive:true});
+  document.addEventListener('mouseup', ()=> dragging = false);
+  document.addEventListener('touchend', ()=> dragging = false);
+  wrap.addEventListener('click', e=>{ if(e.target === handle) return; const rect = wrap.getBoundingClientRect(); setPos((e.clientX - rect.left) / rect.width * 100); });
   setPos(50);
 }
 
@@ -2930,7 +3167,6 @@ function InsightsScreen(){
   const goals = loadGoals();
   const metaVolPct = goals.volumeMes ? Math.min(100, Math.round(volMes/goals.volumeMes*100)) : 0;
   const hm = buildHeatmapData();
-
   const hoje = new Date(); hoje.setHours(0,0,0,0);
   const dayOfWeek = (hoje.getDay()+6)%7;
   const inicioHeatmap = new Date(hoje);
@@ -2942,14 +3178,12 @@ function InsightsScreen(){
       const dt = new Date(inicioHeatmap);
       dt.setDate(dt.getDate() + w*7 + d);
       if(dt > hoje){ cells.push({empty:true}); continue; }
-      const k = todayKey(dt);
-      const v = hm[k]||0;
+      const k = todayKey(dt); const v = hm[k]||0;
       let level = 0;
       if(v>0) level = v/maxVol > 0.75 ? 4 : v/maxVol > 0.5 ? 3 : v/maxVol > 0.25 ? 2 : 1;
       cells.push({level, date: dt, vol:v});
     }
   }
-
   const gruposBase = ['Peito','Costas','Ombros','Bíceps','Tríceps','Pernas','Glúteos','Abdômen','Panturrilha'];
   const grpInfo = gruposBase.map(g=>{
     const last = lastTrainingOfGroup(g);
@@ -2957,7 +3191,6 @@ function InsightsScreen(){
     const dias = last ? Math.floor((Date.now()-last)/86400000) : null;
     return {g, last, dias, freq};
   });
-
   const grpVol = {};
   const monthAgo = Date.now() - 30*86400000;
   DB.historico.filter(h=> h.data>=monthAgo && h.tipo!=='cardio').forEach(h=>{
@@ -2969,16 +3202,13 @@ function InsightsScreen(){
   });
   const grpSorted = Object.entries(grpVol).sort((a,b)=>b[1]-a[1]);
   const maxGrp = grpSorted.length ? grpSorted[0][1] : 0;
-
   const nomes = [...new Set(DB.historico.filter(h=>h.tipo!=='cardio').flatMap(h=> (h.exercicios||[]).map(e=>e.nome)).filter(Boolean))];
   const prs = nomes.map(n=> ({n, b:bestSetFor(n)})).filter(x=>x.b).sort((a,b)=> b.b.oneRm - a.b.oneRm).slice(0, 5);
   const estagnados = nomes.filter(n=> isStagnant(n)).slice(0, 5);
-
   const checkins = safeJSON(KEYS.checkin, {});
   const correl = [];
   DB.historico.filter(h=>h.tipo!=='cardio').forEach(h=>{
-    const k = todayKey(h.data);
-    const c = checkins[k];
+    const k = todayKey(h.data); const c = checkins[k];
     if(!c || !c.energia || !c.horaDormir || !c.horaAcordar) return;
     const [hd, md] = c.horaDormir.split(':').map(Number);
     const [ha, ma] = c.horaAcordar.split(':').map(Number);
@@ -2995,21 +3225,12 @@ function InsightsScreen(){
     const volMal = mal.length ? mal.reduce((a,c)=>a+c.vol,0)/mal.length : 0;
     return { mediaSono, mediaEnergia, volBem, volMal, n: correl.length };
   })() : null;
-
-  const humorCorrel = correl.filter(c=> c.humor).length >= 3 ? (()=>{
-    const bem = correl.filter(c=> c.humor >= 4);
-    const mal = correl.filter(c=> c.humor <= 2);
-    const volBem = bem.length ? bem.reduce((a,c)=>a+c.vol,0)/bem.length : 0;
-    const volMal = mal.length ? mal.reduce((a,c)=>a+c.vol,0)/mal.length : 0;
-    return { volBem, volMal, n: correl.length };
-  })() : null;
-
   const anoAtual = new Date().getFullYear();
   const anual = loadAnnual()[anoAtual] || {};
 
   return `
   <div class="top-actions">
-    <button class="icon-btn" id="btn-back-home" aria-label="Voltar">${ICONS.back}</button>
+    <button class="icon-btn" id="btn-back-home">${ICONS.back}</button>
     <h1 class="page-title" style="margin:0;">Insights</h1>
     <div style="width:38px;"></div>
   </div>
@@ -3035,9 +3256,7 @@ function InsightsScreen(){
   <div class="card">
     <h3 style="font-size:15px; margin-bottom:10px;">Atividade do ano</h3>
     <div class="heatmap-wrap">
-      <div class="heatmap">
-        ${cells.map(c=> c.empty ? '<div class="hm-cell" style="visibility:hidden;"></div>' : `<div class="hm-cell l${c.level}" title="${todayKey(c.date)}: ${c.vol.toFixed(0)}kg"></div>`).join('')}
-      </div>
+      <div class="heatmap">${cells.map(c=> c.empty ? '<div class="hm-cell" style="visibility:hidden;"></div>' : `<div class="hm-cell l${c.level}" title="${todayKey(c.date)}: ${c.vol.toFixed(0)}kg"></div>`).join('')}</div>
     </div>
     <div class="hm-legend"><span>Menos</span><div class="hm-cell"></div><div class="hm-cell l1"></div><div class="hm-cell l2"></div><div class="hm-cell l3"></div><div class="hm-cell l4"></div><span>Mais</span></div>
   </div>
@@ -3093,14 +3312,7 @@ function InsightsScreen(){
       ${correlInsight.volBem && correlInsight.volMal ? `
         <div class="hist-weight-row"><span>Volume (energia ≥4)</span><b style="color:var(--lime);">${Math.round(correlInsight.volBem).toLocaleString('pt-BR')} kg</b></div>
         <div class="hist-weight-row"><span>Volume (energia ≤2)</span><b style="color:var(--orange);">${Math.round(correlInsight.volMal).toLocaleString('pt-BR')} kg</b></div>
-        ${correlInsight.volBem > correlInsight.volMal*1.15 ? '<p style="color:var(--lime); font-size:12px; margin-top:10px;">✓ Energia alta = ~'+Math.round((correlInsight.volBem/correlInsight.volMal-1)*100)+'% mais volume.</p>' : ''}
       `:''}
-    </div>`:''}
-  ${humorCorrel && humorCorrel.volBem ? `
-    <div class="card">
-      <h3 style="font-size:15px; margin-bottom:8px;">😊 Humor pós-treino</h3>
-      <div class="hist-weight-row"><span>Volume (humor ≥4)</span><b style="color:var(--lime);">${Math.round(humorCorrel.volBem).toLocaleString('pt-BR')} kg</b></div>
-      ${humorCorrel.volMal ? `<div class="hist-weight-row"><span>Volume (humor ≤2)</span><b style="color:var(--orange);">${Math.round(humorCorrel.volMal).toLocaleString('pt-BR')} kg</b></div>` : ''}
     </div>`:''}
   <div class="card">
     <h3 style="font-size:15px; margin-bottom:10px;">${ICONS.star} Top PRs (1RM)</h3>
@@ -3122,7 +3334,7 @@ function BadgesScreen(){
   const unlockedCount = Object.keys(owned).length;
   return `
   <div class="top-actions">
-    <button class="icon-btn" id="btn-back-home" aria-label="Voltar">${ICONS.back}</button>
+    <button class="icon-btn" id="btn-back-home">${ICONS.back}</button>
     <h1 class="page-title" style="margin:0;">Conquistas</h1>
     <div style="width:38px;"></div>
   </div>
@@ -3160,9 +3372,9 @@ function TreinosListScreen(){
         <div class="row-top">
           <h3>${escapeHtml(t.nome)}</h3>
           <div style="display:flex; gap:6px;">
-            <button class="icon-btn mini" data-share-treino="${t.id}" title="Compartilhar link" aria-label="Compartilhar">${ICONS.link}</button>
-            <button class="icon-btn mini" data-dup-treino="${t.id}" title="Duplicar" aria-label="Duplicar">${ICONS.copy}</button>
-            <button class="icon-btn mini" data-del-treino="${t.id}" aria-label="Excluir">${ICONS.trash}</button>
+            <button class="icon-btn mini" data-share-treino="${t.id}" title="Compartilhar">${ICONS.link}</button>
+            <button class="icon-btn mini" data-dup-treino="${t.id}" title="Duplicar">${ICONS.copy}</button>
+            <button class="icon-btn mini" data-del-treino="${t.id}">${ICONS.trash}</button>
           </div>
         </div>
         <small>${t.divisoes.length} divisão(ões) · ${t.divisoes.reduce((a,d)=>a+d.exercicios.length,0)} exercícios</small>
@@ -3200,16 +3412,16 @@ function TreinoFormScreen(id){
   const divHtml = DRAFT.divisoes.map((d, di)=>`
     <div class="division-block" data-div-idx="${di}">
       <div class="division-head">
-        <input type="text" maxlength="2" value="${escapeHtml(d.letra)}" data-field="letra" data-div-idx="${di}" placeholder="A" aria-label="Letra da divisão">
-        <button class="icon-btn mini" data-dup-div="${di}" title="Duplicar divisão" aria-label="Duplicar">${ICONS.copy}</button>
-        <button class="icon-btn mini" data-del-div="${di}" aria-label="Excluir">${ICONS.trash}</button>
+        <input type="text" maxlength="2" value="${escapeHtml(d.letra)}" data-field="letra" data-div-idx="${di}" placeholder="A">
+        <button class="icon-btn mini" data-dup-div="${di}" title="Duplicar">${ICONS.copy}</button>
+        <button class="icon-btn mini" data-del-div="${di}">${ICONS.trash}</button>
       </div>
       ${d.exercicios.map((ex, ei)=> ExerciseBlockHtml(di, ei, ex)).join('')}
       <button class="btn ghost" data-add-ex="${di}" style="margin-top:12px;">${ICONS.plus} Adicionar exercício</button>
     </div>`).join('');
   return `
     <div class="top-actions">
-      <button class="icon-btn" id="btn-back-treinos" aria-label="Voltar">${ICONS.back}</button>
+      <button class="icon-btn" id="btn-back-treinos">${ICONS.back}</button>
       <h1 class="page-title" style="margin:0;">${id? 'Editar':'Novo'} treino</h1>
       <div style="width:38px;"></div>
     </div>
@@ -3224,11 +3436,11 @@ function TreinoFormScreen(id){
 function ExerciseBlockHtml(di, ei, ex){
   const last = ex.nome ? lastRecordFor(ex.nome) : null;
   return `
-  <div class="ex-block" data-di="${di}" data-ei="${ei}" data-idx="${di}_${ei}">
-    <button class="remove-x" data-del-ex="${di}:${ei}" aria-label="Remover">✕</button>
+  <div class="ex-block" data-di="${di}" data-ei="${ei}">
+    <button class="remove-x" data-del-ex="${di}:${ei}">✕</button>
     <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
-      <button class="icon-btn mini" data-move-ex="${di}:${ei}:-1" ${ei===0?'disabled':''} aria-label="Subir">${ICONS.arrowUp}</button>
-      <button class="icon-btn mini" data-move-ex="${di}:${ei}:1" aria-label="Descer">${ICONS.arrowDown}</button>
+      <button class="icon-btn mini" data-move-ex="${di}:${ei}:-1" ${ei===0?'disabled':''}>${ICONS.arrowUp}</button>
+      <button class="icon-btn mini" data-move-ex="${di}:${ei}:1">${ICONS.arrowDown}</button>
       <span style="font-size:11px; color:var(--muted); font-weight:600;">#${ei+1}</span>
     </div>
     <div class="ex-head">
@@ -3274,12 +3486,12 @@ function ExerciciosScreen(){
       <div class="ex-row">
         <span>${escapeHtml(name)}</span>
         ${isCustomExercise(name) ? `<span style="font-size:10px; color:var(--lime); font-weight:700; margin-right:6px;">CUSTOM</span>`:''}
-        <div class="help-icon" data-help="${escapeHtml(name)}" role="button" tabindex="0" aria-label="Ver ${escapeHtml(name)}">?</div>
+        <div class="help-icon" data-help="${escapeHtml(name)}" role="button" tabindex="0">?</div>
       </div>
     `).join('')}`).join('');
   return `
     <div class="top-actions"><h1 class="page-title" style="margin:0;">Exercícios</h1></div>
-    <p class="page-sub">Toque no "?" para foto, vídeo, PR e sugestões. Personalizados podem ser editados/excluídos.</p>
+    <p class="page-sub">Toque no "?" para foto, vídeo, PR e sugestões.</p>
     <button class="btn secondary" id="btn-novo-exercicio" style="margin-bottom:18px;">${ICONS.plus} Criar exercício</button>
     ${groupsHtml}`;
 }
@@ -3307,7 +3519,7 @@ function TreinarListScreen(){
       <button class="btn secondary" id="btn-checkin">Preencher agora</button>
     </div>`:'';
   if(!treinos.length){
-    return `<h1 class="page-title">Treinar</h1>${resumeHtml}<div class="empty">${ICONS.empty}<div>Nenhum treino cadastrado.<br>Crie na aba Treinos.</div></div>`;
+    return `<h1 class="page-title">Treinar</h1>${resumeHtml}<div class="empty">${ICONS.empty}<div>Nenhum treino cadastrado.</div></div>`;
   }
   return `
     <h1 class="page-title">Treinar</h1>
@@ -3360,12 +3572,8 @@ function persistSession(){
     if(SESSION && validateSession(SESSION)){
       const copy = JSON.parse(JSON.stringify(SESSION, (k,v)=> k === 'interval' ? null : v));
       safeSet(KEYS.session, JSON.stringify(copy));
-    } else {
-      safeSet(KEYS.session, 'null');
-    }
-  }catch(e){
-    console.warn('[86gym] persistSession falhou', e);
-  }
+    } else safeSet(KEYS.session, 'null');
+  }catch(e){ console.warn('[86gym] persistSession falhou', e); }
 }
 function loadPersistedSession(){
   const s = safeJSON(KEYS.session, null);
@@ -3385,10 +3593,7 @@ function ExecucaoScreen(treinoId, divisaoId){
     startMediaSession(treino.nome + ' · ' + divisao.letra);
     focusedExIdx = null;
   }
-  if(SESSION.timer && SESSION.timer.interval){
-    clearInterval(SESSION.timer.interval);
-    SESSION.timer.interval = null;
-  }
+  if(SESSION.timer && SESSION.timer.interval){ clearInterval(SESSION.timer.interval); SESSION.timer.interval = null; }
   const s = loadSettings();
   const focusMode = s.focusMode && focusedExIdx !== null;
   const allDone = SESSION.exercicios.every(ex=> ex.sets.every(st=>st.done));
@@ -3400,7 +3605,6 @@ function ExecucaoScreen(treinoId, divisaoId){
       </div>
       <div class="t-num" id="timer-num">${formatSeconds(SESSION.timer.secondsLeft)}</div>
     </div>`:'';
-
   const exHtml = SESSION.exercicios.map((ex, exi)=>{
     let hide = false;
     if(focusMode && exi !== focusedExIdx){
@@ -3409,10 +3613,10 @@ function ExecucaoScreen(treinoId, divisaoId){
     }
     if(hide){
       const doneCount = ex.sets.filter(x=>x.done).length;
-      return `<div class="exec-ex-card" data-exi="${exi}" style="opacity:0.5; padding:10px 14px; cursor:pointer;" data-focus-toggle="${exi}">
+      return `<div class="exec-ex-card" style="opacity:0.5; padding:10px 14px; cursor:pointer;" data-focus-toggle="${exi}">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <span style="font-size:13px;">${escapeHtml(ex.nome)}</span>
-          <span style="font-size:11px; color:var(--muted);">${doneCount}/${ex.sets.length} séries</span>
+          <span style="font-size:11px; color:var(--muted);">${doneCount}/${ex.sets.length}</span>
         </div>
       </div>`;
     }
@@ -3432,13 +3636,12 @@ function ExecucaoScreen(treinoId, divisaoId){
       const prevDone = si===0 ? true : ex.sets[si-1].done;
       const lockedByTimer = SESSION.timer.running && SESSION.timer.exIdx===exi;
       const disabled = (!prevDone) || st.done || lockedByTimer;
-      const rowStyle = st.warmup ? 'color:var(--muted);' : '';
       return `
-      <tr style="${rowStyle}">
+      <tr style="${st.warmup ? 'color:var(--muted);' : ''}">
         <td style="white-space:nowrap;">
           ${st.warmup? 'A' : (ex.sets.slice(0,si).filter(x=>!x.warmup).length + 1)}
-          <button class="icon-btn mini" style="margin-left:2px; padding:0; width:20px; height:20px;" data-copy-set="${exi}:${si}" title="Copiar valores">${ICONS.copy}</button>
-          ${!st.warmup? `<button class="icon-btn mini" style="padding:0; width:20px; height:20px;" data-del-set="${exi}:${si}" aria-label="Excluir">✕</button>`:''}
+          <button class="icon-btn mini" style="margin-left:2px; padding:0; width:20px; height:20px;" data-copy-set="${exi}:${si}">${ICONS.copy}</button>
+          ${!st.warmup? `<button class="icon-btn mini" style="padding:0; width:20px; height:20px;" data-del-set="${exi}:${si}">✕</button>`:''}
         </td>
         <td><input type="number" inputmode="numeric" data-set-field="repeticoes" data-exi="${exi}" data-si="${si}" value="${st.repeticoes}" ${st.done?'disabled':''}></td>
         <td><input type="number" step="0.5" inputmode="decimal" data-set-field="carga" data-exi="${exi}" data-si="${si}" value="${st.carga}" ${st.done?'disabled':''}></td>
@@ -3447,8 +3650,7 @@ function ExecucaoScreen(treinoId, divisaoId){
         <td><input type="checkbox" data-check-set="${exi}:${si}" ${st.done?'checked':''} ${disabled && !st.done ? 'disabled':''}></td>
       </tr>`;
     }).join('');
-    const nextSetIdx = ex.sets.findIndex(st=> !st.done);
-    const nextSet = nextSetIdx>=0 ? ex.sets[nextSetIdx] : null;
+    const nextSet = ex.sets.find(st=> !st.done);
     const previewHtml = nextSet ? `<div style="font-size:11.5px; color:var(--muted); margin-top:8px; display:flex; align-items:center; gap:6px;">
       <span style="color:var(--blue); font-weight:700;">▶ Próxima:</span>
       <b>${nextSet.carga}kg × ${nextSet.repeticoes}</b>${nextSet.rir!==null? ` · RIR ${nextSet.rir}`:''}
@@ -3460,14 +3662,14 @@ function ExecucaoScreen(treinoId, divisaoId){
         <h3>${escapeHtml(ex.nome)} ${ex.grupo? `<span class="group-tag">${ex.grupo}</span>`:''} ${ex.dropSet? '<span class="group-tag" style="background:var(--orange);">DS</span>':''}</h3>
         <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
           ${compareBadge}
-          <button class="icon-btn mini" data-swap-ex="${exi}" title="Trocar" aria-label="Trocar">${ICONS.swap}</button>
-          <button class="icon-btn mini" data-postpone-ex="${exi}" title="Adiar" aria-label="Adiar">${ICONS.arrowDown}</button>
+          <button class="icon-btn mini" data-swap-ex="${exi}" title="Trocar">${ICONS.swap}</button>
+          <button class="icon-btn mini" data-postpone-ex="${exi}" title="Adiar">${ICONS.arrowDown}</button>
           <div class="help-icon" data-help="${escapeHtml(ex.nome)}" role="button" tabindex="0">?</div>
         </div>
       </div>
       ${lastSess ? `<div style="font-size:11.5px;color:var(--muted);margin-top:6px;">Última: ${lastSess.ex.carga}kg × ${lastSess.ex.repsMedias||'-'} (${lastSess.ex.setsFeitas}/${lastSess.ex.setsTotal})</div>`:''}
       ${ex.nota? `<div style="font-size:11.5px;color:var(--muted);margin-top:4px;">📝 ${escapeHtml(ex.nota)}</div>`:''}
-      ${stagnant? `<div class="stagnation-alert">⚠ Estagnado. Tente +2.5kg ou nova variação.</div>`:''}
+      ${stagnant? `<div class="stagnation-alert">⚠ Estagnado.</div>`:''}
       ${sugg && sugg.tipo==='up' && !stagnant? `<div class="suggestion-banner" style="margin-top:10px; font-size:12px;">${ICONS.star} Sugestão: <b>${sugg.carga}kg</b></div>`:''}
       <table class="set-table">
         <tr><th>Série</th><th>Reps</th><th>Carga</th><th>RIR</th><th>Falha</th><th>OK</th></tr>
@@ -3477,24 +3679,20 @@ function ExecucaoScreen(treinoId, divisaoId){
       <button class="btn mini ghost" data-add-set="${exi}" style="margin-top:8px;">${ICONS.plus} Série</button>
     </div>`;
   }).join('');
-
   return `
     <div class="top-actions">
-      <button class="icon-btn" id="btn-exit-exec" aria-label="Sair">${ICONS.back}</button>
+      <button class="icon-btn" id="btn-exit-exec">${ICONS.back}</button>
       <h1 class="page-title" style="margin:0; font-size:18px;">${escapeHtml(treino.nome)} · ${escapeHtml(divisao.letra)}</h1>
       <div style="width:38px;"></div>
     </div>
     <div class="session-clock">Tempo de treino<br><b id="session-clock-num">00:00</b>${SESSION.paused?' <span style="color:var(--orange);font-size:11px;">· pausado</span>':''}</div>
     ${timerHtml}
-    <div id="exec-container">
-      ${exHtml}
-    </div>
+    <div id="exec-container">${exHtml}</div>
     <button class="btn" id="btn-finalizar-treino" style="margin-top:10px;">${allDone? 'Finalizar treino ✓':'Finalizar treino'}</button>
     <div style="margin-top:12px; text-align:center;">
       <button class="btn mini ghost" id="btn-plank">${ICONS.bolt} Cronômetro de prancha</button>
     </div>`;
 }
-
 let clockInterval = null;
 function startSessionClock(){
   clearInterval(clockInterval);
@@ -3506,8 +3704,7 @@ function startSessionClock(){
       const inativo = Date.now() - lastActionTime;
       if(inativo > 10*60*1000 && !autoPaused){ autoPaused = true; SESSION.paused = true; render(); }
     }
-    const elapsed = (Date.now() - SESSION.startTime)/1000 - (SESSION.pausedSegundos||0);
-    el.textContent = formatSeconds(Math.max(0, elapsed));
+    el.textContent = formatSeconds(Math.max(0, (Date.now() - SESSION.startTime)/1000 - (SESSION.pausedSegundos||0)));
   };
   tick();
   clockInterval = setInterval(tick, 1000);
@@ -3515,9 +3712,7 @@ function startSessionClock(){
 function startRestTimer(exi){
   const ex = SESSION.exercicios[exi];
   if(SESSION.timer.interval) clearInterval(SESSION.timer.interval);
-  SESSION.timer.running = true;
-  SESSION.timer.exIdx = exi;
-  SESSION.timer.secondsLeft = ex.descanso;
+  SESSION.timer.running = true; SESSION.timer.exIdx = exi; SESSION.timer.secondsLeft = ex.descanso;
   render(); haptic('medium');
   SESSION.timer.interval = setInterval(()=>{
     SESSION.timer.secondsLeft -= 1;
@@ -3525,10 +3720,8 @@ function startRestTimer(exi){
     if(numEl) numEl.textContent = formatSeconds(SESSION.timer.secondsLeft);
     if(SESSION.timer.secondsLeft<=0){
       clearInterval(SESSION.timer.interval);
-      SESSION.timer.running = false; SESSION.timer.exIdx = null;
-      SESSION.timer.interval = null;
-      haptic('success'); playBeep(2);
-      render();
+      SESSION.timer.running = false; SESSION.timer.exIdx = null; SESSION.timer.interval = null;
+      haptic('success'); playBeep(2); render();
     }
   }, 1000);
 }
@@ -3539,7 +3732,7 @@ function startRestTimer(exi){
 function startPlankTimer(){
   let seg = 0, target = 60, running = true, interval = null;
   const bg = openModal(`
-    <button class="close-x" aria-label="Fechar">&times;</button>
+    <button class="close-x">&times;</button>
     <h3 style="margin-bottom:8px;">Cronômetro de prancha</h3>
     <div class="plank-timer running" id="plank-box">
       <div class="t" id="plank-time">00:00</div>
@@ -3599,15 +3792,15 @@ function HistoricoScreen(){
   const checkins = safeJSON(KEYS.checkin, {});
   const filterChips = `
     <div style="margin-bottom:14px;">
-      <span class="chip ${HIST_FILTER.tipo==='todos'?'active':''}" data-hist-tipo="todos" role="button" tabindex="0">Todos</span>
-      <span class="chip ${HIST_FILTER.tipo==='forca'?'active':''}" data-hist-tipo="forca" role="button" tabindex="0">Força</span>
-      <span class="chip ${HIST_FILTER.tipo==='cardio'?'active':''}" data-hist-tipo="cardio" role="button" tabindex="0">Cardio</span>
+      <span class="chip ${HIST_FILTER.tipo==='todos'?'active':''}" data-hist-tipo="todos">Todos</span>
+      <span class="chip ${HIST_FILTER.tipo==='forca'?'active':''}" data-hist-tipo="forca">Força</span>
+      <span class="chip ${HIST_FILTER.tipo==='cardio'?'active':''}" data-hist-tipo="cardio">Cardio</span>
     </div>
     <input type="text" id="hist-search" placeholder="Buscar..." value="${escapeHtml(HIST_FILTER.q)}" style="margin-bottom:14px;">`;
   const evoChips = exerciciosComHistorico.length ? `
     <div class="card">
       <h3 style="font-size:15px; margin-bottom:10px;">${ICONS.chart} Ver evolução</h3>
-      <div>${exerciciosComHistorico.slice(0, 30).map(n=>`<span class="chip" data-ver-evolucao="${escapeHtml(n)}" role="button" tabindex="0">${escapeHtml(n)}</span>`).join('')}</div>
+      <div>${exerciciosComHistorico.slice(0, 30).map(n=>`<span class="chip" data-ver-evolucao="${escapeHtml(n)}">${escapeHtml(n)}</span>`).join('')}</div>
     </div>`:'';
   const body = visiveis.length===0 ? `<div class="empty">${ICONS.empty}<div>Nenhum treino encontrado.</div></div>` :
     visiveis.map(h=>{
@@ -3636,7 +3829,7 @@ function HistoricoScreen(){
         }
       </div>`;
     }).join('');
-  const more = totalHist > LIMIT ? `<div style="text-align:center; color:var(--muted); font-size:12px; padding:16px;">Mostrando ${LIMIT} de ${totalHist} treinos</div>` : '';
+  const more = totalHist > LIMIT ? `<div style="text-align:center; color:var(--muted); font-size:12px; padding:16px;">Mostrando ${LIMIT} de ${totalHist}</div>` : '';
   return `<h1 class="page-title">Histórico</h1>${filterChips}${evoChips}${body}${more}`;
 }
 
@@ -3677,7 +3870,7 @@ function CardioListScreen(){
       <div class="cardio-item">
         <div class="row-top" style="display:flex; justify-content:space-between; align-items:flex-start;">
           <h3>${escapeHtml(c.nome)}</h3>
-          <button class="icon-btn mini" data-del-cardio="${c.id}" aria-label="Excluir">${ICONS.trash}</button>
+          <button class="icon-btn mini" data-del-cardio="${c.id}">${ICONS.trash}</button>
         </div>
         <small style="color:var(--muted);">${c.intervalos.length} intervalos · ${totalMin} min</small>
         <div class="row" style="margin-top:12px;">
@@ -3701,7 +3894,7 @@ function CardioFormScreen(id){
   if(!DRAFT_CARDIO) return `<div class="empty">Cardio não encontrado.</div>`;
   const ivs = DRAFT_CARDIO.intervalos.map((iv, ii)=>`
     <div class="interval-block" data-ii="${ii}">
-      <button class="remove-x" data-del-interval="${ii}" aria-label="Remover">✕</button>
+      <button class="remove-x" data-del-interval="${ii}">✕</button>
       <b style="font-size:13px;">Intervalo ${ii+1}</b>
       <div class="interval-grid">
         <div><label>Min</label><input type="number" min="1" inputmode="numeric" value="${iv.duracaoMin ?? 5}" data-cfield="duracaoMin" data-ii="${ii}"></div>
@@ -3713,7 +3906,7 @@ function CardioFormScreen(id){
     </div>`).join('');
   return `
     <div class="top-actions">
-      <button class="icon-btn" id="btn-back-cardio" aria-label="Voltar">${ICONS.back}</button>
+      <button class="icon-btn" id="btn-back-cardio">${ICONS.back}</button>
       <h1 class="page-title" style="margin:0;">${id?'Editar cardio':'Novo cardio'}</h1>
       <div style="width:38px;"></div>
     </div>
@@ -3736,8 +3929,7 @@ function CardioExecScreen(cardioId){
     CARDIO_SESSION = {
       cardioId, nome: cardio.nome, startTime: Date.now(),
       idx: 0, secondsLeft: Number(cardio.intervalos[0].duracaoMin)*60,
-      paused:false, pausedSegundos: 0, pauseStart: null,
-      finished:false, interval:null,
+      paused:false, pausedSegundos: 0, pauseStart: null, finished:false, interval:null,
       intervalos: JSON.parse(JSON.stringify(cardio.intervalos)),
       observacoes: cardio.observacoes
     };
@@ -3749,7 +3941,7 @@ function CardioExecScreen(cardioId){
   const dots = S.intervalos.map((iv,i)=>`<div class="interval-dot ${(i<S.idx || (S.finished && i<=S.idx))?'done':''} ${(i===S.idx && !S.finished)?'active':''}"></div>`).join('');
   return `
     <div class="top-actions">
-      <button class="icon-btn" id="btn-exit-cardio-exec" aria-label="Sair">${ICONS.back}</button>
+      <button class="icon-btn" id="btn-exit-cardio-exec">${ICONS.back}</button>
       <h1 class="page-title" style="margin:0; font-size:20px;">${escapeHtml(S.nome)}</h1>
       <div style="width:38px;"></div>
     </div>
@@ -3902,13 +4094,19 @@ function bindScreenEvents(){
   });
   view.querySelectorAll('#btn-back-home').forEach(el=> el.addEventListener('click', ()=> go('home')));
 
-  // Botão "?" — reabre tutorial sem pedir setup
   const btnHelp = document.getElementById('btn-open-help');
   if(btnHelp) btnHelp.addEventListener('click', ()=> showOnboarding({ askSetup: false }));
-
-  // Botão "i" — Sobre o app
   const btnAbout = document.getElementById('btn-open-about');
   if(btnAbout) btnAbout.addEventListener('click', openAboutModal);
+
+  const homeSyncNow = document.getElementById('home-sync-now');
+  if(homeSyncNow) homeSyncNow.addEventListener('click', async ()=>{
+    showToast('Sincronizando...');
+    const r = await gistSmartSync();
+    const msgs = { pulled:'✓ Baixado do servidor', pushed:'✓ Enviado ao servidor', 'up-to-date':'✓ Já está tudo certo', error:'Erro: ' + r.error };
+    showToast(msgs[r.status] || 'Concluído');
+    render();
+  });
 
   const fab = document.getElementById('fab-top');
   const viewEl = document.getElementById('view');
@@ -3929,22 +4127,20 @@ function bindScreenEvents(){
   view.querySelectorAll('[data-action="backup-now"]').forEach(el=> el.addEventListener('click', ()=>{ exportBackup(); render(); }));
   view.querySelectorAll('[data-action="backup-later"]').forEach(el=> el.addEventListener('click', ()=>{
     safeSet(KEYS.lastBackup, (Date.now() - 6*86400000).toString());
-    showToast('Vamos lembrar amanhã');
-    render();
+    showToast('Vamos lembrar amanhã'); render();
   }));
 
   const openProfile = document.getElementById('open-profile');
   if(openProfile){
     openProfile.addEventListener('click', ()=> go('perfil'));
-    openProfile.addEventListener('keydown', e=>{ if(e.key==='Enter'){ go('perfil'); } });
+    openProfile.addEventListener('keydown', e=>{ if(e.key==='Enter') go('perfil'); });
   }
 
   view.querySelectorAll('[data-glass]').forEach(g=> g.addEventListener('click', ()=>{
     const n = Number(g.dataset.glass);
     const h = loadHydration();
     h.hoje.copos = (h.hoje.copos === n) ? n-1 : n;
-    saveHydration(h.data); render();
-    haptic('tap');
+    saveHydration(h.data); render(); haptic('tap');
   }));
 
   const chkTheme = document.getElementById('chk-theme');
@@ -3963,8 +4159,6 @@ function bindScreenEvents(){
   if(chkFocus) chkFocus.addEventListener('change', ()=>{ const s=loadSettings(); s.focusMode=chkFocus.checked; saveSettings(s); });
   const chkWater = document.getElementById('chk-water-smart');
   if(chkWater) chkWater.addEventListener('change', ()=>{ const s=loadSettings(); s.metaAguaSmart=chkWater.checked; saveSettings(s); });
-  const chkBackupRem = document.getElementById('chk-backup-reminder');
-  if(chkBackupRem) chkBackupRem.addEventListener('change', ()=>{ const s=loadSettings(); s.backupReminder=chkBackupRem.checked; saveSettings(s); });
   const chkNotif = document.getElementById('chk-notif');
   if(chkNotif) chkNotif.addEventListener('change', async ()=>{
     const s = loadSettings();
@@ -3972,12 +4166,73 @@ function bindScreenEvents(){
       const ok = await requestNotificationPermission();
       s.notif = ok;
       if(!ok){ chkNotif.checked = false; showToast('Permissão negada'); }
-      else { notifyNow('86 Training & Grind', 'Notificações ativadas!'); }
+      else notifyNow('86 Training & Grind', 'Notificações ativadas!');
     } else s.notif = false;
     saveSettings(s);
   });
 
-  // AUTO-BACKUP
+  // ====== GIST SYNC ======
+  const btnGistNew = document.getElementById('gist-connect-new');
+  if(btnGistNew) btnGistNew.addEventListener('click', async ()=>{
+    const token = document.getElementById('gist-token-input').value.trim();
+    if(!token){ showToast('Cole o token primeiro'); return; }
+    saveGistConfig({ token });
+    try{
+      showToast('Criando Gist...');
+      await gistCreate();
+      showToast('✓ Sincronização ativada!');
+      render();
+    }catch(e){
+      showToast('Erro: ' + e.message);
+      saveGistConfig({ token: '' });
+    }
+  });
+
+  const btnGistExist = document.getElementById('gist-connect-existing');
+  if(btnGistExist) btnGistExist.addEventListener('click', async ()=>{
+    const token = document.getElementById('gist-token-input').value.trim();
+    if(!token){ showToast('Cole o token primeiro'); return; }
+    const id = await promptDialog('Cole o ID do Gist existente', {title:'Conectar a Gist', placeholder:'abc123def456'});
+    if(!id || !id.trim()) return;
+    saveGistConfig({ token, id: id.trim() });
+    try{
+      showToast('Buscando dados...');
+      await gistPull();
+      saveGistConfig({ enabled: true });
+      showToast('✓ Sincronizado!');
+      render();
+    }catch(e){
+      showToast('Erro: ' + e.message);
+      saveGistConfig({ token: '', id: '' });
+    }
+  });
+
+  const gistToggle = document.getElementById('gist-toggle');
+  if(gistToggle) gistToggle.addEventListener('change', ()=>{ saveGistConfig({ enabled: gistToggle.checked }); render(); });
+  const gistAutoToggle = document.getElementById('gist-auto-toggle');
+  if(gistAutoToggle) gistAutoToggle.addEventListener('change', ()=>{ saveGistConfig({ autoSync: gistAutoToggle.checked }); });
+
+  const btnGistSync = document.getElementById('gist-sync-now');
+  if(btnGistSync) btnGistSync.addEventListener('click', async ()=>{
+    showToast('Sincronizando...');
+    const r = await gistSmartSync();
+    const msgs = {
+      pulled:'✓ Dados do servidor baixados', pushed:'✓ Dados locais enviados',
+      'up-to-date':'✓ Tudo sincronizado', disabled:'Sincronização desativada',
+      error:'Erro: ' + (r.error || 'desconhecido')
+    };
+    showToast(msgs[r.status] || 'Concluído');
+    render();
+  });
+
+  const btnGistDisc = document.getElementById('gist-disconnect');
+  if(btnGistDisc) btnGistDisc.addEventListener('click', async ()=>{
+    if(!await confirmDialog('Desconectar do Gist? O Gist no GitHub continua existindo.', {okText:'Desconectar'})) return;
+    saveGistConfig({ token:'', id:'', enabled:false, lastSync:0, localModified:0 });
+    showToast('Desconectado'); render();
+  });
+
+  // ====== BACKUP LOCAL ======
   const chkAutoBackup = document.getElementById('chk-auto-backup');
   if(chkAutoBackup){
     chkAutoBackup.addEventListener('change', async ()=>{
@@ -3986,35 +4241,25 @@ function bindScreenEvents(){
       saveSettings(s);
       if(s.autoBackup && canUseFS()){
         const handle = await IDB.get('backupFileHandle');
-        if(!handle){
-          showToast('Escolha o arquivo de backup');
-          const h = await pickBackupFile();
-          if(h){ await autoBackup(true); }
-        } else {
-          await autoBackup(true);
-        }
+        if(!handle){ showToast('Escolha o arquivo'); const h = await pickBackupFile(); if(h) await autoBackup(true); }
+        else await autoBackup(true);
       }
       if(typeof renderBackupStatus === 'function') renderBackupStatus();
     });
   }
-
   const btnPickBackup = document.getElementById('btn-pick-backup');
   if(btnPickBackup) btnPickBackup.addEventListener('click', async ()=>{
     const h = await pickBackupFile();
-    if(h){ await autoBackup(true); }
+    if(h) await autoBackup(true);
     if(typeof renderBackupStatus === 'function') renderBackupStatus();
   });
-
   const btnBackupNow = document.getElementById('btn-backup-now');
   if(btnBackupNow) btnBackupNow.addEventListener('click', async ()=>{
-    if(!canUseFS()){ showToast('Use Exportar neste navegador'); return; }
+    if(!canUseFS()){ showToast('Use Exportar'); return; }
     const handle = await IDB.get('backupFileHandle');
-    if(!handle){
-      const h = await pickBackupFile();
-      if(!h) return;
-    }
+    if(!handle){ const h = await pickBackupFile(); if(!h) return; }
     const ok = await autoBackup(true);
-    showToast(ok ? '✓ Backup salvo!' : 'Falha ao salvar. Verifique permissão.');
+    showToast(ok ? '✓ Backup salvo!' : 'Falha ao salvar');
     if(typeof renderBackupStatus === 'function') renderBackupStatus();
   });
 
@@ -4022,7 +4267,7 @@ function bindScreenEvents(){
     const el = document.getElementById('backup-file-status');
     if(!el) return;
     if(!canUseFS()){
-      el.innerHTML = '<p style="color:var(--orange); font-size:12px; margin:0;">⚠️ Seu navegador não suporta backup automático. Use "Exportar" manualmente.</p>';
+      el.innerHTML = '<p style="color:var(--orange); font-size:12px; margin:0;">⚠️ Navegador não suporta. Use "Exportar".</p>';
       return;
     }
     const handle = await IDB.get('backupFileHandle');
@@ -4032,12 +4277,13 @@ function bindScreenEvents(){
       const statusTxt = perm === 'granted' ? '✓ ativo' : '⚠ precisa reautorizar';
       el.innerHTML = `<div style="font-size:12px; color:var(--lime); display:flex; align-items:center; gap:6px;">${ICONS.folder} ${escapeHtml(handle.name)}</div><div style="font-size:11px; color:var(--muted); margin-top:4px;">${statusTxt}</div>`;
     } else {
-      el.innerHTML = '<p style="color:var(--muted); font-size:12px; margin:0;">Nenhum arquivo escolhido. Clique em "Escolher arquivo".</p>';
+      el.innerHTML = '<p style="color:var(--muted); font-size:12px; margin:0;">Nenhum arquivo escolhido.</p>';
     }
   }
   window.renderBackupStatus = renderBackupStatus;
   renderBackupStatus();
 
+  // Avatar
   const btnChangeAvatar = document.getElementById('btn-change-avatar');
   if(btnChangeAvatar){
     btnChangeAvatar.addEventListener('click', ()=> document.getElementById('avatar-file-input').click());
@@ -4049,7 +4295,7 @@ function bindScreenEvents(){
         await IDB.set('avatar', c);
         document.getElementById('avatar-preview').innerHTML = `<img src="${c}" alt="Avatar">`;
         showToast('Foto atualizada!');
-      }catch(err){ showToast('Erro ao processar'); }
+      }catch(err){ showToast('Erro'); }
     });
   }
   const btnRemoveAvatar = document.getElementById('btn-remove-avatar');
@@ -4173,19 +4419,7 @@ function bindScreenEvents(){
       try{
         const data = await importBackup(file);
         if(!await confirmDialog('Substituir TODOS os dados?', {danger:true, okText:'Substituir'})) return;
-        DB.treinos = data.treinos||[]; DB.historico = data.historico||[]; DB.cardios = data.cardios||[];
-        saveTreinos(); saveHistorico(); saveCardios();
-        if(data.perfil) savePerfil(data.perfil);
-        if(data.customExercises){ CUSTOM_EXERCISES = data.customExercises; saveCustomExercises(CUSTOM_EXERCISES); }
-        if(data.settings) saveSettings(data.settings);
-        if(data.checkin) safeSet(KEYS.checkin, JSON.stringify(data.checkin));
-        if(data.badges) saveBadges(data.badges);
-        if(data.hydration) safeSet(KEYS.hydration, JSON.stringify(data.hydration));
-        if(data.photos) savePhotos(data.photos);
-        if(data.challenges) saveChallenges(data.challenges);
-        if(data.goals) saveGoals(data.goals);
-        if(data.annual) saveAnnual(data.annual);
-        else rebuildAnnualRecords();
+        applySyncPayload(data);
         showToast('Restaurado!'); render();
       }catch(err){ showToast('Arquivo inválido'); }
     });
@@ -4197,6 +4431,7 @@ function bindScreenEvents(){
     if(!await confirmDialog('Apagar TODOS os dados?', {danger:true, okText:'Apagar'})) return;
     if(!await confirmDialog('Tem certeza?', {danger:true, okText:'Sim'})) return;
     Object.values(KEYS).forEach(k=> safeDel(k));
+    Object.values(GIST_KEYS).forEach(k=> safeDel(k));
     LEGACY_KEYS.forEach(k=> safeDel(k));
     location.reload();
   });
@@ -4222,8 +4457,7 @@ function bindScreenEvents(){
     const t = DB.treinos.find(x=> x.id === el.dataset.dupTreino);
     if(!t) return;
     const copy = JSON.parse(JSON.stringify(t));
-    copy.id = uid();
-    copy.nome = t.nome + ' (cópia)';
+    copy.id = uid(); copy.nome = t.nome + ' (cópia)';
     copy.divisoes.forEach(d=>{ d.id = uid(); });
     DB.treinos.push(copy); saveTreinos();
     showToast('Treino duplicado!'); render();
@@ -4430,9 +4664,7 @@ function bindScreenEvents(){
     ex.sets[nextIdx].rir = last.rir;
     persistSession(); render();
   }));
-  view.querySelectorAll('[data-swap-ex]').forEach(el=> el.addEventListener('click', ()=>{
-    swapExerciseModal(Number(el.dataset.swapEx));
-  }));
+  view.querySelectorAll('[data-swap-ex]').forEach(el=> el.addEventListener('click', ()=> swapExerciseModal(Number(el.dataset.swapEx))));
   view.querySelectorAll('[data-postpone-ex]').forEach(el=> el.addEventListener('click', ()=>{
     const exi = Number(el.dataset.postponeEx);
     const ex = SESSION.exercicios.splice(exi, 1)[0];
@@ -4512,10 +4744,8 @@ function bindScreenEvents(){
       const lastDone = [...doneSets].reverse()[0];
       const rirs = doneSets.map(s=>s.rir).filter(x=> x!==null && x!==undefined);
       return {
-        nome: ex.nome,
-        setsTotal: ex.sets.filter(s=>!s.warmup).length,
-        setsFeitas: doneSets.length,
-        carga: lastDone ? lastDone.carga : ex.carga,
+        nome: ex.nome, setsTotal: ex.sets.filter(s=>!s.warmup).length,
+        setsFeitas: doneSets.length, carga: lastDone ? lastDone.carga : ex.carga,
         repsMedias: Math.round(repsMedias),
         rirMedio: rirs.length ? rirs.reduce((a,b)=>a+b,0)/rirs.length : null,
         setsDetalhados: ex.sets.map(s=>({reps:s.repeticoes, carga:s.carga, done:s.done, warmup:!!s.warmup, rir:s.rir, falha:s.falha}))
@@ -4528,8 +4758,7 @@ function bindScreenEvents(){
     const checkinHoje = loadCheckinHoje() || {};
     const checkinFinal = { ...checkinHoje, ...post };
     DB.historico.push({
-      id: uid(), tipo:'forca',
-      treinoNome: SESSION.treinoNome, divisaoLetra: SESSION.divisaoLetra,
+      id: uid(), tipo:'forca', treinoNome: SESSION.treinoNome, divisaoLetra: SESSION.divisaoLetra,
       data: Date.now(), duracaoSegundos, exercicios: resumo, checkin: checkinFinal
     });
     saveHistorico();
@@ -4560,8 +4789,7 @@ function bindScreenEvents(){
         if(numEl) numEl.textContent = formatSeconds(SESSION.timer.secondsLeft);
         if(SESSION.timer.secondsLeft<=0){
           clearInterval(SESSION.timer.interval);
-          SESSION.timer.running = false; SESSION.timer.exIdx = null;
-          SESSION.timer.interval = null;
+          SESSION.timer.running = false; SESSION.timer.exIdx = null; SESSION.timer.interval = null;
           haptic('success'); playBeep(2); render();
         }
       }, 1000);
@@ -4582,10 +4810,7 @@ function bindScreenEvents(){
           let next = cur;
           if(dx < 0) next = Math.min(SESSION.exercicios.length-1, cur+1);
           else next = Math.max(0, cur-1);
-          if(next !== cur){
-            focusedExIdx = next;
-            render();
-          }
+          if(next !== cur){ focusedExIdx = next; render(); }
         }
       }, {passive:true});
     }
@@ -4644,9 +4869,7 @@ function bindScreenEvents(){
     if(S.paused){
       if(S.pauseStart) S.pausedSegundos = (S.pausedSegundos||0) + (Date.now()-S.pauseStart)/1000;
       S.pauseStart = null;
-    } else {
-      S.pauseStart = Date.now();
-    }
+    } else S.pauseStart = Date.now();
     S.paused = !S.paused;
     render();
   });
@@ -4685,75 +4908,11 @@ function bindScreenEvents(){
 }
 
 /* ============================================================
-   SOBRE O APP — créditos do desenvolvedor
-============================================================ */
-function openAboutModal(){
-  const bg = openModal(`
-    <button class="close-x" aria-label="Fechar">&times;</button>
-
-    <div style="text-align:center; padding:8px 0 18px 0;">
-      <div class="plate-badge" style="margin:0 auto 14px auto; width:64px; height:64px; border-width:3px;">
-        <span class="pnum" style="font-size:20px;">86 TG</span>
-      </div>
-      <h2 style="font-family:var(--font-display); font-size:22px; margin:0 0 4px 0;">86 Training & Grind</h2>
-      <p style="color:var(--muted); font-size:12.5px; margin:0;">Versão 5.0</p>
-    </div>
-
-    <div class="divider"></div>
-
-    <h3 style="font-size:14px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:10px;">Desenvolvido por</h3>
-
-    <div class="card" style="margin:0 0 14px 0; display:flex; align-items:center; gap:12px;">
-      <div style="width:46px; height:46px; border-radius:50%; background:var(--lime);
-        color:#0A0B0D; display:flex; align-items:center; justify-content:center;
-        font-weight:800; font-family:var(--font-display); font-size:18px;">GF</div>
-      <div style="flex:1;">
-        <b style="font-size:14.5px; display:block;">Gabriel Fernandes</b>
-        <small style="color:var(--muted); font-size:11.5px;">Desenvolvedor</small>
-      </div>
-    </div>
-
-    <h3 style="font-size:14px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin:16px 0 10px 0;">Sobre o app</h3>
-    <p style="color:var(--muted); font-size:13px; line-height:1.6; margin:0 0 14px 0;">
-      Um app pessoal de treino criado pra acompanhar divisões, registrar cargas,
-      analisar padrões (sono, energia, humor) e evoluir com consistência.
-    </p>
-
-    <div style="display:flex; flex-direction:column; gap:8px;">
-      <a href="mailto:seu@email.com" style="display:flex; justify-content:space-between; align-items:center; padding:11px 14px; background:var(--surface-2); border-radius:10px; text-decoration:none; color:var(--text);">
-        <span style="font-size:12.5px; color:var(--muted); font-weight:600;">✉️ Contato</span>
-        <span style="font-size:12.5px; color:var(--lime); font-weight:700;">seu@email.com</span>
-      </a>
-      <a href="https://github.com/seu-usuario" target="_blank" rel="noopener" style="display:flex; justify-content:space-between; align-items:center; padding:11px 14px; background:var(--surface-2); border-radius:10px; text-decoration:none; color:var(--text);">
-        <span style="font-size:12.5px; color:var(--muted); font-weight:600;">💻 GitHub</span>
-        <span style="font-size:12.5px; color:var(--lime); font-weight:700;">@seu-usuario</span>
-      </a>
-      <a href="https://github.com/seu-usuario/86gym" target="_blank" rel="noopener" style="display:flex; justify-content:space-between; align-items:center; padding:11px 14px; background:var(--surface-2); border-radius:10px; text-decoration:none; color:var(--text);">
-        <span style="font-size:12.5px; color:var(--muted); font-weight:600;">⭐ Código-fonte</span>
-        <span style="font-size:12.5px; color:var(--lime); font-weight:700;">Ver no GitHub</span>
-      </a>
-    </div>
-
-    <div class="divider"></div>
-
-    <p style="color:var(--muted); font-size:11.5px; text-align:center; line-height:1.6; margin:0;">
-      Feito com 💪 🏋🏼‍♀️ e 🧃 em ${new Date().getFullYear()}<br>
-      Seus dados ficam salvos apenas no seu dispositivo.
-    </p>
-
-    <button class="btn secondary" style="margin-top:16px;" id="about-close">Fechar</button>
-  `);
-
-  bg.querySelector('.close-x').onclick = ()=> closeModal(bg);
-  bg.querySelector('#about-close').onclick = ()=> closeModal(bg);
-}
-
-/* ============================================================
    TEMPLATE MODAL
 ============================================================ */
 function openTemplateModal(){
   const bg = openModal(`
-    <button class="close-x" aria-label="Fechar">&times;</button>
+    <button class="close-x">&times;</button>
     <h3 style="margin-bottom:4px;">Escolher template</h3>
     <p style="color:var(--muted); font-size:13px; margin-bottom:16px;">Um ponto de partida editável.</p>
     ${TEMPLATES.map(t=>`
@@ -4921,15 +5080,23 @@ async function initApp(){
 
   checkImportFromURL();
 
+  // Backup automático local
   setTimeout(async ()=>{
-    if(loadSettings().autoBackup){
-      await autoBackup(false);
-    }
+    if(loadSettings().autoBackup) await autoBackup(false);
   }, 3000);
+  setInterval(()=>{ if(loadSettings().autoBackup) autoBackup(false); }, 10*60*1000);
 
-  setInterval(()=>{
-    if(loadSettings().autoBackup) autoBackup(false);
-  }, 10*60*1000);
+  // Sincronização Gist — smart sync no boot
+  const cfg = loadGistConfig();
+  if(cfg.enabled && cfg.token && cfg.id){
+    setTimeout(async ()=>{
+      const r = await gistSmartSync();
+      if(r.status === 'pulled'){
+        showToast('✓ Dados sincronizados do Gist');
+        render();
+      }
+    }, 2500);
+  }
 
   if(reminderDue()){
     setTimeout(()=> showToast('Hora de atualizar seu peso!'), 700);

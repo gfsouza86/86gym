@@ -206,13 +206,24 @@
     background:var(--surface);border:1px solid var(--line);padding:12px 14px;
     border-radius:12px;margin-bottom:8px;}
   .ex-row span{font-size:14px;font-weight:600;flex:1;margin-right:8px;}
+  .ex-row-info{flex:1;margin-right:8px;min-width:0;}
+  .ex-row-info b{font-size:14px;font-weight:600;display:block;}
+  .ex-row-info small{color:var(--muted);font-size:11px;display:block;margin-top:2px;text-transform:capitalize;}
   .set-table{width:100%;border-collapse:collapse;margin-top:10px;}
   .set-table th{font-size:10px;color:var(--muted);text-transform:uppercase;
     text-align:center;padding:6px 2px;font-weight:700;}
   .set-table td{text-align:center;padding:6px 2px;border-top:1px solid var(--line);font-size:13px;}
   .set-table td:first-child, .set-table th:first-child{text-align:left;padding-left:4px;}
-  .set-table input[type=number]{padding:5px;text-align:center;margin-top:0;width:52px;}
+  .set-table input[type=number]{padding:8px 4px;text-align:center;margin-top:0;
+    width:100%;min-width:48px;font-size:15px;font-weight:600;}
   .set-table input[type=checkbox]{width:22px;height:22px;accent-color:var(--lime);}
+  .carga-wrap{display:flex;align-items:center;justify-content:center;gap:3px;}
+  .carga-btn{width:26px;height:34px;border-radius:7px;background:var(--surface);
+    border:1px solid var(--line);color:var(--text);font-weight:800;font-size:15px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;
+    flex-shrink:0;font-family:'Inter';line-height:1;}
+  .carga-btn:active{background:var(--lime);color:#0A0B0D;border-color:var(--lime);}
+  .carga-btn:disabled{opacity:0.35;}
   .exec-ex-card{background:var(--surface);border:1px solid var(--line);
     border-radius:var(--radius);padding:14px;margin-bottom:14px;transition:border-color .3s;}
   .exec-ex-card.done{border-color:var(--lime);}
@@ -230,12 +241,35 @@
     border-radius:5px;font-weight:800;letter-spacing:0.5px;}
   .stagnation-alert{font-size:11.5px;color:var(--orange);margin-top:6px;
     padding:6px 10px;background:rgba(255,106,69,0.1);border-radius:8px;}
-  .timer-banner{position:sticky;top:0;z-index:10;background:var(--orange);color:#1a0d05;
-    border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;
-    align-items:center;justify-content:space-between;}
-  .timer-banner .t-num{font-family:var(--font-display);font-weight:700;font-size:28px;line-height:1;}
+  .timer-banner{position:fixed;bottom:calc(86px + env(safe-area-inset-bottom));
+    left:50%;transform:translateX(-50%);
+    width:calc(100% - 32px);max-width:488px;z-index:60;
+    background:linear-gradient(135deg,var(--orange) 0%,#FF8A5C 100%);color:#1a0d05;
+    border-radius:16px;padding:14px 18px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    box-shadow:0 12px 36px rgba(0,0,0,0.55),0 0 0 1px rgba(255,255,255,0.08) inset;
+    animation:timerPop 0.35s cubic-bezier(.34,1.56,.64,1);overflow:hidden;}
+  @keyframes timerPop{
+    from{transform:translate(-50%,40px);opacity:0;}
+    to{transform:translate(-50%,0);opacity:1;}
+  }
+  .timer-banner .t-num{font-family:var(--font-display);font-weight:700;font-size:30px;
+    line-height:1;letter-spacing:-0.02em;}
+  .timer-banner .t-info{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1;}
+  .timer-banner .t-label{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;opacity:0.75;}
+  .timer-banner .t-ex{font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .timer-banner .t-stop{background:rgba(10,11,13,0.25);border:none;color:#1a0d05;
+    border-radius:10px;padding:8px 12px;font-size:11px;font-weight:800;cursor:pointer;
+    font-family:'Inter';flex-shrink:0;letter-spacing:0.5px;}
+  .timer-banner .t-stop:active{background:rgba(10,11,13,0.4);}
+  .timer-banner .t-progress{position:absolute;left:0;bottom:0;height:3px;background:#1a0d05;
+    transition:width 1s linear;opacity:0.35;}
   .session-clock{text-align:center;color:var(--muted);font-size:13px;margin-bottom:16px;}
   .session-clock b{color:var(--text);font-family:var(--font-display);font-weight:700;font-size:19px;}
+  .session-clock .paused-tag{color:var(--orange);font-weight:700;}
+  .session-clock .resume-btn{background:var(--lime);color:#0A0B0D;border:none;
+    padding:6px 14px;border-radius:20px;font-weight:800;font-size:12px;cursor:pointer;
+    margin-top:8px;font-family:'Inter';}
   .hist-item{background:var(--surface);border:1px solid var(--line);
     border-radius:var(--radius);padding:16px;margin-bottom:12px;}
   .hist-item .row-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
@@ -278,6 +312,9 @@
     max-height:90vh;overflow-y:auto;}
   .modal-box .close-x{float:right;color:var(--muted);background:none;
     border:none;font-size:22px;cursor:pointer;line-height:1;}
+  .video-frame-wrap{position:relative;width:100%;padding-top:56.25%;border-radius:12px;
+    overflow:hidden;background:#000;margin-bottom:6px;}
+  .video-frame-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
   .demo-photo-wrap{width:100%;border-radius:12px;overflow:hidden;background:var(--surface-2);
     min-height:160px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
   .demo-photo-wrap img{width:100%;display:block;max-height:280px;object-fit:contain;}
@@ -486,6 +523,60 @@
   .sync-badge.syncing{background:var(--orange);animation:syncPulse 1s ease-in-out infinite;}
   .sync-badge.err{background:var(--danger);}
   @keyframes syncPulse{0%,100%{opacity:0.4;} 50%{opacity:1;}}
+
+  /* ===== PLAYER DE MÚSICA FIXO (topo) ===== */
+  #music-player{
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 520px;
+    z-index: 90;
+    background: color-mix(in srgb, var(--surface) 97%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+    display: none;
+    padding-top: env(safe-area-inset-top);
+  }
+  #music-player.visible{ display: block; }
+  #music-player .mp-bar{
+    display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+  }
+  #music-player .mp-toggle{
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--lime); color: #0A0B0D; border: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0; padding: 0;
+  }
+  #music-player .mp-title{
+    flex: 1; font-size: 12.5px; font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+  }
+  #music-player .mp-close{
+    background: none; border: none; color: var(--muted);
+    font-size: 22px; cursor: pointer; padding: 0 6px; line-height: 1;
+    flex-shrink: 0; font-family: 'Inter';
+  }
+  #music-player .mp-frame{
+    max-height: 0; overflow: hidden;
+    transition: max-height .35s cubic-bezier(.4,0,.2,1);
+  }
+  #music-player.expanded .mp-frame{ max-height: 500px; }
+  #music-player .mp-frame-wrap{
+    width: calc(100% - 24px); margin: 0 12px 12px 12px;
+    aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden;
+    background: #000; position: relative;
+  }
+  #music-player .mp-frame-wrap iframe{
+    position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
+  }
+  @media (min-width: 768px){
+    #music-player{ max-width: 760px; }
+  }
+
   @media (min-width: 768px){
     #app{max-width:760px;}
     nav.tabbar{max-width:760px;}
@@ -515,7 +606,18 @@
 <button class="fab-top" id="fab-top" aria-label="Voltar ao topo">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
 </button>
-
+<div id="music-player" aria-hidden="true" role="region" aria-label="Player de música">
+  <div class="mp-bar">
+    <button class="mp-toggle" id="mp-toggle" aria-label="Expandir ou colapsar player">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+        <path d="M6 9l6 6 6-6"/>
+      </svg>
+    </button>
+    <span class="mp-title" id="mp-title">Playlist</span>
+    <button class="mp-close" id="mp-close" aria-label="Fechar player">×</button>
+  </div>
+  <div class="mp-frame" id="mp-frame"></div>
+</div>
 <script>
 /* ============================================================
    TRATAMENTO DE ERRO GLOBAL
@@ -533,7 +635,7 @@ function showGlobalError(msg){
 }
 window.addEventListener('error', e=>{
   console.error('[86gym error]', e.error || e.message);
-  showGlobalError('Algo deu errado. Tente novamente.');
+  showGlobalError((e.error && e.error.message) ? e.error.message : 'Algo deu errado.');
 });
 window.addEventListener('unhandledrejection', e=>{
   console.error('[86gym promise]', e.reason);
@@ -549,7 +651,8 @@ const KEYS = {
   checkin:'86gym_checkin_v5', badges:'86gym_badges_v5', hydration:'86gym_hydration_v5',
   photos:'86gym_photos_v5', challenges:'86gym_challenges_v5', annual:'86gym_annual_v5',
   goals:'86gym_goals_v5', idb:'86gym_idb_v5',
-  onboarded:'86gym_onboarded_v5', lastBackup:'86gym_last_backup_v5'
+  onboarded:'86gym_onboarded_v5', lastBackup:'86gym_last_backup_v5',
+  exdbCache:'86gym_exdb_cache_v1'
 };
 const GIST_KEYS = {
   token:'86gym_gist_token', id:'86gym_gist_id', lastSync:'86gym_gist_last_sync',
@@ -659,9 +762,12 @@ let DB = {
 var _autoBackupTimer = null;
 var _gistSyncTimer = null;
 var _suppressGistSync = false;
+var _restTimerRef = null;
+var _beepGuard = false;
+var _sharedAudioCtx = null;
 
 /* ============================================================
-   GIST SYNC — configuração
+   GIST SYNC
 ============================================================ */
 function loadGistConfig(){
   return {
@@ -692,7 +798,7 @@ function updateSyncBadge(state){
 }
 
 /* ============================================================
-   SAVE functions (adicionam touch + schedule)
+   SAVE functions
 ============================================================ */
 const saveTreinos   = () => { safeSet(KEYS.treinos, JSON.stringify(DB.treinos)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 const saveHistorico = () => { safeSet(KEYS.hist, JSON.stringify(DB.historico)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
@@ -768,34 +874,99 @@ function haptic(kind){
 }
 
 /* ============================================================
-   BIBLIOTECA
+   BIBLIOTECA DE EXERCÍCIOS (carregada em runtime)
 ============================================================ */
-const BASE_EXERCISES = [
-  ['Peito',[['Supino reto com barra','barbell bench press'],['Supino inclinado com halteres','incline dumbbell bench press'],['Supino reto com halteres','dumbbell bench press'],['Crucifixo reto','dumbbell flyes'],['Crucifixo inclinado','incline dumbbell flyes'],['Crossover','cable crossover'],['Flexão de braço','push up'],['Peck deck','pec deck fly']]],
-  ['Costas',[['Puxada frontal (pulley)','lat pulldown'],['Remada curvada com barra','bent over barbell row'],['Remada baixa (cabo)','seated cable row'],['Remada unilateral com halter','one arm dumbbell row'],['Barra fixa (pull-up)','pull up'],['Levantamento terra','deadlift'],['Puxada supinada','underhand lat pulldown'],['Pull-over','dumbbell pullover']]],
-  ['Ombros',[['Desenvolvimento militar com barra','military press'],['Desenvolvimento com halteres','dumbbell shoulder press'],['Elevação lateral','lateral raise'],['Elevação frontal','front raise'],['Remada alta','upright row'],['Crucifixo invertido (posterior)','reverse fly'],['Arnold press','arnold press']]],
-  ['Bíceps',[['Rosca direta com barra','barbell curl'],['Rosca alternada com halteres','alternating dumbbell curl'],['Rosca scott','preacher curl'],['Rosca martelo','hammer curl'],['Rosca concentrada','concentration curl'],['Rosca no cabo','cable curl']]],
-  ['Tríceps',[['Tríceps pulley (corda)','triceps pushdown'],['Tríceps testa','skull crusher'],['Tríceps francês','overhead triceps extension'],['Mergulho no banco','bench dip'],['Tríceps coice','triceps kickback'],['Supino fechado','close grip bench press']]],
-  ['Pernas',[['Agachamento livre','barbell squat'],['Leg press 45°','leg press'],['Cadeira extensora','leg extension'],['Cadeira flexora','leg curl'],['Stiff','romanian deadlift'],['Afundo (passada)','lunge'],['Agachamento búlgaro','bulgarian split squat'],['Cadeira adutora','hip adduction machine'],['Cadeira abdutora','hip abduction machine']]],
-  ['Glúteos',[['Elevação pélvica (hip thrust)','hip thrust'],['Glúteo no cabo (coice)','cable kickback'],['Abdução de quadril','hip abduction'],['Agachamento sumô','sumo squat']]],
-  ['Abdômen',[['Abdominal supra','crunch'],['Abdominal infra','leg raise'],['Prancha isométrica','plank'],['Elevação de pernas','hanging leg raise'],['Abdominal na polia','cable crunch'],['Abdominal oblíquo','oblique crunch']]],
-  ['Panturrilha',[['Panturrilha em pé','standing calf raise'],['Panturrilha sentado','seated calf raise'],['Panturrilha no leg press','calf press']]],
-  ['Cardio',[['Esteira','treadmill running'],['Bicicleta ergométrica','stationary bike'],['Elíptico','elliptical trainer'],['Corda naval','battle rope'],['Pular corda','jump rope']]]
+const EXERCISE_IMAGE_SOURCES = [
+  'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/',
+  'https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@main/exercises/'
 ];
+const EXERCISE_DB_URL = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json';
+
+// Base mínima embutida (funciona mesmo sem internet)
+let EXERCISE_DB = [
+  {"name":"Supino Reto com Barra - Pegada Média","force":"push","level":"iniciante","mechanic":"composto","equipment":"barra","primaryMuscles":["peito"],"secondaryMuscles":["ombros","triceps"],"instructions":["Deite-se em um banco reto. Com uma pegada média, levante a barra do rack e segure-a acima de você com os braços travados.","Inspire e desça lentamente até a barra tocar o meio do peito.","Após uma breve pausa, empurre a barra de volta à posição inicial enquanto expira.","Repita pelo número prescrito de repetições."],"category":"forca","images":["Barbell_Bench_Press_-_Medium_Grip/0.jpg","Barbell_Bench_Press_-_Medium_Grip/1.jpg"],"id":"Barbell_Bench_Press_-_Medium_Grip"},
+  {"name":"Supino Inclinado com Halteres","force":"push","level":"iniciante","mechanic":"composto","equipment":"halteres","primaryMuscles":["peito"],"secondaryMuscles":["ombros","triceps"],"instructions":["Deite-se em um banco inclinado com um halter em cada mão apoiado sobre as coxas.","Use as coxas para ajudar a levantar os halteres até a altura dos ombros.","Gire os pulsos para frente até as palmas ficarem voltadas para longe de você.","Expire e empurre os halteres para cima usando o peito.","Estenda os braços completamente no topo e abaixe lentamente."],"category":"forca","images":["Incline_Dumbbell_Press/0.jpg","Incline_Dumbbell_Press/1.jpg"],"id":"Incline_Dumbbell_Press"},
+  {"name":"Agachamento com Barra","force":"push","level":"intermediario","mechanic":"composto","equipment":"barra","primaryMuscles":["quadriceps"],"secondaryMuscles":["panturrilhas","gluteos","isquiotibiais","inferior-das-costas"],"instructions":["Ajuste a barra em um rack logo abaixo da altura dos ombros. Posicione-se sob a barra apoiando-a nas costas dos ombros.","Segure a barra com as duas mãos e levante-a do rack empurrando com as pernas.","Afaste-se do rack e posicione as pernas na largura dos ombros.","Abaixe a barra flexionando os joelhos, mantendo a postura reta, até as coxas ficarem paralelas ao chão.","Suba de volta à posição inicial empurrando o chão com os calcanhares."],"category":"forca","images":["Barbell_Squat/0.jpg","Barbell_Squat/1.jpg"],"id":"Barbell_Squat"},
+  {"name":"Levantamento Terra com Barra","force":"pull","level":"intermediario","mechanic":"composto","equipment":"barra","primaryMuscles":["inferior-das-costas"],"secondaryMuscles":["panturrilhas","gluteos","isquiotibiais","meio-das-costas","quadriceps","trapezio"],"instructions":["Fique em frente a uma barra carregada.","Mantendo as costas retas, dobre os joelhos e segure a barra com uma pegada média.","Inicie o levantamento empurrando com as pernas e erguendo o tronco até ficar vertical.","Volte à posição inicial dobrando os joelhos, mantendo as costas retas."],"category":"forca","images":["Barbell_Deadlift/0.jpg","Barbell_Deadlift/1.jpg"],"id":"Barbell_Deadlift"},
+  {"name":"Barra Fixa","force":"pull","level":"iniciante","mechanic":"composto","equipment":"peso-do-corpo","primaryMuscles":["dorsais"],"secondaryMuscles":["biceps","meio-das-costas"],"instructions":["Segure a barra com as palmas para frente.","Com braços estendidos, incline o tronco para trás cerca de 30 graus.","Puxe o tronco para cima até a barra tocar o peito.","Abaixe-se lentamente até os braços ficarem estendidos."],"category":"forca","images":["Pullups/0.jpg","Pullups/1.jpg"],"id":"Pullups"},
+  {"name":"Remada Curvada com Barra","force":"pull","level":"iniciante","mechanic":"composto","equipment":"barra","primaryMuscles":["meio-das-costas"],"secondaryMuscles":["biceps","dorsais","ombros"],"instructions":["Segure uma barra com pegada pronada, flexione levemente os joelhos e incline o tronco para frente.","Mantendo o tronco parado, puxe a barra em sua direção, mantendo os cotovelos próximos ao corpo.","Abaixe a barra lentamente à posição inicial."],"category":"forca","images":["Bent_Over_Barbell_Row/0.jpg","Bent_Over_Barbell_Row/1.jpg"],"id":"Bent_Over_Barbell_Row"},
+  {"name":"Desenvolvimento Militar em Pé","force":"push","level":"iniciante","mechanic":"composto","equipment":"barra","primaryMuscles":["ombros"],"secondaryMuscles":["triceps"],"instructions":["Segure a barra com uma pegada pronada na altura do peito.","Levante a barra acima da cabeça até os braços ficarem estendidos.","Abaixe lentamente até a clavícula e repita."],"category":"forca","images":["Standing_Military_Press/0.jpg","Standing_Military_Press/1.jpg"],"id":"Standing_Military_Press"},
+  {"name":"Rosca Direta com Barra","force":"pull","level":"iniciante","mechanic":"isolado","equipment":"barra","primaryMuscles":["biceps"],"secondaryMuscles":["antebracos"],"instructions":["Fique em pé segurando uma barra com pegada supinada.","Mantendo os braços superiores parados, flexione os pesos até o bíceps estar totalmente contraído.","Volte lentamente à posição inicial."],"category":"forca","images":["Barbell_Curl/0.jpg","Barbell_Curl/1.jpg"],"id":"Barbell_Curl"},
+  {"name":"Tríceps Pulley","force":"push","level":"iniciante","mechanic":"isolado","equipment":"cabo","primaryMuscles":["triceps"],"secondaryMuscles":[],"instructions":["Prenda uma barra em uma polia alta e segure com pegada pronada.","Mantenha os braços superiores próximos ao corpo.","Estenda os cotovelos até os braços ficarem totalmente retos.","Retorne lentamente à posição inicial."],"category":"forca","images":["Triceps_Pushdown/0.jpg","Triceps_Pushdown/1.jpg"],"id":"Triceps_Pushdown"},
+  {"name":"Elevação Lateral","force":"push","level":"iniciante","mechanic":"isolado","equipment":"halteres","primaryMuscles":["ombros"],"secondaryMuscles":[],"instructions":["Segure dois halteres ao lado do corpo.","Mantendo o tronco imóvel, levante os halteres para os lados.","Continue até os braços ficarem paralelos ao chão.","Abaixe lentamente."],"category":"forca","images":["Side_Lateral_Raise/0.jpg","Side_Lateral_Raise/1.jpg"],"id":"Side_Lateral_Raise"},
+  {"name":"Rosca Martelo","force":"pull","level":"iniciante","mechanic":"isolado","equipment":"halteres","primaryMuscles":["biceps"],"secondaryMuscles":[],"instructions":["Fique em pé com um halter em cada mão.","As palmas devem estar voltadas para o torso.","Mantendo o braço parado, curve o peso para cima.","Abaixe lentamente."],"category":"forca","images":["Hammer_Curls/0.jpg","Hammer_Curls/1.jpg"],"id":"Hammer_Curls"},
+  {"name":"Leg Press","force":"push","level":"iniciante","mechanic":"composto","equipment":"maquina","primaryMuscles":["quadriceps"],"secondaryMuscles":["panturrilhas","gluteos","isquiotibiais"],"instructions":["Sente-se na máquina com os pés na plataforma.","Empurre a plataforma até as pernas ficarem quase estendidas.","Abaixe lentamente até as coxas formarem 90 graus.","Empurre de volta."],"category":"forca","images":["Leg_Press/0.jpg","Leg_Press/1.jpg"],"id":"Leg_Press"},
+  {"name":"Cadeira Flexora","force":"pull","level":"iniciante","mechanic":"isolado","equipment":"maquina","primaryMuscles":["isquiotibiais"],"secondaryMuscles":[],"instructions":["Deite-se de bruços na cadeira flexora.","Flexione as pernas o máximo possível sem levantar as coxas.","Retorne lentamente."],"category":"forca","images":["Lying_Leg_Curls/0.jpg","Lying_Leg_Curls/1.jpg"],"id":"Lying_Leg_Curls"},
+  {"name":"Extensão de Pernas","force":"push","level":"iniciante","mechanic":"isolado","equipment":"maquina","primaryMuscles":["quadriceps"],"secondaryMuscles":[],"instructions":["Sente-se na máquina com as pernas sob a almofada.","Estenda as pernas ao máximo.","Faça uma pausa no topo e retorne lentamente."],"category":"forca","images":["Leg_Extensions/0.jpg","Leg_Extensions/1.jpg"],"id":"Leg_Extensions"},
+  {"name":"Pulldown com Pegada Larga","force":"pull","level":"iniciante","mechanic":"composto","equipment":"cabo","primaryMuscles":["dorsais"],"secondaryMuscles":["biceps","meio-das-costas"],"instructions":["Sente-se na máquina de pulldown.","Segure a barra com as palmas para frente.","Puxe a barra para baixo até tocar a parte superior do peito.","Levante lentamente a barra."],"category":"forca","images":["Wide-Grip_Lat_Pulldown/0.jpg","Wide-Grip_Lat_Pulldown/1.jpg"],"id":"Wide-Grip_Lat_Pulldown"},
+  {"name":"Remada Sentada no Pulley","force":"pull","level":"iniciante","mechanic":"composto","equipment":"cabo","primaryMuscles":["meio-das-costas"],"secondaryMuscles":["biceps","dorsais"],"instructions":["Sente-se na máquina com os pés na plataforma.","Segure a barra V.","Puxe a barra em direção ao abdômen.","Retorne lentamente."],"category":"forca","images":["Seated_Cable_Rows/0.jpg","Seated_Cable_Rows/1.jpg"],"id":"Seated_Cable_Rows"},
+  {"name":"Elevação de Panturrilha em Pé","force":"push","level":"iniciante","mechanic":"isolado","equipment":"maquina","primaryMuscles":["panturrilhas"],"secondaryMuscles":[],"instructions":["Posicione os ombros sob as almofadas.","Eleve os calcanhares o máximo possível.","Abaixe lentamente."],"category":"forca","images":["Standing_Calf_Raises/0.jpg","Standing_Calf_Raises/1.jpg"],"id":"Standing_Calf_Raises"},
+  {"name":"Prancha","force":"static","level":"iniciante","mechanic":"isolado","equipment":"peso-do-corpo","primaryMuscles":["abdominais"],"secondaryMuscles":[],"instructions":["Fique em posição prona apoiado nos dedos dos pés e antebraços.","Mantenha o corpo reto pelo maior tempo possível."],"category":"forca","images":["Plank/0.jpg","Plank/1.jpg"],"id":"Plank"},
+  {"name":"Crucifixo com Halteres","force":"push","level":"iniciante","mechanic":"isolado","equipment":"halteres","primaryMuscles":["peito"],"secondaryMuscles":[],"instructions":["Deite-se em um banco plano com um halter em cada mão.","Estenda os braços acima de você com uma leve flexão nos cotovelos.","Abaixe os braços para os lados em um arco amplo.","Retorne à posição inicial."],"category":"forca","images":["Dumbbell_Flyes/0.jpg","Dumbbell_Flyes/1.jpg"],"id":"Dumbbell_Flyes"},
+  {"name":"Tríceps Testa com Barra W","force":"push","level":"iniciante","mechanic":"isolado","equipment":"barra-w","primaryMuscles":["triceps"],"secondaryMuscles":[],"instructions":["Deitado em um banco, segure a barra W com pegada fechada.","Flexione os cotovelos para baixar a barra em direção à testa.","Estenda os cotovelos para levantar a barra."],"category":"forca","images":["EZ-Bar_Skullcrusher/0.jpg","EZ-Bar_Skullcrusher/1.jpg"],"id":"EZ-Bar_Skullcrusher"},
+  {"name":"Levantamento Terra Romeno","force":"pull","level":"intermediario","mechanic":"composto","equipment":"barra","primaryMuscles":["isquiotibiais"],"secondaryMuscles":["gluteos","inferior-das-costas"],"instructions":["Segure uma barra com pegada pronada.","Flexione levemente os joelhos e empurre os quadris para trás.","Abaixe a barra em direção aos pés, mantendo as costas retas.","Retorne à posição ereta."],"category":"forca","images":["Romanian_Deadlift/0.jpg","Romanian_Deadlift/1.jpg"],"id":"Romanian_Deadlift"},
+  {"name":"Desenvolvimento com Halteres em Pé","force":"push","level":"iniciante","mechanic":"composto","equipment":"halteres","primaryMuscles":["ombros"],"secondaryMuscles":["triceps"],"instructions":["Em pé, segure um halter em cada mão na altura dos ombros.","Estenda os cotovelos para levantar os pesos acima da cabeça.","Abaixe lentamente."],"category":"forca","images":["Standing_Dumbbell_Press/0.jpg","Standing_Dumbbell_Press/1.jpg"],"id":"Standing_Dumbbell_Press"},
+  {"name":"Rosca Alternada com Halteres","force":"pull","level":"iniciante","mechanic":"isolado","equipment":"halteres","primaryMuscles":["biceps"],"secondaryMuscles":[],"instructions":["Fique em pé com um halter em cada mão.","Faça a rosca com um braço girando a palma para cima.","Desça e repita com o outro braço."],"category":"forca","images":["Dumbbell_Alternate_Bicep_Curl/0.jpg","Dumbbell_Alternate_Bicep_Curl/1.jpg"],"id":"Dumbbell_Alternate_Bicep_Curl"}
+];
+
+const MUSCLE_GROUP_MAP = {
+  peito:'Peito',
+  dorsais:'Costas', 'meio-das-costas':'Costas', 'inferior-das-costas':'Costas', trapezio:'Costas',
+  ombros:'Ombros',
+  biceps:'Bíceps',
+  triceps:'Tríceps',
+  antebracos:'Antebraço',
+  quadriceps:'Pernas', isquiotibiais:'Pernas', abdutores:'Pernas', adutores:'Pernas',
+  gluteos:'Glúteos',
+  abdominais:'Abdômen',
+  panturrilhas:'Panturrilha',
+  pescoco:'Pescoço'
+};
+const GROUP_ORDER = ['Peito','Costas','Ombros','Bíceps','Tríceps','Antebraço','Pernas','Glúteos','Abdômen','Panturrilha','Pescoço','Cardio','Outros'];
+function groupForExercise(ex){
+  if(ex.category === 'cardio') return 'Cardio';
+  const m = (ex.primaryMuscles||[])[0];
+  return MUSCLE_GROUP_MAP[m] || 'Outros';
+}
+
+const EXERCISE_BY_NAME = new Map();
+function reindexExercises(){
+  EXERCISE_BY_NAME.clear();
+  EXERCISE_DB.forEach(ex=>{
+    ex.group = groupForExercise(ex);
+    const key = ex.name.toLowerCase();
+    if(!EXERCISE_BY_NAME.has(key)) EXERCISE_BY_NAME.set(key, ex);
+  });
+}
+reindexExercises();
+
+const LEVEL_LABEL = {iniciante:'Iniciante', intermediario:'Intermediário', avancado:'Avançado'};
+const EQUIPMENT_LABEL = {
+  'peso-do-corpo':'Peso do corpo', barra:'Barra', 'barra-w':'Barra W', halteres:'Halteres',
+  maquina:'Máquina', cabo:'Cabo', kettlebell:'Kettlebell', faixas:'Faixas elásticas',
+  'bola-de-exercicio':'Bola de exercício', 'bola-medicinal':'Bola medicinal',
+  'rolo-de-espuma':'Rolo de espuma', outros:'Outros equipamentos'
+};
 let CUSTOM_EXERCISES = loadCustomExercises();
 function allExerciseGroups(){
-  const groups = BASE_EXERCISES.map(([g,l])=>[g,l.slice()]);
+  const groups = GROUP_ORDER.map(g=> [g, EXERCISE_DB.filter(ex=>ex.group===g).map(ex=>ex.name)]).filter(([,l])=>l.length);
   if(CUSTOM_EXERCISES.length){
-    const idx = groups.findIndex(([g])=>g==='Personalizados');
-    const list = CUSTOM_EXERCISES.map(c=>[c.name, c.en||c.name]);
-    if(idx>=0) groups[idx][1] = groups[idx][1].concat(list);
-    else groups.push(['Personalizados', list]);
+    const byGroup = {};
+    CUSTOM_EXERCISES.forEach(c=>{
+      const g = (c.group && c.group.trim()) ? c.group.trim() : 'Personalizados';
+      (byGroup[g] = byGroup[g]||[]).push(c.name);
+    });
+    Object.keys(byGroup).forEach(g=>{
+      const idx = groups.findIndex(([gg])=>gg===g);
+      if(idx>=0) groups[idx][1] = groups[idx][1].concat(byGroup[g]);
+      else groups.push([g, byGroup[g]]);
+    });
   }
   return groups;
 }
 function exerciseFlat(){
   const flat = [];
-  allExerciseGroups().forEach(([g,l])=> l.forEach(([n,en])=> flat.push({name:n, group:g, en})));
+  allExerciseGroups().forEach(([g,l])=> l.forEach(n=> flat.push({name:n, group:g})));
   return flat;
 }
 function exerciseGroup(name){
@@ -805,95 +976,763 @@ function exerciseGroup(name){
 function isCustomExercise(name){
   return CUSTOM_EXERCISES.some(c=> c.name.toLowerCase() === String(name).toLowerCase());
 }
+function exerciseData(name){
+  return EXERCISE_BY_NAME.get(String(name||'').toLowerCase().trim()) || null;
+}
+function getExerciseImageUrls(name){
+  const ex = exerciseData(name);
+  if(ex && ex.images && ex.images.length) return ex.images.map(p=> EXERCISE_IMAGE_SOURCES.map(base=> base + p));
+  return [];
+}
 const demoVideoUrl = n => 'https://www.youtube.com/results?search_query='+encodeURIComponent(n+' execução correta');
+
+/* ============================================================
+   MÚSICA — playlists + player fixo no topo
+============================================================ */
+const KEYS_MUSIC = '86gym_playlists_v1';
+const MP_KEYS = '86gym_music_state_v1';
+
+function loadPlaylists(){ return safeJSON(KEYS_MUSIC, []); }
+function savePlaylists(p){
+  safeSet(KEYS_MUSIC, JSON.stringify(p));
+  touchLocalModified();
+  scheduleAutoBackup();
+  scheduleGistSync();
+}
+
+let MUSIC_STATE = { playlistId: null, expanded: false, ts: 0 };
+
+function loadMusicState(){
+  const s = safeJSON(MP_KEYS, { playlistId: null, expanded: false, ts: 0 });
+  // Só restaura se foi usado nas últimas 4h
+  if(!s.ts || Date.now() - s.ts > 4*3600*1000){
+    MUSIC_STATE = { playlistId: null, expanded: false, ts: 0 };
+    return MUSIC_STATE;
+  }
+  MUSIC_STATE = { playlistId: s.playlistId || null, expanded: !!s.expanded, ts: s.ts };
+  return MUSIC_STATE;
+}
+function saveMusicState(){
+  MUSIC_STATE.ts = Date.now();
+  safeSet(MP_KEYS, JSON.stringify(MUSIC_STATE));
+}
+
+/* Converte URL comum em URL de embed */
+function extractEmbedUrl(url){
+  if(!url) return null;
+  url = String(url).trim();
+  // Playlist YouTube
+  const ytList = url.match(/[?&]list=([\w-]+)/);
+  if(ytList && /youtube\.com|youtu\.be/.test(url)){
+    return 'https://www.youtube-nocookie.com/embed/videoseries?list=' + ytList[1];
+  }
+  // Vídeo YouTube único
+  const ytVid = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]+)/);
+  if(ytVid) return 'https://www.youtube-nocookie.com/embed/' + ytVid[1];
+  // Spotify
+  const spotify = url.match(/open\.spotify\.com\/(playlist|album|track|artist|show|episode)\/(\w+)/);
+  if(spotify) return 'https://open.spotify.com/embed/' + spotify[1] + '/' + spotify[2];
+  // Já é embed
+  if(/\/embed\/|videoseries/.test(url)) return url.replace('youtube.com','youtube-nocookie.com');
+  return null;
+}
+
+/* ---------- UI do player ---------- */
+function initMusicPlayer(){
+  const el = document.getElementById('music-player');
+  if(!el) return;
+
+  const toggleBtn = document.getElementById('mp-toggle');
+  if(toggleBtn && !toggleBtn.dataset.bound){
+    toggleBtn.dataset.bound = '1';
+    toggleBtn.addEventListener('click', ()=>{
+      MUSIC_STATE.expanded = !MUSIC_STATE.expanded;
+      saveMusicState();
+      updateMusicPlayerUI();
+      haptic('tap');
+    });
+  }
+  const closeBtn = document.getElementById('mp-close');
+  if(closeBtn && !closeBtn.dataset.bound){
+    closeBtn.dataset.bound = '1';
+    closeBtn.addEventListener('click', closeMusicPlayer);
+  }
+
+  // Observa mudanças de tamanho para ajustar o padding do conteúdo
+  if('ResizeObserver' in window){
+    new ResizeObserver(()=> updateViewPadding()).observe(el);
+  } else {
+    window.addEventListener('resize', updateViewPadding);
+  }
+
+  // Tenta restaurar sessão anterior
+  const saved = loadMusicState();
+  if(saved.playlistId){
+    const p = loadPlaylists().find(x=> x.id === saved.playlistId);
+    if(p){
+      setTimeout(()=> openMusicPlayer(p.id, saved.expanded), 250);
+    } else {
+      MUSIC_STATE.playlistId = null;
+      saveMusicState();
+    }
+  }
+}
+
+function openMusicPlayer(playlistId, expand=true){
+  const p = loadPlaylists().find(x=> x.id === playlistId);
+  if(!p){ showToast('Playlist não encontrada'); return; }
+  const embed = extractEmbedUrl(p.url);
+  if(!embed){ showToast('URL inválida ou não suportada'); return; }
+
+  MUSIC_STATE.playlistId = playlistId;
+  MUSIC_STATE.expanded = expand;
+  saveMusicState();
+
+  const el = document.getElementById('music-player');
+  const frame = document.getElementById('mp-frame');
+  const title = document.getElementById('mp-title');
+  const currentIframe = frame.querySelector('iframe');
+
+  // Só recria o iframe se for outra playlist (evita interromper a música)
+  if(!currentIframe || currentIframe.dataset.src !== embed){
+    frame.innerHTML = `
+      <div class="mp-frame-wrap">
+        <iframe
+          src="${embed}"
+          data-src="${embed}"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+      </div>`;
+  }
+
+  title.textContent = p.name;
+  el.classList.add('visible');
+  el.setAttribute('aria-hidden','false');
+  updateMusicPlayerUI();
+}
+
+function closeMusicPlayer(){
+  const el = document.getElementById('music-player');
+  if(!el) return;
+  el.classList.remove('visible','expanded');
+  el.setAttribute('aria-hidden','true');
+  document.getElementById('mp-frame').innerHTML = '';
+  MUSIC_STATE.playlistId = null;
+  MUSIC_STATE.expanded = false;
+  saveMusicState();
+  updateViewPadding();
+}
+
+function updateMusicPlayerUI(){
+  const el = document.getElementById('music-player');
+  if(!el) return;
+  el.classList.toggle('expanded', !!MUSIC_STATE.expanded);
+  const btn = document.getElementById('mp-toggle');
+  if(btn){
+    btn.innerHTML = MUSIC_STATE.expanded
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M18 15l-6-6-6 6"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M6 9l6 6 6-6"/></svg>';
+  }
+  updateViewPadding();
+}
+
+function updateViewPadding(){
+  const mp = document.getElementById('music-player');
+  const view = document.getElementById('view');
+  if(!mp || !view) return;
+  if(!mp.classList.contains('visible')){
+    view.style.paddingTop = '';
+    return;
+  }
+  requestAnimationFrame(()=>{
+    const h = mp.getBoundingClientRect().height;
+    view.style.paddingTop = (h + 12) + 'px';
+  });
+}
+
+/* ---------- Tela de playlists ---------- */
+function MusicaScreen(){
+  const playlists = loadPlaylists();
+  return `
+    <div class="top-actions"><h1 class="page-title" style="margin:0;">Música</h1></div>
+    <p class="page-sub">Playlists para ouvir durante o treino. Cole links do YouTube ou Spotify.</p>
+    <button class="btn" id="btn-add-playlist" style="margin-bottom:18px;">${ICONS.plus} Adicionar playlist</button>
+    ${playlists.length===0 ? `
+      <div class="empty">${ICONS.music}
+        <div>Nenhuma playlist ainda.<br>Adicione links do YouTube ou Spotify.</div>
+        <div style="margin-top:16px; font-size:11.5px; color:var(--muted); line-height:1.8; text-align:left; max-width:300px; margin-left:auto; margin-right:auto;">
+          <b style="color:var(--lime); display:block; margin-bottom:6px;">Exemplos de links:</b>
+          • youtube.com/playlist?list=PLxxxxx<br>
+          • youtu.be/xxxxxxxxxxx<br>
+          • open.spotify.com/playlist/xxxxx<br>
+          • open.spotify.com/album/xxxxx
+        </div>
+      </div>` :
+      playlists.map(p=>{
+        const playing = MUSIC_STATE.playlistId === p.id;
+        return `
+        <div class="cardio-item" style="${playing ? 'border-color:var(--lime);' : ''}">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+            <div style="flex:1; min-width:0;">
+              <h3>${escapeHtml(p.name)} ${playing ? '<span style="font-size:11px; color:var(--lime); font-weight:800; margin-left:4px;">▶ TOCANDO</span>' : ''}</h3>
+              <small style="color:var(--muted); display:block; word-break:break-all; font-size:11px; margin-top:4px;">${escapeHtml(p.url)}</small>
+            </div>
+            <button class="icon-btn mini" data-del-playlist="${p.id}" aria-label="Excluir">${ICONS.trash}</button>
+          </div>
+          <div class="row" style="margin-top:12px;">
+            <button class="btn small ${playing?'secondary':''}" data-play-playlist="${p.id}" style="flex:1;">
+              ${playing ? 'Pausar/Fechar' : ICONS.play + ' Tocar'}
+            </button>
+          </div>
+        </div>`;
+      }).join('')
+    }`;
+}
+
+/* ---------- Diálogo para adicionar ---------- */
+async function addPlaylistDialog(){
+  const name = await promptDialog('Nome da playlist', {title:'Nova playlist', placeholder:'Ex: Foco no treino'});
+  if(!name || !name.trim()) return;
+  const url = await promptDialog('Cole a URL do YouTube ou Spotify', {title:'URL', placeholder:'https://...'});
+  if(!url || !url.trim()) return;
+  const embed = extractEmbedUrl(url);
+  if(!embed){ showToast('URL inválida ou não suportada'); return; }
+  const playlists = loadPlaylists();
+  playlists.push({ id: uid(), name: name.trim(), url: url.trim(), ts: Date.now() });
+  savePlaylists(playlists);
+  showToast('Playlist adicionada!');
+  render();
+}
+
+/* ---------- Picker rápido (para usar durante o treino) ---------- */
+function openPlaylistPicker(){
+  const playlists = loadPlaylists();
+  if(!playlists.length){
+    showToast('Adicione uma playlist na aba Música');
+    return;
+  }
+  if(playlists.length === 1){
+    // Só tem uma: toca direto
+    if(MUSIC_STATE.playlistId === playlists[0].id){
+      closeMusicPlayer();
+      showToast('Player fechado');
+    } else {
+      openMusicPlayer(playlists[0].id, true);
+    }
+    return;
+  }
+  const bg = openModal(`
+    <button class="close-x" aria-label="Fechar">&times;</button>
+    <h3 style="margin-bottom:12px;">Escolher playlist</h3>
+    ${playlists.map(p=>{
+      const playing = MUSIC_STATE.playlistId === p.id;
+      return `
+      <button class="btn ${playing?'secondary':''}" style="margin-bottom:8px; width:100%; justify-content:flex-start; text-align:left;"
+        data-pick-playlist="${p.id}">
+        ${ICONS.music} ${escapeHtml(p.name)} ${playing?' <span style="font-size:10px; color:var(--lime); margin-left:auto;">▶</span>':''}
+      </button>`;
+    }).join('')}
+    ${MUSIC_STATE.playlistId ? `<button class="btn danger" style="margin-top:8px;" id="picker-close-player">Fechar player</button>` : ''}
+  `);
+  bg.querySelector('.close-x').onclick = ()=> closeModal(bg);
+  bg.querySelectorAll('[data-pick-playlist]').forEach(el=> el.addEventListener('click', ()=>{
+    const id = el.dataset.pickPlaylist;
+    closeModal(bg);
+    if(MUSIC_STATE.playlistId === id){ closeMusicPlayer(); showToast('Player fechado'); }
+    else openMusicPlayer(id, true);
+  }));
+  const closeBtn = bg.querySelector('#picker-close-player');
+  if(closeBtn) closeBtn.addEventListener('click', ()=>{ closeModal(bg); closeMusicPlayer(); });
+}
+
+/* ============================================================
+   TRADUÇÃO — nomes e instruções em português
+============================================================ */
+// Dicionário de nomes completos (chave = nome EN lowercase)
+const PT_NAME_DICT = {
+  'barbell bench press - medium grip':'Supino Reto com Barra - Pegada Média',
+  'barbell bench press':'Supino Reto com Barra',
+  'incline barbell bench press':'Supino Inclinado com Barra',
+  'decline barbell bench press':'Supino Declinado com Barra',
+  'close-grip barbell bench press':'Supino com Barra - Pegada Fechada',
+  'wide-grip barbell bench press':'Supino com Barra - Pegada Aberta',
+  'dumbbell bench press':'Supino Reto com Halteres',
+  'incline dumbbell bench press':'Supino Inclinado com Halteres',
+  'decline dumbbell bench press':'Supino Declinado com Halteres',
+  'dumbbell flyes':'Crucifixo com Halteres',
+  'incline dumbbell flyes':'Crucifixo Inclinado',
+  'decline dumbbell flyes':'Crucifixo Declinado',
+  'cable crossover':'Crossover na Polia',
+  'low cable crossover':'Crossover Baixo na Polia',
+  'pec deck fly':'Peck Deck',
+  'butterfly':'Butterfly',
+  'push up':'Flexão de Braço',
+  'push-up wide':'Flexão Aberta',
+  'push-up close triceps position':'Flexão Fechada (Tríceps)',
+  'barbell squat':'Agachamento com Barra',
+  'front barbell squat':'Agachamento Frontal com Barra',
+  'barbell full squat':'Agachamento Livre Completo',
+  'goblet squat':'Agachamento Goblet',
+  'sumo squat':'Agachamento Sumô',
+  'hack squat':'Agachamento Hack',
+  'smith machine squat':'Agachamento no Smith',
+  'dumbbell squat':'Agachamento com Halteres',
+  'bulgarian split squat':'Agachamento Búlgaro',
+  'split squat with dumbbells':'Agachamento Búlgaro com Halteres',
+  'bodyweight squat':'Agachamento Livre sem Peso',
+  'box squat':'Agachamento na Caixa',
+  'leg press':'Leg Press',
+  'narrow stance leg press':'Leg Press com Postura Fechada',
+  'leg extension':'Cadeira Extensora',
+  'leg extensions':'Cadeira Extensora',
+  'leg curl':'Cadeira Flexora',
+  'lying leg curls':'Cadeira Flexora Deitado',
+  'seated leg curl':'Cadeira Flexora Sentado',
+  'lunge':'Afundo',
+  'dumbbell lunges':'Afundo com Halteres',
+  'barbell lunge':'Afundo com Barra',
+  'walking lunge':'Afundo Caminhando',
+  'barbell walking lunge':'Afundo Caminhando com Barra',
+  'dumbbell rear lunge':'Afundo Reverso com Halteres',
+  'hip thrust':'Elevação Pélvica',
+  'barbell hip thrust':'Elevação Pélvica com Barra',
+  'glute bridge':'Ponte de Glúteo',
+  'barbell glute bridge':'Ponte de Glúteo com Barra',
+  'romanian deadlift':'Levantamento Terra Romeno',
+  'stiff-legged barbell deadlift':'Levantamento Terra Pernas Rígidas',
+  'stiff-legged dumbbell deadlift':'Levantamento Terra Pernas Rígidas com Halteres',
+  'deadlift':'Levantamento Terra',
+  'barbell deadlift':'Levantamento Terra com Barra',
+  'sumo deadlift':'Levantamento Terra Sumô',
+  'trap bar deadlift':'Levantamento Terra com Barra Hexagonal',
+  'calf press':'Panturrilha no Leg Press',
+  'calf press on the leg press machine':'Panturrilha na Máquina de Leg Press',
+  'standing calf raises':'Elevação de Panturrilha em Pé',
+  'seated calf raise':'Elevação de Panturrilha Sentado',
+  'donkey calf raises':'Elevação de Panturrilha Donkey',
+  'rocking standing calf raise':'Elevação de Panturrilha com Balanço',
+  'lat pulldown':'Puxada Frontal',
+  'wide-grip lat pulldown':'Puxada Frontal - Pegada Aberta',
+  'close-grip front lat pulldown':'Puxada Frontal - Pegada Fechada',
+  'underhand cable pulldowns':'Puxada Supinada',
+  'v-bar pulldown':'Puxada com Barra V',
+  'pullups':'Barra Fixa',
+  'pull up':'Barra Fixa',
+  'chin-up':'Barra Fixa Supinada',
+  'chin up':'Barra Fixa Supinada',
+  'wide-grip rear pull-up':'Barra Fixa por Trás',
+  'bent over barbell row':'Remada Curvada com Barra',
+  'reverse grip bent-over rows':'Remada Curvada com Pegada Supinada',
+  'seated cable rows':'Remada Sentada na Polia',
+  'one-arm dumbbell row':'Remada Unilateral com Halter',
+  'bent over two-dumbbell row':'Remada Curvada com Dois Halteres',
+  't-bar row with handle':'Remada Cavalinho',
+  'lying t-bar row':'Remada T-Bar Deitado',
+  'barbell rear delt row':'Remada Alta para Deltóide Posterior',
+  'dumbbell shoulder press':'Desenvolvimento com Halteres',
+  'seated dumbbell press':'Desenvolvimento Sentado com Halteres',
+  'arnold dumbbell press':'Arnold Press',
+  'military press':'Desenvolvimento Militar',
+  'standing military press':'Desenvolvimento Militar em Pé',
+  'seated barbell military press':'Desenvolvimento Militar Sentado',
+  'smith machine overhead shoulder press':'Desenvolvimento no Smith',
+  'lateral raise':'Elevação Lateral',
+  'side lateral raise':'Elevação Lateral',
+  'seated side lateral raise':'Elevação Lateral Sentado',
+  'front dumbbell raise':'Elevação Frontal com Halteres',
+  'front cable raise':'Elevação Frontal na Polia',
+  'front plate raise':'Elevação Frontal com Anilha',
+  'upright barbell row':'Remada Alta com Barra',
+  'upright cable row':'Remada Alta na Polia',
+  'reverse flyes':'Crucifixo Inverso',
+  'reverse machine flyes':'Crucifixo Inverso na Máquina',
+  'face pull':'Face Pull',
+  'barbell shrug':'Encolhimento com Barra',
+  'dumbbell shrug':'Encolhimento com Halteres',
+  'cable shrugs':'Encolhimento na Polia',
+  'barbell curl':'Rosca Direta com Barra',
+  'ez-bar curl':'Rosca Direta com Barra W',
+  'dumbbell bicep curl':'Rosca Direta com Halteres',
+  'dumbbell alternate bicep curl':'Rosca Alternada com Halteres',
+  'alternate hammer curl':'Rosca Martelo Alternada',
+  'hammer curls':'Rosca Martelo',
+  'preacher curl':'Rosca Scott',
+  'concentration curls':'Rosca Concentrada',
+  'cable curl':'Rosca na Polia',
+  'standing biceps cable curl':'Rosca Direta na Polia em Pé',
+  'incline dumbbell curl':'Rosca Inclinada com Halteres',
+  'seated dumbbell curl':'Rosca Sentado com Halteres',
+  'zottman curl':'Rosca Zottman',
+  'triceps pushdown':'Tríceps Pulley',
+  'triceps pushdown - rope attachment':'Tríceps Pulley com Corda',
+  'triceps pushdown - v-bar attachment':'Tríceps Pulley com Barra V',
+  'cable rope overhead triceps extension':'Tríceps Corda Acima da Cabeça',
+  'ez-bar skullcrusher':'Tríceps Testa com Barra W',
+  'lying triceps press':'Tríceps Testa',
+  'bench dips':'Mergulho no Banco',
+  'dips - triceps version':'Mergulho - Versão Tríceps',
+  'dips - chest version':'Mergulho - Versão Peito',
+  'close-grip ez-bar press':'Supino Fechado com Barra W',
+  'close-grip dumbbell press':'Supino Fechado com Halteres',
+  'tricep dumbbell kickback':'Tríceps Coice com Halter',
+  'seated triceps press':'Tríceps Francês Sentado',
+  'crunch':'Abdominal Supra',
+  'crunches':'Abdominais',
+  'cable crunch':'Abdominal na Polia',
+  'cable seated crunch':'Abdominal Sentado na Polia',
+  'hanging leg raise':'Elevação de Pernas na Barra',
+  'reverse crunch':'Abdominal Inverso',
+  'russian twist':'Abdominal Russo',
+  'plank':'Prancha',
+  'side bridge':'Prancha Lateral',
+  'mountain climbers':'Escalador',
+  'air bike':'Bicicleta no Ar',
+  'cross-body crunch':'Abdominal Cruzado',
+  'sit-up':'Abdominal Completo',
+  'oblique crunches':'Abdominal Oblíquo',
+  'ab crunch machine':'Máquina de Abdominal',
+  'ab roller':'Roda Abdominal',
+  'butt lift bridge':'Ponte de Glúteo',
+  'one leg glute bridge':'Ponte de Glúteo Unilateral',
+  'physioball hip bridge':'Ponte de Quadril com Bola',
+  'glute kickback':'Coice de Glúteo',
+  'one-legged cable kickback':'Coice com Cabo e Uma Perna',
+  'anterior tibialis-smr':'Liberação Miofascial do Tibial Anterior',
+  'calf stretch elbows against wall':'Alongamento de Panturrilha com Cotovelos na Parede',
+  'calf stretch hands against wall':'Alongamento de Panturrilha com Mãos na Parede',
+  '90 90 hamstring':'Isquiotibiais 90/90',
+  'hamstring stretch':'Alongamento de Isquiotibiais',
+  'quad stretch':'Alongamento de Quadríceps',
+  'chest and front of shoulder stretch':'Alongamento do Peito e Parte Dianteira do Ombro',
+  'childs pose':'Postura da Criança',
+  'cat stretch':'Alongamento do Gato',
+  'cobra':'Cobra',
+  'worlds greatest stretch':'Alongamento Mais Completo do Mundo',
+  'pushups':'Flexões',
+  'bicycling':'Ciclismo',
+  'bicycling stationary':'Ciclismo Estacionário',
+  'elliptical trainer':'Elíptico',
+  'jogging treadmill':'Corrida na Esteira',
+  'running treadmill':'Corrida na Esteira',
+  'walking treadmill':'Caminhada na Esteira',
+  'rope jumping':'Pular Corda',
+  'rowing stationary':'Remo Ergométrico',
+  'stairmaster':'Escada Ergométrica',
+  'step mill':'Step Mill',
+  'recumbent bike':'Bicicleta Recumbente',
+  'burpee':'Burpee',
+  'jump squat':'Agachamento com Salto',
+  'freehand jump squat':'Agachamento com Salto Livre',
+  'box jump':'Salto na Caixa',
+  'jump rope':'Pular Corda',
+  'kettlebell swing':'Balanço com Kettlebell',
+  'kettlebell swings':'Balanço com Kettlebell',
+  'one-arm kettlebell swings':'Balanço com Kettlebell Unilateral',
+  'kettlebell turkish get-up':'Turkish Get-Up com Kettlebell',
+  'kettlebell clean':'Clean com Kettlebell',
+  'kettlebell snatch':'Arranco com Kettlebell',
+  'kettlebell press':'Desenvolvimento com Kettlebell',
+  'kettlebell one-legged deadlift':'Levantamento Terra Unilateral com Kettlebell'
+};
+
+// Palavras isoladas (fallback para nomes não listados)
+const PT_WORDS = {
+  'barbell':'com barra','dumbbell':'com halteres','cable':'na polia',
+  'machine':'na máquina','ez-bar':'com barra W','kettlebell':'com kettlebell',
+  'band':'com elástico','bodyweight':'peso do corpo','smith machine':'no smith',
+  'incline':'inclinado','decline':'declinado','flat':'reto','reverse':'inverso',
+  'standing':'em pé','seated':'sentado','lying':'deitado','prone':'de bruços',
+  'supine':'de costas','kneeling':'ajoelhado','side':'lateral',
+  'wide-grip':'pegada aberta','close-grip':'pegada fechada','medium grip':'pegada média',
+  'underhand':'supinada','overhand':'pronada','alternating':'alternado','alternate':'alternado',
+  'one-arm':'unilateral','one arm':'unilateral','single-arm':'unilateral',
+  'one leg':'unilateral','one-legged':'unilateral','bent-over':'curvado','bent over':'curvado',
+  'behind the back':'atrás das costas','behind the neck':'atrás da nuca','overhead':'acima da cabeça',
+  'barbell squat':'agachamento com barra','bench press':'supino','squat':'agachamento',
+  'deadlift':'levantamento terra','curl':'rosca','press':'desenvolvimento',
+  'raise':'elevação','fly':'crucifixo','flyes':'crucifixo','row':'remada',
+  'pushdown':'tríceps pulley','extension':'extensão','pulldown':'puxada',
+  'pull-up':'barra fixa','pull up':'barra fixa','chin-up':'barra fixa supinada',
+  'lunge':'afundo','crunch':'abdominal','plank':'prancha','shrug':'encolvimento',
+  'thrust':'elevação pélvica','bridge':'ponte','kickback':'coice',
+  'stretch':'alongamento','calf raise':'elevação de panturrilha'
+};
+
+function translateExerciseName(en){
+  if(!en) return en;
+  const lower = String(en).toLowerCase().trim();
+  if(PT_NAME_DICT[lower]) return PT_NAME_DICT[lower];
+  let out = en;
+  // Compostos longos primeiro
+  const compounds = Object.keys(PT_NAME_DICT).filter(k=>k.includes(' ')).sort((a,b)=>b.length-a.length);
+  for(const c of compounds){
+    const re = new RegExp('\\b' + c.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b','gi');
+    if(re.test(out)) out = out.replace(re, PT_NAME_DICT[c]);
+  }
+  // Palavras isoladas
+  const words = Object.keys(PT_WORDS).sort((a,b)=>b.length-a.length);
+  for(const w of words){
+    const re = new RegExp('\\b' + w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b','gi');
+    out = out.replace(re, PT_WORDS[w]);
+  }
+  out = out.trim().replace(/\s+/g,' ');
+  return out.charAt(0).toUpperCase() + out.slice(1);
+}
+
+// Instruções genéricas por grupo muscular (usadas quando não há tradução literal)
+const PT_INSTRUCTIONS_BY_GROUP = {
+  'Peito':[
+    'Deite-se no banco (ou ajuste a máquina) com as costas apoiadas e as escápulas retraídas.',
+    'Segure o peso firme na largura dos ombros e mantenha o core contraído.',
+    'Desça o peso de forma controlada até sentir o peitoral alongar.',
+    'Empurre de volta à posição inicial, contraindo o peito.',
+    'Expire na subida e inspire na descida. Repita pelas repetições alvo.'
+  ],
+  'Costas':[
+    'Posicione-se com o tronco ligeiramente inclinado e o peito aberto.',
+    'Segure o peso com pegada firme, mantendo as escápulas retraídas.',
+    'Puxe o peso em direção ao tronco, conduzindo pelos cotovelos.',
+    'Contraia as costas no topo do movimento por um segundo.',
+    'Retorne controladamente à posição inicial. Evite balanços com o corpo.'
+  ],
+  'Ombros':[
+    'Fique em pé ou sentado com o core contraído e a coluna neutra.',
+    'Segure o peso na altura dos ombros ou abaixo, dependendo do exercício.',
+    'Eleve o peso de forma controlada, sem impulso do corpo.',
+    'Contraia o ombro no topo do movimento por um segundo.',
+    'Desça lentamente à posição inicial. Repita pelas repetições alvo.'
+  ],
+  'Bíceps':[
+    'Fique em pé ou sentado com o tronco ereto e os cotovelos juntos ao corpo.',
+    'Segure o peso com pegada supinada (palmas para cima) ou neutra.',
+    'Flexione o cotovelo lentamente, contraindo o bíceps.',
+    'Contraia no topo por um segundo, sem balançar o tronco.',
+    'Desça controladamente à posição inicial.'
+  ],
+  'Tríceps':[
+    'Posicione os cotovelos junto ao tronco e mantenha o braço superior imóvel.',
+    'Estenda o cotovelo contraindo o tríceps.',
+    'Contraia no topo do movimento por um segundo.',
+    'Retorne lentamente à posição inicial sem travar o cotovelo.',
+    'Apenas o antebraço deve se mover.'
+  ],
+  'Pernas':[
+    'Posicione os pés na largura dos ombros, com o peso distribuído.',
+    'Mantenha o tronco ereto e o core ativado.',
+    'Desça o peso de forma controlada, sem deixar o joelho passar dos pés.',
+    'Suba empurrando com os calcanhares ou o meio do pé.',
+    'Contraia o quadríceps no topo e repita.'
+  ],
+  'Glúteos':[
+    'Posicione-se com os pés firmes no chão e o core contraído.',
+    'Execute o movimento conduzindo pelos quadris.',
+    'Contraia o glúteo no topo do movimento por um segundo.',
+    'Retorne controladamente à posição inicial.',
+    'Mantenha a coluna neutra durante todo o exercício.'
+  ],
+  'Abdômen':[
+    'Deite-se ou posicione-se no chão com a lombar apoiada.',
+    'Contraia o abdômen aproximando a caixa torácica dos quadris.',
+    'Expire durante a fase de contração.',
+    'Retorne lentamente à posição inicial, sem usar impulso.',
+    'Foque no controle do movimento, não na velocidade.'
+  ],
+  'Panturrilha':[
+    'Posicione as pontas dos pés em uma plataforma, com os calcanhares suspensos.',
+    'Suba os calcanhares o mais alto possível, contraindo a panturrilha.',
+    'Faça uma pausa de um segundo no topo.',
+    'Desça lentamente até sentir o alongamento completo.',
+    'Mantenha os joelhos levemente flexionados, sem travar.'
+  ],
+  'Antebraço':[
+    'Apoie os antebraços com os pulsos além da borda de apoio.',
+    'Execute o movimento lentamente, movimentando apenas os pulsos.',
+    'Contraia no topo do movimento.',
+    'Retorne à posição inicial sem balançar o corpo.',
+    'Mantenha a amplitude completa em cada repetição.'
+  ],
+  'Pescoço':[
+    'Mantenha o pescoço em posição neutra e a coluna alinhada.',
+    'Execute o movimento lentamente, sem forçar.',
+    'Contraia o músculo alvo de forma controlada.',
+    'Retorne à posição inicial sem pressa.',
+    'Respire normalmente durante todo o exercício.'
+  ],
+  'Cardio':[
+    'Faça 3-5 minutos de aquecimento leve.',
+    'Aumente a intensidade conforme seu condicionamento.',
+    'Mantenha um ritmo constante e respiração controlada.',
+    'Hidrate-se durante o exercício.',
+    'Desacelere gradualmente antes de parar.'
+  ],
+  'Outros':[
+    'Posicione-se de forma segura e confortável.',
+    'Execute o movimento de forma controlada.',
+    'Contraia o músculo alvo durante todo o exercício.',
+    'Retorne à posição inicial sem usar impulso.',
+    'Repita pelas repetições alvo, mantendo boa técnica.'
+  ]
+};
+
+function ptInstructionsFor(ex){
+  const group = ex.group || 'Outros';
+  return (PT_INSTRUCTIONS_BY_GROUP[group] || PT_INSTRUCTIONS_BY_GROUP['Outros']).slice();
+}
+
+/* ============================================================
+   LOADER DO EXERCISE DB (carrega os 870 exercícios em runtime)
+============================================================ */
+async function loadExerciseDB(){
+  let data = null;
+  let source = 'inline';
+
+  // 1) Cache do IndexedDB
+  try{
+    const cached = await IDB.get(KEYS.exdbCache);
+    if(cached && Array.isArray(cached) && cached.length > 100){
+      data = cached;
+      source = 'idb';
+    }
+  }catch(e){}
+
+  // 2) Fetch do GitHub
+  if(!data){
+    try{
+      const ctrl = new AbortController();
+      const t = setTimeout(()=> ctrl.abort(), 20000);
+      const r = await fetch(EXERCISE_DB_URL, { signal: ctrl.signal });
+      clearTimeout(t);
+      if(r.ok){
+        const j = await r.json();
+        if(Array.isArray(j) && j.length > 100){
+          data = j;
+          source = 'github';
+          // Guarda em cache o JSON em inglês (já traduzido depois no loop)
+          try{ await IDB.set(KEYS.exdbCache, j); }catch(e){}
+        }
+      }
+    }catch(e){
+      console.warn('[86gym] Fetch do ExerciseDB falhou:', e.message);
+    }
+  }
+
+  // 3) Aplica tradução em cada exercício
+  if(data && data.length){
+    const translated = data.map(ex=>{
+      const en = ex.name || '';
+      const ptName = translateExerciseName(en);
+      ex.nameEn = en;
+      ex.name = ptName;
+      // Marca se foi traduzido com dicionário (não palavra-a-palavra)
+      ex.translated = (PT_NAME_DICT[en.toLowerCase()] === ptName);
+      // Instruções: traduz se tiver tradução exata, senão gera por grupo
+      if(PT_NAME_DICT[en.toLowerCase()] && ex.instructions && ex.instructions.length){
+        ex.instructions = ptInstructionsFor(ex);
+      } else {
+        ex.instructions = ptInstructionsFor(ex);
+      }
+      return ex;
+    });
+    EXERCISE_DB = translated;
+    reindexExercises();
+    console.log('[86gym] ' + EXERCISE_DB.length + ' exercícios carregados de ' + source);
+    return { source, count: EXERCISE_DB.length };
+  }
+
+  // 4) Fallback mínimo embutido
+  console.warn('[86gym] A usar base mínima embutida: ' + EXERCISE_DB.length + ' exercícios');
+  return { source: 'inline', count: EXERCISE_DB.length };
+}
 
 const TEMPLATES = [
   {id:'ppl', name:'Push · Pull · Legs', desc:'3-6x/sem · Empurrar, puxar e pernas',
    build:()=>({nome:'PPL', divisoes:[
      {id:uid(), letra:'A', nome:'Push', exercicios:[
-       {nome:'Supino reto com barra',series:4,repeticoes:8,carga:0,descanso:90},
-       {nome:'Supino inclinado com halteres',series:3,repeticoes:10,carga:0,descanso:60},
-       {nome:'Desenvolvimento militar com barra',series:3,repeticoes:8,carga:0,descanso:90},
-       {nome:'Elevação lateral',series:3,repeticoes:12,carga:0,descanso:45},
-       {nome:'Tríceps pulley (corda)',series:3,repeticoes:12,carga:0,descanso:45}
+       {nome:'Supino Reto com Barra - Pegada Média',series:4,repeticoes:8,carga:0,descanso:90},
+       {nome:'Supino Inclinado com Halteres',series:3,repeticoes:10,carga:0,descanso:60},
+       {nome:'Desenvolvimento Militar em Pé',series:3,repeticoes:8,carga:0,descanso:90},
+       {nome:'Elevação Lateral',series:3,repeticoes:12,carga:0,descanso:45},
+       {nome:'Tríceps Pulley',series:3,repeticoes:12,carga:0,descanso:45}
      ]},
      {id:uid(), letra:'B', nome:'Pull', exercicios:[
-       {nome:'Barra fixa (pull-up)',series:4,repeticoes:8,carga:0,descanso:90},
-       {nome:'Remada curvada com barra',series:4,repeticoes:8,carga:0,descanso:90},
-       {nome:'Remada baixa (cabo)',series:3,repeticoes:10,carga:0,descanso:60},
-       {nome:'Rosca direta com barra',series:3,repeticoes:10,carga:0,descanso:60},
-       {nome:'Rosca martelo',series:3,repeticoes:12,carga:0,descanso:45}
+       {nome:'Barra Fixa',series:4,repeticoes:8,carga:0,descanso:90},
+       {nome:'Remada Curvada com Barra',series:4,repeticoes:8,carga:0,descanso:90},
+       {nome:'Remada Sentada no Pulley',series:3,repeticoes:10,carga:0,descanso:60},
+       {nome:'Rosca Direta com Barra',series:3,repeticoes:10,carga:0,descanso:60},
+       {nome:'Rosca Martelo',series:3,repeticoes:12,carga:0,descanso:45}
      ]},
      {id:uid(), letra:'C', nome:'Legs', exercicios:[
-       {nome:'Agachamento livre',series:4,repeticoes:8,carga:0,descanso:120},
-       {nome:'Leg press 45°',series:3,repeticoes:10,carga:0,descanso:90},
-       {nome:'Cadeira extensora',series:3,repeticoes:12,carga:0,descanso:60},
-       {nome:'Cadeira flexora',series:3,repeticoes:12,carga:0,descanso:60},
-       {nome:'Panturrilha em pé',series:4,repeticoes:15,carga:0,descanso:45}
+       {nome:'Agachamento com Barra',series:4,repeticoes:8,carga:0,descanso:120},
+       {nome:'Leg Press',series:3,repeticoes:10,carga:0,descanso:90},
+       {nome:'Extensão de Pernas',series:3,repeticoes:12,carga:0,descanso:60},
+       {nome:'Cadeira Flexora',series:3,repeticoes:12,carga:0,descanso:60},
+       {nome:'Elevação de Panturrilha em Pé',series:4,repeticoes:15,carga:0,descanso:45}
      ]}
    ]})},
   {id:'abc', name:'ABC Clássico', desc:'3x/sem · Peito+Tríceps, Costas+Bíceps, Pernas+Ombros',
    build:()=>({nome:'ABC', divisoes:[
      {id:uid(), letra:'A', nome:'Peito + Tríceps', exercicios:[
-       {nome:'Supino reto com barra',series:4,repeticoes:10,carga:0,descanso:60},
-       {nome:'Supino inclinado com halteres',series:3,repeticoes:10,carga:0,descanso:60},
-       {nome:'Crucifixo reto',series:3,repeticoes:12,carga:0,descanso:45},
-       {nome:'Tríceps pulley (corda)',series:3,repeticoes:12,carga:0,descanso:45},
-       {nome:'Tríceps testa',series:3,repeticoes:10,carga:0,descanso:45}
+       {nome:'Supino Reto com Barra - Pegada Média',series:4,repeticoes:10,carga:0,descanso:60},
+       {nome:'Supino Inclinado com Halteres',series:3,repeticoes:10,carga:0,descanso:60},
+       {nome:'Crucifixo com Halteres',series:3,repeticoes:12,carga:0,descanso:45},
+       {nome:'Tríceps Pulley',series:3,repeticoes:12,carga:0,descanso:45},
+       {nome:'Tríceps Testa com Barra W',series:3,repeticoes:10,carga:0,descanso:45}
      ]},
      {id:uid(), letra:'B', nome:'Costas + Bíceps', exercicios:[
-       {nome:'Puxada frontal (pulley)',series:4,repeticoes:10,carga:0,descanso:60},
-       {nome:'Remada curvada com barra',series:4,repeticoes:10,carga:0,descanso:60},
-       {nome:'Remada baixa (cabo)',series:3,repeticoes:12,carga:0,descanso:45},
-       {nome:'Rosca direta com barra',series:3,repeticoes:10,carga:0,descanso:45},
-       {nome:'Rosca alternada com halteres',series:3,repeticoes:12,carga:0,descanso:45}
+       {nome:'Pulldown com Pegada Larga',series:4,repeticoes:10,carga:0,descanso:60},
+       {nome:'Remada Curvada com Barra',series:4,repeticoes:10,carga:0,descanso:60},
+       {nome:'Remada Sentada no Pulley',series:3,repeticoes:12,carga:0,descanso:45},
+       {nome:'Rosca Direta com Barra',series:3,repeticoes:10,carga:0,descanso:45},
+       {nome:'Rosca Alternada com Halteres',series:3,repeticoes:12,carga:0,descanso:45}
      ]},
      {id:uid(), letra:'C', nome:'Pernas + Ombros', exercicios:[
-       {nome:'Agachamento livre',series:4,repeticoes:10,carga:0,descanso:90},
-       {nome:'Leg press 45°',series:3,repeticoes:12,carga:0,descanso:60},
-       {nome:'Cadeira extensora',series:3,repeticoes:12,carga:0,descanso:45},
-       {nome:'Desenvolvimento com halteres',series:3,repeticoes:10,carga:0,descanso:60},
-       {nome:'Elevação lateral',series:3,repeticoes:12,carga:0,descanso:45}
+       {nome:'Agachamento com Barra',series:4,repeticoes:10,carga:0,descanso:90},
+       {nome:'Leg Press',series:3,repeticoes:12,carga:0,descanso:60},
+       {nome:'Extensão de Pernas',series:3,repeticoes:12,carga:0,descanso:45},
+       {nome:'Desenvolvimento com Halteres em Pé',series:3,repeticoes:10,carga:0,descanso:60},
+       {nome:'Elevação Lateral',series:3,repeticoes:12,carga:0,descanso:45}
      ]}
    ]})},
   {id:'full', name:'Full Body 3x', desc:'3x/sem · Corpo inteiro em cada treino',
    build:()=>({nome:'Full Body', divisoes:[
      {id:uid(), letra:'A', nome:'Full Body A', exercicios:[
-       {nome:'Agachamento livre',series:3,repeticoes:8,carga:0,descanso:90},
-       {nome:'Supino reto com barra',series:3,repeticoes:8,carga:0,descanso:90},
-       {nome:'Remada curvada com barra',series:3,repeticoes:8,carga:0,descanso:90},
-       {nome:'Desenvolvimento militar com barra',series:3,repeticoes:10,carga:0,descanso:60},
-       {nome:'Prancha isométrica',series:3,repeticoes:1,carga:0,descanso:45}
+       {nome:'Agachamento com Barra',series:3,repeticoes:8,carga:0,descanso:90},
+       {nome:'Supino Reto com Barra - Pegada Média',series:3,repeticoes:8,carga:0,descanso:90},
+       {nome:'Remada Curvada com Barra',series:3,repeticoes:8,carga:0,descanso:90},
+       {nome:'Desenvolvimento Militar em Pé',series:3,repeticoes:10,carga:0,descanso:60},
+       {nome:'Prancha',series:3,repeticoes:1,carga:0,descanso:45}
      ]}
    ]})},
   {id:'5x5', name:'StrongLifts 5x5', desc:'Força · 3x/sem · 2 treinos alternados',
    build:()=>({nome:'5x5', divisoes:[
      {id:uid(), letra:'A', nome:'Treino A', exercicios:[
-       {nome:'Agachamento livre',series:5,repeticoes:5,carga:0,descanso:180},
-       {nome:'Supino reto com barra',series:5,repeticoes:5,carga:0,descanso:180},
-       {nome:'Remada curvada com barra',series:5,repeticoes:5,carga:0,descanso:180}
+       {nome:'Agachamento com Barra',series:5,repeticoes:5,carga:0,descanso:180},
+       {nome:'Supino Reto com Barra - Pegada Média',series:5,repeticoes:5,carga:0,descanso:180},
+       {nome:'Remada Curvada com Barra',series:5,repeticoes:5,carga:0,descanso:180}
      ]},
      {id:uid(), letra:'B', nome:'Treino B', exercicios:[
-       {nome:'Agachamento livre',series:5,repeticoes:5,carga:0,descanso:180},
-       {nome:'Desenvolvimento militar com barra',series:5,repeticoes:5,carga:0,descanso:180},
-       {nome:'Levantamento terra',series:1,repeticoes:5,carga:0,descanso:180}
+       {nome:'Agachamento com Barra',series:5,repeticoes:5,carga:0,descanso:180},
+       {nome:'Desenvolvimento Militar em Pé',series:5,repeticoes:5,carga:0,descanso:180},
+       {nome:'Levantamento Terra com Barra',series:1,repeticoes:5,carga:0,descanso:180}
      ]}
    ]})},
   {id:'ul', name:'Upper / Lower', desc:'4x/sem · Superiores e inferiores',
    build:()=>({nome:'Upper/Lower', divisoes:[
      {id:uid(), letra:'A', nome:'Upper', exercicios:[
-       {nome:'Supino reto com barra',series:4,repeticoes:8,carga:0,descanso:90},
-       {nome:'Remada curvada com barra',series:4,repeticoes:8,carga:0,descanso:90},
-       {nome:'Desenvolvimento com halteres',series:3,repeticoes:10,carga:0,descanso:60},
-       {nome:'Puxada frontal (pulley)',series:3,repeticoes:10,carga:0,descanso:60},
-       {nome:'Rosca direta com barra',series:3,repeticoes:10,carga:0,descanso:45}
+       {nome:'Supino Reto com Barra - Pegada Média',series:4,repeticoes:8,carga:0,descanso:90},
+       {nome:'Remada Curvada com Barra',series:4,repeticoes:8,carga:0,descanso:90},
+       {nome:'Desenvolvimento com Halteres em Pé',series:3,repeticoes:10,carga:0,descanso:60},
+       {nome:'Pulldown com Pegada Larga',series:3,repeticoes:10,carga:0,descanso:60},
+       {nome:'Rosca Direta com Barra',series:3,repeticoes:10,carga:0,descanso:45}
      ]},
      {id:uid(), letra:'B', nome:'Lower', exercicios:[
-       {nome:'Agachamento livre',series:4,repeticoes:8,carga:0,descanso:120},
-       {nome:'Stiff',series:3,repeticoes:10,carga:0,descanso:90},
-       {nome:'Leg press 45°',series:3,repeticoes:10,carga:0,descanso:60},
-       {nome:'Cadeira flexora',series:3,repeticoes:12,carga:0,descanso:45},
-       {nome:'Panturrilha em pé',series:4,repeticoes:15,carga:0,descanso:45}
+       {nome:'Agachamento com Barra',series:4,repeticoes:8,carga:0,descanso:120},
+       {nome:'Levantamento Terra Romeno',series:3,repeticoes:10,carga:0,descanso:90},
+       {nome:'Leg Press',series:3,repeticoes:10,carga:0,descanso:60},
+       {nome:'Cadeira Flexora',series:3,repeticoes:12,carga:0,descanso:45},
+       {nome:'Elevação de Panturrilha em Pé',series:4,repeticoes:15,carga:0,descanso:45}
      ]}
    ]})}
 ];
@@ -978,7 +1817,8 @@ const ICONS = {
   eye:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>',
   folder:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>',
   cloud:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 18a4 4 0 100-8 6 6 0 00-11.6 1.5A4 4 0 007 18z"/></svg>',
-  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>'
+  music:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>',
 };
 
 /* ============================================================
@@ -999,6 +1839,7 @@ const TABS = [
   {key:'exercicios', label:'Exercícios', icon:'dumbbell'},
   {key:'cardio', label:'Cardio', icon:'flame'},
   {key:'treinar', label:'Treinar', icon:'play'},
+  {key:'musica', label:'Música', icon:'music'},
   {key:'historico', label:'Histórico', icon:'history'}
 ];
 
@@ -1043,6 +1884,7 @@ function render(){
     else if(ROUTE.name==='perfil') view.innerHTML = PerfilScreen();
     else if(ROUTE.name==='stats') view.innerHTML = InsightsScreen();
     else if(ROUTE.name==='badges') view.innerHTML = BadgesScreen();
+    else if(ROUTE.name==='musica') view.innerHTML = MusicaScreen();
     else if(ROUTE.name==='challenges') view.innerHTML = ChallengesScreen();
   }catch(err){
     console.error('[86gym render]', err);
@@ -1216,6 +2058,11 @@ function openAboutModal(){
       Um app pessoal de treino criado pra acompanhar divisões, registrar cargas,
       analisar padrões (sono, energia, humor) e evoluir com consistência.
     </p>
+    <h3 style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin:16px 0 10px 0;">Biblioteca de exercícios</h3>
+    <p style="color:var(--muted); font-size:12px; line-height:1.55; margin:0 0 14px 0;">
+      Dados de <a href="https://github.com/yuhonas/free-exercise-db" target="_blank" rel="noopener" style="color:var(--blue);">free-exercise-db</a> (domínio público).
+      Base atual: <b style="color:var(--lime);">${EXERCISE_DB.length} exercícios</b> carregados.
+    </p>
     <div style="display:flex; flex-direction:column; gap:8px;">
       <a href="https://github.com/gfsouza86" target="_blank" rel="noopener" style="display:flex; justify-content:space-between; align-items:center; padding:11px 14px; background:var(--surface-2); border-radius:10px; text-decoration:none; color:var(--text);">
         <span style="font-size:12.5px; color:var(--muted); font-weight:600;">💻 GitHub</span>
@@ -1276,9 +2123,7 @@ async function gistCreate(){
   const body = {
     description: '86 Training & Grind — backup automático',
     public: false,
-    files: {
-      '86gym-data.json': { content: JSON.stringify(payload, null, 2) }
-    }
+    files: { '86gym-data.json': { content: JSON.stringify(payload, null, 2) } }
   };
   const d = await gistFetch('https://api.github.com/gists', {
     method: 'POST', body: JSON.stringify(body)
@@ -1292,12 +2137,8 @@ async function gistPush(){
   const cfg = loadGistConfig();
   if(!cfg.token || !cfg.id) throw new Error('Sincronização não configurada');
   const payload = buildSyncPayload();
-  const body = {
-    files: { '86gym-data.json': { content: JSON.stringify(payload, null, 2) } }
-  };
-  await gistFetch(`https://api.github.com/gists/${cfg.id}`, {
-    method: 'PATCH', body: JSON.stringify(body)
-  });
+  const body = { files: { '86gym-data.json': { content: JSON.stringify(payload, null, 2) } } };
+  await gistFetch(`https://api.github.com/gists/${cfg.id}`, { method: 'PATCH', body: JSON.stringify(body) });
   saveGistConfig({ lastSync: Date.now() });
   updateSyncBadge('ok');
 }
@@ -1331,17 +2172,14 @@ function applySyncPayload(data){
     saveTreinos(); saveHistorico(); saveCardios();
     if(data.perfil) savePerfil(data.perfil);
     if(data.customExercises){ CUSTOM_EXERCISES = data.customExercises; saveCustomExercises(CUSTOM_EXERCISES); }
-    if(data.settings){
-      const local = loadSettings();
-      const merged = { ...data.settings };
-      saveSettings(merged);
-    }
+    if(data.settings) saveSettings({ ...data.settings });
     if(data.checkin) safeSet(KEYS.checkin, JSON.stringify(data.checkin));
     if(data.badges) saveBadges(data.badges);
     if(data.hydration) safeSet(KEYS.hydration, JSON.stringify(data.hydration));
     if(data.photos) savePhotos(data.photos);
     if(data.challenges) saveChallenges(data.challenges);
     if(data.goals) saveGoals(data.goals);
+    if(data.playlists) savePlaylists(data.playlists);
     if(data.annual) saveAnnual(data.annual);
     else rebuildAnnualRecords();
   } finally {
@@ -1359,7 +2197,6 @@ async function gistSmartSync(){
     const localMod = cfg.localModified || 0;
     const lastSync = cfg.lastSync || 0;
     const TOLERANCE = 5000;
-
     if(remoteUpdated > lastSync + TOLERANCE && remoteUpdated >= localMod){
       await gistPull();
       return { status: 'pulled', remoteUpdated };
@@ -1384,12 +2221,7 @@ function scheduleGistSync(delayMs = 3000){
   if(!cfg.token || !cfg.id) return;
   clearTimeout(_gistSyncTimer);
   _gistSyncTimer = setTimeout(async ()=>{
-    try{
-      await gistPush();
-    }catch(e){
-      console.warn('[86gym gist push]', e);
-      updateSyncBadge('err');
-    }
+    try{ await gistPush(); }catch(e){ console.warn('[86gym gist push]', e); updateSyncBadge('err'); }
   }, delayMs);
 }
 
@@ -1756,10 +2588,14 @@ document.addEventListener('visibilitychange', ()=>{
 function playBeep(times=2){
   const s = loadSettings();
   if(!s.sound) return;
+  if(_beepGuard) return;
+  _beepGuard = true;
   try{
     const Ctx = window.AudioContext || window.webkitAudioContext;
-    if(!Ctx) return;
-    const ctx = new Ctx();
+    if(!Ctx){ _beepGuard = false; return; }
+    if(!_sharedAudioCtx || _sharedAudioCtx.state === 'closed') _sharedAudioCtx = new Ctx();
+    const ctx = _sharedAudioCtx;
+    if(ctx.state === 'suspended') ctx.resume().catch(()=>{});
     const now = ctx.currentTime;
     for(let i=0;i<times;i++){
       const o = ctx.createOscillator(); const g = ctx.createGain();
@@ -1771,8 +2607,8 @@ function playBeep(times=2){
       g.gain.exponentialRampToValueAtTime(0.001, start+0.18);
       o.start(start); o.stop(start+0.2);
     }
-    setTimeout(()=>{ try{ ctx.close(); }catch(e){} }, 900);
-  }catch(e){}
+    setTimeout(()=>{ _beepGuard = false; }, times*220 + 400);
+  }catch(e){ _beepGuard = false; }
 }
 
 /* ============================================================
@@ -1809,8 +2645,7 @@ function startMediaSession(label){
     clearInterval(mediaSessionInterval);
     mediaSessionInterval = setInterval(()=>{
       if(!SESSION && !CARDIO_SESSION){ clearInterval(mediaSessionInterval); return; }
-      const t = SESSION ? formatSeconds((Date.now()-SESSION.startTime)/1000)
-        : CARDIO_SESSION ? formatSeconds((Date.now()-CARDIO_SESSION.startTime)/1000) : '--:--';
+      const t = SESSION ? formatSeconds(sessionElapsedSeconds()) : CARDIO_SESSION ? formatSeconds((Date.now()-CARDIO_SESSION.startTime)/1000) : '--:--';
       try{
         navigator.mediaSession.metadata = new MediaMetadata({
           title: label || 'Treino em andamento', artist: 'Tempo: ' + t, album: '86 Training & Grind'
@@ -2207,6 +3042,7 @@ async function askPreCheckin(){
 async function askPostCheckin(){
   return new Promise(resolve=>{
     let humor = 4;
+    let resolved = false;
     const bg = openModal(`
       <h3 style="margin-bottom:4px;">Como se sente após o treino?</h3>
       <p style="color:var(--muted); font-size:13px; margin-bottom:18px;">Ajuda a correlacionar com desempenho.</p>
@@ -2214,51 +3050,27 @@ async function askPostCheckin(){
         ${[1,2,3,4,5].map(n=>`<button type="button" data-val="${n}" class="${n===4?'active':''}">${n}</button>`).join('')}
       </div>
       <p style="color:var(--muted); font-size:11px; text-align:center; margin-top:8px;">1 = péssimo · 5 = ótimo</p>
-      <button class="btn" id="pc-ok" style="margin-top:20px;">Salvar</button>
+      <div class="row" style="margin-top:20px;">
+        <button class="btn secondary" id="pc-skip" style="flex:1;">Pular</button>
+        <button class="btn" id="pc-ok" style="flex:1;">Salvar</button>
+      </div>
     `, {dismissable:false});
     bg.querySelectorAll('.checkin-slider button').forEach(b=>{
       b.onclick = ()=>{ bg.querySelectorAll('.checkin-slider button').forEach(x=> x.classList.remove('active')); b.classList.add('active'); humor = Number(b.dataset.val); };
     });
-    bg.querySelector('#pc-ok').onclick = ()=>{ closeModal(bg); resolve({humor}); };
+    bg.querySelector('#pc-ok').onclick = ()=>{ if(resolved) return; resolved = true; closeModal(bg); resolve({humor}); };
+    bg.querySelector('#pc-skip').onclick = ()=>{ if(resolved) return; resolved = true; closeModal(bg); resolve({}); };
   });
 }
 
 /* ============================================================
-   FOTO EXERCÍCIO
-============================================================ */
-function getImgCache(){ return safeJSON(KEYS.imgcache, {}); }
-function setImgCache(c){ safeSet(KEYS.imgcache, JSON.stringify(c)); }
-async function fetchExercisePhoto(name){
-  const cache = getImgCache();
-  if(Object.prototype.hasOwnProperty.call(cache, name)) return cache[name];
-  const item = exerciseFlat().find(e=> e.name.toLowerCase()===String(name).toLowerCase());
-  const term = item ? item.en : name;
-  let photoUrl = null;
-  try{
-    const ctrl = new AbortController();
-    const t = setTimeout(()=> ctrl.abort(), 8000);
-    const r = await fetch(`https://wger.de/api/v2/exercise/search/?term=${encodeURIComponent(term)}&language=english&format=json`, {signal:ctrl.signal});
-    clearTimeout(t);
-    if(r.ok){
-      const d = await r.json();
-      const s = (d.suggestions||[])[0];
-      const baseId = s?.data?.base_id || s?.data?.id || s?.base_id || s?.id;
-      if(baseId){
-        const r2 = await fetch(`https://wger.de/api/v2/exerciseimage/?exercise_base=${baseId}&format=json`);
-        if(r2.ok){ const d2 = await r2.json(); if(d2.results && d2.results[0] && d2.results[0].image) photoUrl = d2.results[0].image; }
-      }
-    }
-  }catch(e){ photoUrl = null; }
-  cache[name] = photoUrl; setImgCache(cache);
-  return photoUrl;
-}
-
-/* ============================================================
-   MODAL DEMO/PR
+   MODAL DEMO/PR — vídeo incorporado + detalhes
 ============================================================ */
 function openDemoModal(name){
   name = (name||'').trim();
   if(!name){ showToast('Digite o nome do exercício primeiro'); return; }
+  const data = exerciseData(name);
+  const metaBadges = data ? [LEVEL_LABEL[data.level], EQUIPMENT_LABEL[data.equipment] || data.equipment, ...(data.primaryMuscles||[]).map(m=>m.replace(/-/g,' '))].filter(Boolean) : [];
   const b = bestSetFor(name);
   const last = lastSessionFor(name);
   const sugg = suggestProgression(name);
@@ -2266,15 +3078,37 @@ function openDemoModal(name){
   const cargaRef = last?.ex?.carga || (b?.carga) || 0;
   const warm = calcWarmup(cargaRef);
   const plates = calcPlates(cargaRef);
+  const ytQuery = encodeURIComponent(name + ' execução correta');
+  // youtube-nocookie + referrerpolicy para evitar erro 153
+  const ytEmbed = `https://www.youtube-nocookie.com/embed?listType=search&list=${ytQuery}&rel=0&modestbranding=1`;
   const bg = openModal(`
     <button class="close-x">&times;</button>
     <h3 style="margin-bottom:2px;">${escapeHtml(name)}</h3>
-    <p style="color:var(--muted); font-size:13px; margin-bottom:14px;">${escapeHtml(exerciseGroup(name))}</p>
-    <div class="demo-photo-wrap" id="demo-photo-wrap"><span class="loading-txt">Buscando foto…</span></div>
-    <div class="row" style="margin-bottom:14px;">
-      <a class="btn secondary" target="_blank" rel="noopener" href="${demoVideoUrl(name)}" style="flex:1;">Vídeo</a>
+    <p style="color:var(--muted); font-size:13px; margin-bottom:10px;">${escapeHtml(exerciseGroup(name))}</p>
+    ${metaBadges.length ? `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px;">${metaBadges.map(m=>`<span style="font-size:11px; background:var(--surface-2); border:1px solid var(--line); border-radius:20px; padding:4px 10px; color:var(--muted); text-transform:capitalize;">${escapeHtml(m)}</span>`).join('')}</div>` : ''}
+    <div class="video-frame-wrap">
+      <iframe
+        id="exercise-video"
+        src="${ytEmbed}"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+        loading="lazy">
+      </iframe>
+    </div>
+    <div style="margin-top:10px; font-size:11px; color:var(--muted); text-align:center; line-height:1.5;">
+      Vídeo pode não carregar em alguns ambientes. Nesse caso, <a href="https://www.youtube.com/results?search_query=${ytQuery}" target="_blank" rel="noopener" style="color:var(--blue);">abra no YouTube</a>.
+    </div>
+    <div class="row" style="margin:14px 0;">
       <button class="btn secondary" id="share-ex" style="flex:1;">${ICONS.share} Compartilhar</button>
     </div>
+    ${data && data.instructions && data.instructions.length ? `
+      <div class="divider"></div>
+      <h3 style="font-size:15px; margin-bottom:8px;">${ICONS.dumbbell} Como executar</h3>
+      <ol style="margin:0 0 14px 18px; padding:0; color:var(--text); font-size:13.5px; line-height:1.6;">
+        ${data.instructions.map(step=>`<li style="margin-bottom:6px;">${escapeHtml(step)}</li>`).join('')}
+      </ol>
+    ` : ''}
     ${stagnant ? `<div class="stagnation-alert" style="margin-bottom:14px;">⚠ Estagnado. Tente +2.5kg ou nova variação.</div>` : ''}
     ${sugg ? `<div class="suggestion-banner">${ICONS.star} Sugestão: <b>${sugg.tipo==='up'?'subir para '+sugg.carga+'kg':'reduzir para '+sugg.carga+'kg'}</b> (${escapeHtml(sugg.motivo)})</div>` : ''}
     <div class="divider"></div>
@@ -2345,7 +3179,6 @@ function openDemoModal(name){
     const oldName = CUSTOM_EXERCISES[idx].name;
     CUSTOM_EXERCISES[idx].name = novoNome.trim();
     CUSTOM_EXERCISES[idx].group = novoGrupo.trim() || 'Personalizados';
-    CUSTOM_EXERCISES[idx].en = novoNome.trim();
     saveCustomExercises(CUSTOM_EXERCISES);
     DB.treinos.forEach(t => t.divisoes.forEach(d => d.exercicios.forEach(ex => {
       if(ex.nome.toLowerCase() === oldName.toLowerCase()) ex.nome = novoNome.trim();
@@ -2360,18 +3193,6 @@ function openDemoModal(name){
     CUSTOM_EXERCISES = CUSTOM_EXERCISES.filter(c=> c.name.toLowerCase() !== name.toLowerCase());
     saveCustomExercises(CUSTOM_EXERCISES);
     showToast('Exercício excluído'); render();
-  });
-  fetchExercisePhoto(name).then(url=>{
-    const wrap = bg.querySelector('#demo-photo-wrap');
-    if(!wrap) return;
-    if(url){
-      const img = document.createElement('img');
-      img.alt = name;
-      img.addEventListener('error', ()=>{ wrap.innerHTML = '<span class="loading-txt">Foto indisponível — use o vídeo.</span>'; });
-      img.src = url; wrap.innerHTML = ''; wrap.appendChild(img);
-    } else {
-      wrap.innerHTML = `<span class="loading-txt">Sem foto — use o vídeo acima.</span>`;
-    }
   });
 }
 
@@ -2453,11 +3274,11 @@ function swapExerciseModal(sessionExIdx){
     <div style="margin-top:12px; max-height:60vh; overflow-y:auto;" id="swap-list">
       ${sameGroup.length ? `
         <div class="group-title" style="margin-top:0;">Mesmo grupo · ${escapeHtml(g)}</div>
-        ${sameGroup.map(e=>`<div class="ex-row" data-pick-swap="${escapeHtml(e.name)}" style="cursor:pointer;">
+        ${sameGroup.slice(0,60).map(e=>`<div class="ex-row" data-pick-swap="${escapeHtml(e.name)}" style="cursor:pointer;">
           <span>${escapeHtml(e.name)}</span>${ICONS.chevron}</div>`).join('')}
       ` : ''}
       <div class="group-title">Outros exercícios</div>
-      ${allOthers.slice(0, 30).map(e=>`<div class="ex-row" data-pick-swap="${escapeHtml(e.name)}" style="cursor:pointer;">
+      ${allOthers.slice(0, 40).map(e=>`<div class="ex-row" data-pick-swap="${escapeHtml(e.name)}" style="cursor:pointer;">
         <span>${escapeHtml(e.name)} <small style="color:var(--muted);font-size:11px;">· ${escapeHtml(e.group)}</small></span>${ICONS.chevron}</div>`).join('')}
     </div>
   `);
@@ -2511,7 +3332,7 @@ function parseWorkoutText(text){
 }
 
 /* ============================================================
-   BACKUP (arquivo local)
+   BACKUP
 ============================================================ */
 function shouldRemindBackup(){
   const s = loadSettings();
@@ -2528,7 +3349,8 @@ function buildBackupPayload(){
     perfil: loadPerfil(), customExercises: CUSTOM_EXERCISES, settings: loadSettings(),
     checkin: safeJSON(KEYS.checkin, {}), badges: loadBadges(),
     hydration: safeJSON(KEYS.hydration, {}), photos: loadPhotos(),
-    challenges: loadChallenges(), annual: loadAnnual(), goals: loadGoals()
+    challenges: loadChallenges(), annual: loadAnnual(), goals: loadGoals(),
+    playlists: loadPlaylists()
   };
 }
 async function pickBackupFile(){
@@ -2698,6 +3520,7 @@ function HomeScreen(){
   ${backupDue ? `<div class="insight-alert" style="border-left-color:var(--gold);">
     <b>💾 Hora do backup semanal</b>
     <small>Você não exporta seus dados há mais de 7 dias. Toque no Perfil → Exportar.</small>
+    
     <div class="row" style="margin-top:10px;">
       <button class="btn mini secondary" data-action="backup-now" style="flex:1;">Exportar agora</button>
       <button class="btn mini ghost" data-action="backup-later" style="flex:1;">Lembrar depois</button>
@@ -2857,7 +3680,6 @@ function PerfilScreen(){
     </div>
   </div>
 
-  <!-- ======= SINCRONIZAÇÃO ======= -->
   <div class="card" style="${cfg.enabled ? 'border-color:var(--lime);' : ''}">
     <h3 style="font-size:15px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
       ${ICONS.cloud} Sincronização
@@ -2866,7 +3688,6 @@ function PerfilScreen(){
     <p style="color:var(--muted); font-size:12.5px; margin:0 0 12px 0; line-height:1.5;">
       Sincroniza automaticamente entre celular e computador usando um Gist privado do GitHub.
     </p>
-
     ${!cfg.enabled ? `
       <div style="background:var(--surface-2); padding:12px; border-radius:10px; margin-bottom:12px;">
         <p style="font-size:12px; color:var(--muted); margin:0; line-height:1.55;">
@@ -2876,10 +3697,8 @@ function PerfilScreen(){
           3. Cole aqui abaixo e clique em "Criar novo Gist"
         </p>
       </div>
-
       <label class="field" style="margin-top:0;">Token do GitHub</label>
       <input type="password" id="gist-token-input" placeholder="ghp_..." value="${escapeHtml(cfg.token)}" autocomplete="off">
-
       <div class="row" style="margin-top:12px;">
         <button class="btn" id="gist-connect-new" style="flex:1;">Criar novo Gist</button>
       </div>
@@ -3481,19 +4300,28 @@ function ExerciseBlockHtml(di, ei, ex){
 function ExerciciosScreen(){
   const groups = allExerciseGroups();
   const groupsHtml = groups.map(([group, list])=>`
-    <div class="group-title">${escapeHtml(group)}</div>
-    ${list.map(([name])=>`
-      <div class="ex-row">
-        <span>${escapeHtml(name)}</span>
+    <div class="group-title" data-group-title>${escapeHtml(group)} <span style="color:var(--muted); font-weight:600; text-transform:none; letter-spacing:0;">(${list.length})</span></div>
+    ${list.map(name=>{
+      const data = exerciseData(name);
+      const meta = data ? [LEVEL_LABEL[data.level], EQUIPMENT_LABEL[data.equipment] || data.equipment].filter(Boolean).join(' · ') : '';
+      const searchBlob = (name+' '+(data ? (data.primaryMuscles||[]).join(' ')+' '+(data.equipment||'')+' '+(data.category||'') : '')).toLowerCase();
+      return `
+      <div class="ex-row" data-ex-row data-ex-search="${escapeHtml(searchBlob)}">
+        <div class="ex-row-info">
+          <b>${escapeHtml(name)}</b>
+          ${meta ? `<small>${escapeHtml(meta)}</small>` : ''}
+        </div>
         ${isCustomExercise(name) ? `<span style="font-size:10px; color:var(--lime); font-weight:700; margin-right:6px;">CUSTOM</span>`:''}
         <div class="help-icon" data-help="${escapeHtml(name)}" role="button" tabindex="0">?</div>
       </div>
-    `).join('')}`).join('');
+    `;}).join('')}`).join('');
   return `
     <div class="top-actions"><h1 class="page-title" style="margin:0;">Exercícios</h1></div>
-    <p class="page-sub">Toque no "?" para foto, vídeo, PR e sugestões.</p>
+    <p class="page-sub">${EXERCISE_DB.length} exercícios. Toque no "?" para ver o vídeo, PR e sugestões.</p>
+    <input type="text" id="ex-search" placeholder="Buscar por nome, músculo ou equipamento..." style="margin-bottom:14px;" autocomplete="off">
     <button class="btn secondary" id="btn-novo-exercicio" style="margin-bottom:18px;">${ICONS.plus} Criar exercício</button>
-    ${groupsHtml}`;
+    <div class="empty" id="ex-empty" style="display:none;">${ICONS.empty}<div>Nenhum exercício encontrado.</div></div>
+    <div id="ex-list-wrap">${groupsHtml}</div>`;
 }
 
 /* ============================================================
@@ -3542,8 +4370,9 @@ function buildSessionFromDivisao(treino, divisao){
   return {
     treinoId: treino.id, divisaoId: divisao.id,
     treinoNome: treino.nome, divisaoLetra: divisao.letra,
-    startTime: Date.now(), lastAction: Date.now(), paused: false, pausedSegundos: 0,
-    timer: { running:false, secondsLeft:0, exIdx:null, interval:null },
+    startTime: Date.now(), lastAction: Date.now(),
+    paused: false, pausedSegundos: 0, pausedAt: null,
+    timer: { running:false, secondsLeft:0, exIdx:null, interval:null, total:0 },
     exercicios: divisao.exercicios.map(ex=>({
       nome: ex.nome, descanso: Number(ex.descanso)||0, carga: Number(ex.carga)||0,
       repeticoes: Number(ex.repeticoes)||10, nota: ex.nota||'', grupo: (ex.grupo||'').toUpperCase(),
@@ -3580,8 +4409,84 @@ function loadPersistedSession(){
   if(!validateSession(s)) return null;
   if(Date.now() - s.startTime > 24*3600*1000) return null;
   if(s.timer) s.timer.interval = null;
+  if(s.pausedAt) s.pausedAt = null;
   return s;
 }
+
+function pauseSession(){
+  if(!SESSION || SESSION.paused) return;
+  SESSION.paused = true;
+  SESSION.pausedAt = Date.now();
+}
+function resumeSession(){
+  if(!SESSION || !SESSION.paused) return;
+  if(SESSION.pausedAt){
+    SESSION.pausedSegundos = (SESSION.pausedSegundos||0) + (Date.now() - SESSION.pausedAt)/1000;
+    SESSION.pausedAt = null;
+  }
+  SESSION.paused = false;
+  lastActionTime = Date.now();
+  autoPaused = false;
+}
+function sessionElapsedSeconds(){
+  if(!SESSION) return 0;
+  const pausedMs = (SESSION.pausedSegundos||0)*1000 + (SESSION.pausedAt ? Date.now() - SESSION.pausedAt : 0);
+  return Math.max(0, (Date.now() - SESSION.startTime - pausedMs)/1000);
+}
+
+function stopRestTimer(){
+  if(_restTimerRef){ clearInterval(_restTimerRef); _restTimerRef = null; }
+  if(SESSION && SESSION.timer){
+    SESSION.timer.running = false;
+    SESSION.timer.exIdx = null;
+    SESSION.timer.interval = null;
+    SESSION.timer.endTime = null;
+    SESSION.timer.secondsLeft = 0;
+  }
+}
+function startRestTimer(exi){
+  const ex = SESSION.exercicios[exi];
+  stopRestTimer();
+  if(!ex.descanso || ex.descanso <= 0){ render(); return; }
+
+  SESSION.timer.running = true;
+  SESSION.timer.exIdx = exi;
+  SESSION.timer.total = ex.descanso;
+  SESSION.timer.endTime = Date.now() + ex.descanso * 1000;   // âncora absoluta
+  SESSION.timer.secondsLeft = ex.descanso;
+
+  haptic('medium');
+  render();
+
+  // Tick 5x/s — leve e mantém o display suave; o valor vem sempre do relógio real
+  _restTimerRef = setInterval(restTimerTick, 200);
+  SESSION.timer.interval = _restTimerRef;
+}
+
+// Tick compartilhado — pode ser chamado quantas vezes for preciso
+function restTimerTick(){
+  if(!SESSION || !SESSION.timer || !SESSION.timer.running){ stopRestTimer(); return; }
+  const t = SESSION.timer;
+  if(!t.endTime){ stopRestTimer(); return; }
+
+  const remaining = Math.max(0, Math.ceil((t.endTime - Date.now()) / 1000));
+  t.secondsLeft = remaining;
+
+  const numEl = document.getElementById('timer-num');
+  if(numEl) numEl.textContent = formatSeconds(remaining);
+  const fillEl = document.getElementById('timer-fill');
+  if(fillEl && t.total){
+    fillEl.style.width = Math.max(0, Math.min(100, (remaining / t.total) * 100)) + '%';
+  }
+
+  if(remaining <= 0){
+    stopRestTimer();
+    haptic('success');
+    playBeep(2);
+    render();
+  }
+}
+
 function ExecucaoScreen(treinoId, divisaoId){
   const treino = DB.treinos.find(t=>t.id===treinoId);
   if(!treino) return `<div class="empty">Treino não encontrado.</div>`;
@@ -3593,17 +4498,18 @@ function ExecucaoScreen(treinoId, divisaoId){
     startMediaSession(treino.nome + ' · ' + divisao.letra);
     focusedExIdx = null;
   }
-  if(SESSION.timer && SESSION.timer.interval){ clearInterval(SESSION.timer.interval); SESSION.timer.interval = null; }
   const s = loadSettings();
   const focusMode = s.focusMode && focusedExIdx !== null;
   const allDone = SESSION.exercicios.every(ex=> ex.sets.every(st=>st.done));
   const timerHtml = SESSION.timer.running ? `
     <div class="timer-banner" id="timer-banner">
-      <div>
-        <div style="font-size:11px;font-weight:700;letter-spacing:0.5px;">DESCANSO</div>
-        <div style="font-size:12px;">${escapeHtml(SESSION.exercicios[SESSION.timer.exIdx]?.nome||'')}</div>
+      <div class="t-info">
+        <div class="t-label">⏱ Descanso</div>
+        <div class="t-ex" title="${escapeHtml(SESSION.exercicios[SESSION.timer.exIdx]?.nome||'')}">${escapeHtml(SESSION.exercicios[SESSION.timer.exIdx]?.nome||'')}</div>
       </div>
       <div class="t-num" id="timer-num">${formatSeconds(SESSION.timer.secondsLeft)}</div>
+      <button class="t-stop" id="timer-skip" type="button">Pular</button>
+      <div class="t-progress" id="timer-fill" style="width:${SESSION.timer.total? (SESSION.timer.secondsLeft/SESSION.timer.total*100):0}%"></div>
     </div>`:'';
   const exHtml = SESSION.exercicios.map((ex, exi)=>{
     let hide = false;
@@ -3644,7 +4550,13 @@ function ExecucaoScreen(treinoId, divisaoId){
           ${!st.warmup? `<button class="icon-btn mini" style="padding:0; width:20px; height:20px;" data-del-set="${exi}:${si}">✕</button>`:''}
         </td>
         <td><input type="number" inputmode="numeric" data-set-field="repeticoes" data-exi="${exi}" data-si="${si}" value="${st.repeticoes}" ${st.done?'disabled':''}></td>
-        <td><input type="number" step="0.5" inputmode="decimal" data-set-field="carga" data-exi="${exi}" data-si="${si}" value="${st.carga}" ${st.done?'disabled':''}></td>
+        <td>
+          <div class="carga-wrap">
+            <button type="button" class="carga-btn" data-carga-delta="${exi}:${si}:-2.5" ${st.done?'disabled':''}>−</button>
+            <input type="number" step="0.5" inputmode="decimal" data-set-field="carga" data-exi="${exi}" data-si="${si}" value="${st.carga}" ${st.done?'disabled':''}>
+            <button type="button" class="carga-btn" data-carga-delta="${exi}:${si}:2.5" ${st.done?'disabled':''}>+</button>
+          </div>
+        </td>
         <td><input type="number" min="0" max="5" inputmode="numeric" data-set-field="rir" data-exi="${exi}" data-si="${si}" value="${st.rir??''}" ${st.done?'disabled':''} style="width:38px;"></td>
         <td><input type="checkbox" data-set-field="falha" data-exi="${exi}" data-si="${si}" ${st.falha?'checked':''} ${st.done?'disabled':''} style="width:18px;height:18px;accent-color:var(--orange);"></td>
         <td><input type="checkbox" data-check-set="${exi}:${si}" ${st.done?'checked':''} ${disabled && !st.done ? 'disabled':''}></td>
@@ -3679,19 +4591,25 @@ function ExecucaoScreen(treinoId, divisaoId){
       <button class="btn mini ghost" data-add-set="${exi}" style="margin-top:8px;">${ICONS.plus} Série</button>
     </div>`;
   }).join('');
+  const paused = SESSION.paused;
   return `
     <div class="top-actions">
       <button class="icon-btn" id="btn-exit-exec">${ICONS.back}</button>
       <h1 class="page-title" style="margin:0; font-size:18px;">${escapeHtml(treino.nome)} · ${escapeHtml(divisao.letra)}</h1>
       <div style="width:38px;"></div>
     </div>
-    <div class="session-clock">Tempo de treino<br><b id="session-clock-num">00:00</b>${SESSION.paused?' <span style="color:var(--orange);font-size:11px;">· pausado</span>':''}</div>
+    <div class="session-clock">Tempo de treino<br><b id="session-clock-num">${formatSeconds(sessionElapsedSeconds())}</b>${paused?' <span class="paused-tag">· pausado</span>':''}
+      ${paused? '<br><button class="resume-btn" id="btn-resume-session">Retomar treino</button>':''}
+    </div>
     ${timerHtml}
     <div id="exec-container">${exHtml}</div>
     <button class="btn" id="btn-finalizar-treino" style="margin-top:10px;">${allDone? 'Finalizar treino ✓':'Finalizar treino'}</button>
-    <div style="margin-top:12px; text-align:center;">
-      <button class="btn mini ghost" id="btn-plank">${ICONS.bolt} Cronômetro de prancha</button>
-    </div>`;
+   
+<div style="margin-top:12px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+  <button class="btn mini ghost" id="btn-plank">${ICONS.bolt} Prancha</button>
+  <button class="btn mini ghost" id="btn-training-music">${ICONS.music} Música</button>
+</div>`;
+    
 }
 let clockInterval = null;
 function startSessionClock(){
@@ -3700,30 +4618,20 @@ function startSessionClock(){
     const el = document.getElementById('session-clock-num');
     if(!el || !SESSION){ clearInterval(clockInterval); return; }
     const s = loadSettings();
-    if(s.pausaAuto){
+    if(s.pausaAuto && !SESSION.paused){
       const inativo = Date.now() - lastActionTime;
-      if(inativo > 10*60*1000 && !autoPaused){ autoPaused = true; SESSION.paused = true; render(); }
+      if(inativo > 10*60*1000 && !autoPaused){
+        autoPaused = true;
+        pauseSession();
+        persistSession();
+        render();
+        return;
+      }
     }
-    el.textContent = formatSeconds(Math.max(0, (Date.now() - SESSION.startTime)/1000 - (SESSION.pausedSegundos||0)));
+    el.textContent = formatSeconds(sessionElapsedSeconds());
   };
   tick();
   clockInterval = setInterval(tick, 1000);
-}
-function startRestTimer(exi){
-  const ex = SESSION.exercicios[exi];
-  if(SESSION.timer.interval) clearInterval(SESSION.timer.interval);
-  SESSION.timer.running = true; SESSION.timer.exIdx = exi; SESSION.timer.secondsLeft = ex.descanso;
-  render(); haptic('medium');
-  SESSION.timer.interval = setInterval(()=>{
-    SESSION.timer.secondsLeft -= 1;
-    const numEl = document.getElementById('timer-num');
-    if(numEl) numEl.textContent = formatSeconds(SESSION.timer.secondsLeft);
-    if(SESSION.timer.secondsLeft<=0){
-      clearInterval(SESSION.timer.interval);
-      SESSION.timer.running = false; SESSION.timer.exIdx = null; SESSION.timer.interval = null;
-      haptic('success'); playBeep(2); render();
-    }
-  }, 1000);
 }
 
 /* ============================================================
@@ -4108,6 +5016,9 @@ function bindScreenEvents(){
     render();
   });
 
+  const btnTrainingMusic = document.getElementById('btn-training-music');
+  if(btnTrainingMusic) btnTrainingMusic.addEventListener('click', openPlaylistPicker);
+
   const fab = document.getElementById('fab-top');
   const viewEl = document.getElementById('view');
   const onScroll = ()=>{ if(viewEl.scrollTop > 400) fab.classList.add('show'); else fab.classList.remove('show'); };
@@ -4171,7 +5082,6 @@ function bindScreenEvents(){
     saveSettings(s);
   });
 
-  // ====== GIST SYNC ======
   const btnGistNew = document.getElementById('gist-connect-new');
   if(btnGistNew) btnGistNew.addEventListener('click', async ()=>{
     const token = document.getElementById('gist-token-input').value.trim();
@@ -4216,11 +5126,7 @@ function bindScreenEvents(){
   if(btnGistSync) btnGistSync.addEventListener('click', async ()=>{
     showToast('Sincronizando...');
     const r = await gistSmartSync();
-    const msgs = {
-      pulled:'✓ Dados do servidor baixados', pushed:'✓ Dados locais enviados',
-      'up-to-date':'✓ Tudo sincronizado', disabled:'Sincronização desativada',
-      error:'Erro: ' + (r.error || 'desconhecido')
-    };
+    const msgs = { pulled:'✓ Dados do servidor baixados', pushed:'✓ Dados locais enviados', 'up-to-date':'✓ Tudo sincronizado', disabled:'Sincronização desativada', error:'Erro: ' + (r.error || 'desconhecido') };
     showToast(msgs[r.status] || 'Concluído');
     render();
   });
@@ -4232,7 +5138,6 @@ function bindScreenEvents(){
     showToast('Desconectado'); render();
   });
 
-  // ====== BACKUP LOCAL ======
   const chkAutoBackup = document.getElementById('chk-auto-backup');
   if(chkAutoBackup){
     chkAutoBackup.addEventListener('change', async ()=>{
@@ -4283,7 +5188,6 @@ function bindScreenEvents(){
   window.renderBackupStatus = renderBackupStatus;
   renderBackupStatus();
 
-  // Avatar
   const btnChangeAvatar = document.getElementById('btn-change-avatar');
   if(btnChangeAvatar){
     btnChangeAvatar.addEventListener('click', ()=> document.getElementById('avatar-file-input').click());
@@ -4579,19 +5483,50 @@ function bindScreenEvents(){
     if(!name||!name.trim()) return;
     const g = await promptDialog('Grupo muscular', {title:'Grupo', defaultValue:'Personalizados'});
     if(!g) return;
-    CUSTOM_EXERCISES.push({name:name.trim(), group:g.trim()||'Personalizados', en:name.trim()});
+    CUSTOM_EXERCISES.push({name:name.trim(), group:g.trim()||'Personalizados'});
     saveCustomExercises(CUSTOM_EXERCISES); showToast('Criado!'); render();
   });
+
+  const exSearch = document.getElementById('ex-search');
+  if(exSearch){
+    exSearch.addEventListener('input', ()=>{
+      const q = exSearch.value.trim().toLowerCase();
+      const wrap = document.getElementById('ex-list-wrap');
+      const emptyEl = document.getElementById('ex-empty');
+      let anyVisible = false, currentTitle = null, groupHasVisible = false;
+      Array.from(wrap.children).forEach(el=>{
+        if(el.hasAttribute('data-group-title')){
+          if(currentTitle) currentTitle.style.display = groupHasVisible ? '' : 'none';
+          currentTitle = el; groupHasVisible = false;
+        } else if(el.hasAttribute('data-ex-row')){
+          const match = !q || (el.dataset.exSearch||'').includes(q);
+          el.style.display = match ? '' : 'none';
+          if(match){ groupHasVisible = true; anyVisible = true; }
+        }
+      });
+      if(currentTitle) currentTitle.style.display = groupHasVisible ? '' : 'none';
+      if(emptyEl) emptyEl.style.display = (q && !anyVisible) ? 'block' : 'none';
+    });
+  }
 
   const btnCheckin = document.getElementById('btn-checkin');
   if(btnCheckin) btnCheckin.addEventListener('click', async ()=>{ await askPreCheckin(); render(); });
   const btnResume = document.getElementById('btn-resume-session');
-  if(btnResume) btnResume.addEventListener('click', ()=>{
-    const s = loadPersistedSession();
-    if(!s){ showToast('Sem sessão válida'); return; }
-    SESSION = s;
-    go('treino_exec', {treinoId:s.treinoId, divisaoId:s.divisaoId});
-  });
+  if(btnResume && ROUTE.name==='treinar'){
+    btnResume.addEventListener('click', ()=>{
+      const s = loadPersistedSession();
+      if(!s){ showToast('Sem sessão válida'); return; }
+      SESSION = s;
+      go('treino_exec', {treinoId:s.treinoId, divisaoId:s.divisaoId});
+    });
+  }
+  if(btnResume && ROUTE.name==='treino_exec'){
+    btnResume.addEventListener('click', ()=>{
+      resumeSession();
+      lastActionTime = Date.now();
+      render();
+    });
+  }
   const btnDiscard = document.getElementById('btn-discard-session');
   if(btnDiscard) btnDiscard.addEventListener('click', async ()=>{
     if(!await confirmDialog('Descartar?', {danger:true, okText:'Descartar'})) return;
@@ -4615,18 +5550,32 @@ function bindScreenEvents(){
   const btnExit = document.getElementById('btn-exit-exec');
   if(btnExit) btnExit.addEventListener('click', async ()=>{
     if(!await confirmDialog('Sair? O progresso fica salvo.', {okText:'Sair'})) return;
-    if(SESSION){
-      if(SESSION.timer.interval){ clearInterval(SESSION.timer.interval); SESSION.timer.interval = null; }
-      SESSION.timer.running=false;
-      persistSession();
-    }
+    stopRestTimer();
+    if(SESSION) persistSession();
     releaseWakeLock(); stopMediaSession();
     go('treinar');
   });
+
+  const timerSkip = document.getElementById('timer-skip');
+  if(timerSkip) timerSkip.addEventListener('click', ()=>{ stopRestTimer(); render(); });
+
+  view.querySelectorAll('[data-carga-delta]').forEach(el=> el.addEventListener('click', e=>{
+    e.preventDefault();
+    lastActionTime = Date.now();
+    const parts = el.dataset.cargaDelta.split(':');
+    const exi = Number(parts[0]), si = Number(parts[1]), delta = Number(parts[2]);
+    const set = SESSION.exercicios[exi].sets[si];
+    if(set.done) return;
+    set.carga = Math.max(0, (Number(set.carga)||0) + delta);
+    persistSession();
+    const input = view.querySelector(`[data-set-field="carga"][data-exi="${exi}"][data-si="${si}"]`);
+    if(input) input.value = set.carga;
+  }));
+
   view.querySelectorAll('[data-set-field]').forEach(el=>{
     el.addEventListener('input', ()=>{
       lastActionTime = Date.now(); autoPaused = false;
-      if(SESSION && SESSION.paused) SESSION.paused = false;
+      if(SESSION && SESSION.paused) resumeSession();
       const exi=Number(el.dataset.exi), si=Number(el.dataset.si), f=el.dataset.setField;
       if(f==='falha') SESSION.exercicios[exi].sets[si][f] = el.checked;
       else if(f==='rir') SESSION.exercicios[exi].sets[si][f] = el.value === '' ? null : Number(el.value);
@@ -4639,6 +5588,7 @@ function bindScreenEvents(){
       persistSession();
     });
   });
+
   view.querySelectorAll('[data-copy-set]').forEach(el=> el.addEventListener('click', e=>{
     e.stopPropagation();
     const [exi,si] = el.dataset.copySet.split(':').map(Number);
@@ -4678,6 +5628,7 @@ function bindScreenEvents(){
   view.querySelectorAll('[data-check-set]').forEach(el=>{
     el.addEventListener('change', ()=>{
       lastActionTime = Date.now(); autoPaused = false;
+      if(SESSION && SESSION.paused) resumeSession();
       const [exi,si] = el.dataset.checkSet.split(':').map(Number);
       const ex = SESSION.exercicios[exi];
       ex.sets[si].done = el.checked;
@@ -4734,66 +5685,72 @@ function bindScreenEvents(){
 
   const btnFinalizar = document.getElementById('btn-finalizar-treino');
   if(btnFinalizar) btnFinalizar.addEventListener('click', async ()=>{
-    const anySet = SESSION.exercicios.some(ex=> ex.sets.some(s=>s.done));
-    if(!anySet && !await confirmDialog('Nenhuma série marcada. Finalizar?', {okText:'Finalizar'})) return;
-    const duracaoSegundos = (Date.now()-SESSION.startTime)/1000 - (SESSION.pausedSegundos||0);
-    const resumo = SESSION.exercicios.map(ex=>{
-      const doneSets = ex.sets.filter(s=>s.done && !s.warmup);
-      const repsArr = doneSets.map(s=>Number(s.repeticoes)||0).filter(r=>r>0);
-      const repsMedias = repsArr.length ? repsArr.reduce((a,b)=>a+b,0)/repsArr.length : (Number(ex.repeticoes)||0);
-      const lastDone = [...doneSets].reverse()[0];
-      const rirs = doneSets.map(s=>s.rir).filter(x=> x!==null && x!==undefined);
-      return {
-        nome: ex.nome, setsTotal: ex.sets.filter(s=>!s.warmup).length,
-        setsFeitas: doneSets.length, carga: lastDone ? lastDone.carga : ex.carga,
-        repsMedias: Math.round(repsMedias),
-        rirMedio: rirs.length ? rirs.reduce((a,b)=>a+b,0)/rirs.length : null,
-        setsDetalhados: ex.sets.map(s=>({reps:s.repeticoes, carga:s.carga, done:s.done, warmup:!!s.warmup, rir:s.rir, falha:s.falha}))
-      };
-    });
-    const totalSets = resumo.reduce((a,e)=>a+e.setsFeitas,0);
-    const totalExercicios = resumo.length;
-    const gruposTreinados = [...new Set(SESSION.exercicios.map(ex=> exerciseGroup(ex.nome)))];
-    const post = await askPostCheckin();
-    const checkinHoje = loadCheckinHoje() || {};
-    const checkinFinal = { ...checkinHoje, ...post };
-    DB.historico.push({
-      id: uid(), tipo:'forca', treinoNome: SESSION.treinoNome, divisaoLetra: SESSION.divisaoLetra,
-      data: Date.now(), duracaoSegundos, exercicios: resumo, checkin: checkinFinal
-    });
-    saveHistorico();
-    if(SESSION.timer.interval) clearInterval(SESSION.timer.interval);
-    clearInterval(clockInterval);
-    SESSION=null; persistSession();
-    releaseWakeLock(); stopMediaSession();
-    const novosBadges = checkNewBadges();
-    completeChallengeIfDone();
-    await showWorkoutComplete({
-      subtitulo: 'Bom treino! Continue assim.',
-      stats: [
-        { v: formatSeconds(duracaoSegundos), l: 'Duração' },
-        { v: totalSets, l: 'Séries' },
-        { v: totalExercicios, l: 'Exercícios' }
-      ],
-      gruposTreinados, novosBadges
-    });
-    go('historico');
-  });
-  if(ROUTE.name==='treino_exec'){
-    startSessionClock();
-    if(SESSION && SESSION.timer && SESSION.timer.running && SESSION.timer.secondsLeft>0){
-      if(SESSION.timer.interval) clearInterval(SESSION.timer.interval);
-      SESSION.timer.interval = setInterval(()=>{
-        SESSION.timer.secondsLeft -= 1;
-        const numEl = document.getElementById('timer-num');
-        if(numEl) numEl.textContent = formatSeconds(SESSION.timer.secondsLeft);
-        if(SESSION.timer.secondsLeft<=0){
-          clearInterval(SESSION.timer.interval);
-          SESSION.timer.running = false; SESSION.timer.exIdx = null; SESSION.timer.interval = null;
-          haptic('success'); playBeep(2); render();
-        }
-      }, 1000);
+    try{
+      const anySet = SESSION.exercicios.some(ex=> ex.sets.some(s=>s.done));
+      if(!anySet && !await confirmDialog('Nenhuma série marcada. Finalizar?', {okText:'Finalizar'})) return;
+      const duracaoSegundos = sessionElapsedSeconds();
+      const resumo = SESSION.exercicios.map(ex=>{
+        const doneSets = ex.sets.filter(s=>s.done && !s.warmup);
+        const repsArr = doneSets.map(s=>Number(s.repeticoes)||0).filter(r=>r>0);
+        const repsMedias = repsArr.length ? repsArr.reduce((a,b)=>a+b,0)/repsArr.length : (Number(ex.repeticoes)||0);
+        const lastDone = [...doneSets].reverse()[0];
+        const rirs = doneSets.map(s=>s.rir).filter(x=> x!==null && x!==undefined);
+        return {
+          nome: ex.nome, setsTotal: ex.sets.filter(s=>!s.warmup).length,
+          setsFeitas: doneSets.length, carga: lastDone ? lastDone.carga : ex.carga,
+          repsMedias: Math.round(repsMedias),
+          rirMedio: rirs.length ? rirs.reduce((a,b)=>a+b,0)/rirs.length : null,
+          setsDetalhados: ex.sets.map(s=>({reps:s.repeticoes, carga:s.carga, done:s.done, warmup:!!s.warmup, rir:s.rir, falha:s.falha}))
+        };
+      });
+      const totalSets = resumo.reduce((a,e)=>a+e.setsFeitas,0);
+      const totalExercicios = resumo.length;
+      const gruposTreinados = [...new Set(SESSION.exercicios.map(ex=> exerciseGroup(ex.nome)))];
+      let post = {};
+      try{ post = await askPostCheckin(); }catch(e){ post = {}; }
+      const checkinHoje = loadCheckinHoje() || {};
+      const checkinFinal = { ...checkinHoje, ...post };
+      const treinoNome = SESSION.treinoNome;
+      const divisaoLetra = SESSION.divisaoLetra;
+      DB.historico.push({
+        id: uid(), tipo:'forca', treinoNome, divisaoLetra,
+        data: Date.now(), duracaoSegundos, exercicios: resumo, checkin: checkinFinal
+      });
+      saveHistorico();
+      stopRestTimer();
+      clearInterval(clockInterval);
+      SESSION=null; persistSession();
+      releaseWakeLock(); stopMediaSession();
+      let novosBadges = [];
+      try{ novosBadges = checkNewBadges(); }catch(e){ console.warn(e); }
+      try{ completeChallengeIfDone(); }catch(e){ console.warn(e); }
+      await showWorkoutComplete({
+        subtitulo: 'Bom treino! Continue assim.',
+        stats: [
+          { v: formatSeconds(duracaoSegundos), l: 'Duração' },
+          { v: totalSets, l: 'Séries' },
+          { v: totalExercicios, l: 'Exercícios' }
+        ],
+        gruposTreinados, novosBadges
+      });
+      go('historico');
+    }catch(err){
+      console.error('[86gym finalizar]', err);
+      showGlobalError('Erro ao finalizar: ' + (err.message||'desconhecido'));
     }
+  });
+if(ROUTE.name==='treino_exec'){
+  startSessionClock();
+  if(SESSION && SESSION.timer && SESSION.timer.running && !_restTimerRef){
+    // Só retoma se ainda houver tempo real pela frente
+    if(SESSION.timer.endTime && SESSION.timer.endTime > Date.now()){
+      _restTimerRef = setInterval(restTimerTick, 200);
+      SESSION.timer.interval = _restTimerRef;
+    } else {
+      // Tempo expirou enquanto o app estava fechado — apenas encerra
+      stopRestTimer();
+    }
+  }
     const container = document.getElementById('exec-container');
     if(container && 'ontouchstart' in window && !execContainerHandlersBound){
       execContainerHandlersBound = true;
@@ -4899,6 +5856,24 @@ function bindScreenEvents(){
       }, 250);
     });
   }
+
+  const btnAddPlaylist = document.getElementById('btn-add-playlist');
+  if(btnAddPlaylist) btnAddPlaylist.addEventListener('click', addPlaylistDialog);
+
+  view.querySelectorAll('[data-play-playlist]').forEach(el=> el.addEventListener('click', ()=>{
+    const id = el.dataset.playPlaylist;
+    if(MUSIC_STATE.playlistId === id){ closeMusicPlayer(); showToast('Player fechado'); }
+    else openMusicPlayer(id, true);
+  }));
+
+  view.querySelectorAll('[data-del-playlist]').forEach(el=> el.addEventListener('click', async ()=>{
+    if(!await confirmDialog('Excluir playlist?', {danger:true, okText:'Excluir'})) return;
+    const id = el.dataset.delPlaylist;
+    if(MUSIC_STATE.playlistId === id) closeMusicPlayer();
+    const playlists = loadPlaylists().filter(p=> p.id !== id);
+    savePlaylists(playlists);
+    render();
+  }));
 
   view.querySelectorAll('[data-ver-evolucao]').forEach(el=> el.addEventListener('click', ()=> openDemoModal(el.dataset.verEvolucao)));
   view.querySelectorAll('[data-help]').forEach(el=>{
@@ -5057,7 +6032,21 @@ async function initApp(){
   document.documentElement.style.setProperty('--gym-pattern', buildGymPatternDataUri(0.028));
   document.documentElement.style.setProperty('--gym-pattern-strong', buildGymPatternDataUri(0.09));
   mountBgAnimation();
+  initMusicPlayer();
   applyTheme();
+
+  // Carrega biblioteca de exercícios (cache → github → inline)
+  try{
+    const r = await loadExerciseDB();
+    if(r.source === 'inline'){
+      showToast('Biblioteca offline: ' + r.count + ' exercícios. Abra via http:// para carregar todos.', {dark:true, duration:6000});
+    } else {
+      console.log('[86gym] biblioteca carregada de ' + r.source + ' (' + r.count + ')');
+    }
+  }catch(e){
+    console.warn('[86gym] loadExerciseDB falhou', e);
+  }
+
   render();
 
   setInterval(()=>{ if(SESSION) persistSession(); }, 30000);
@@ -5080,13 +6069,11 @@ async function initApp(){
 
   checkImportFromURL();
 
-  // Backup automático local
   setTimeout(async ()=>{
     if(loadSettings().autoBackup) await autoBackup(false);
   }, 3000);
   setInterval(()=>{ if(loadSettings().autoBackup) autoBackup(false); }, 10*60*1000);
 
-  // Sincronização Gist — smart sync no boot
   const cfg = loadGistConfig();
   if(cfg.enabled && cfg.token && cfg.id){
     setTimeout(async ()=>{

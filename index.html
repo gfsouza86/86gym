@@ -439,7 +439,19 @@
     z-index:70;background:var(--surface);border:1.5px solid var(--lime);
     border-radius:24px;padding:8px 16px;display:none;align-items:center;gap:10px;
     font-weight:700;font-size:12.5px;box-shadow:0 8px 20px rgba(0,0,0,0.4);cursor:pointer;color:var(--text);}
-  #mini-session.show{display:flex;}
+  
+  .fab-music{position:fixed;bottom:166px;right:18px;width:44px;height:44px;
+    border-radius:50%;background:var(--surface);color:var(--lime);
+    border:1.5px solid var(--lime);display:none;align-items:center;justify-content:center;
+    cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,0.4);z-index:60;}
+.fab-music.show{display:flex;}
+.fab-music svg{width:20px;height:20px;}
+.fab-music.playing{background:var(--lime);color:#0A0B0D;}
+.fab-music.playing::after{content:'';position:absolute;inset:-4px;border-radius:50%;
+    border:1.5px solid var(--lime);opacity:0.4;animation:fabPulse 1.6s ease-in-out infinite;}
+@keyframes fabPulse{0%,100%{transform:scale(1);opacity:0.4;} 50%{transform:scale(1.15);opacity:0;}}
+
+    #mini-session.show{display:flex;}
   #mini-session .pulse{width:8px;height:8px;border-radius:50%;background:var(--lime);animation:syncPulse 1.5s ease-in-out infinite;}
   #mini-session .ms-time{font-family:var(--font-display);font-weight:700;color:var(--lime);}
   .plank-timer{text-align:center;padding:20px;background:var(--surface);border-radius:14px;border:2px solid var(--line);margin-bottom:14px;}
@@ -556,6 +568,11 @@
 </div>
 <button class="fab-top" id="fab-top" aria-label="Voltar ao topo">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+<button class="fab-music" id="fab-music" aria-label="Música">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+  </svg>
 </button>
 <button id="mini-session" aria-label="Voltar para o treino em andamento">
   <span class="pulse"></span>
@@ -1924,15 +1941,22 @@ function openMusicPlayer(playlistId, expand=true){
   const el = document.getElementById('music-player'), frame = document.getElementById('mp-frame'), title = document.getElementById('mp-title');
   const cur = frame.querySelector('iframe');
   if(!cur || cur.dataset.src !== embed){ frame.innerHTML = `<div class="mp-frame-wrap"><iframe src="${embed}" data-src="${embed}" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>`; }
-  title.textContent = p.name;
-  el.classList.add('visible'); el.setAttribute('aria-hidden','false');
-  updateMusicPlayerUI();
+  
+  MUSIC_STATE.playlistId = null;
+  MUSIC_STATE.expanded = false;
+  saveMusicState();
+  updateViewPadding();
+  updateMusicFAB();       
 }
+
 function closeMusicPlayer(){
   const el = document.getElementById('music-player'); if(!el) return;
   el.classList.remove('visible','expanded'); el.setAttribute('aria-hidden','true');
   document.getElementById('mp-frame').innerHTML = '';
-  MUSIC_STATE.playlistId = null; MUSIC_STATE.expanded = false; saveMusicState();
+  
+  MUSIC_STATE.playlistId = null;
+  MUSIC_STATE.expanded = false;
+  saveMusicState();
   updateViewPadding();
 }
 function updateMusicPlayerUI(){
@@ -1975,7 +1999,82 @@ function openPlaylistPicker(){
   const cb = bg.querySelector('#picker-close-player');
   if(cb) cb.addEventListener('click', ()=>{ closeModal(bg); closeMusicPlayer(); });
 }
+function openMusicPanel(){
+  const playlists = loadPlaylists();
+  const bg = openModal(`
+    <button class="close-x">&times;</button>
+    <h3 style="margin-bottom:4px;">Música</h3>
+    <p style="color:var(--muted); font-size:13px; margin-bottom:16px;">
+      Toque em uma playlist para começar. Cole links do YouTube ou Spotify.
+    </p>
 
+    ${playlists.length ? playlists.map(p=>{
+      const playing = MUSIC_STATE.playlistId === p.id;
+      return `
+      <div class="cardio-item" style="${playing?'border-color:var(--lime);':''}">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+          <div style="flex:1; min-width:0;">
+            <h3 style="font-size:14.5px;">${escapeHtml(p.name)} ${playing?'<span style="font-size:11px;color:var(--lime);font-weight:800;margin-left:4px;">▶ TOCANDO</span>':''}</h3>
+            <small style="color:var(--muted); display:block; word-break:break-all; font-size:11px; margin-top:4px;">${escapeHtml(p.url)}</small>
+          </div>
+          <button class="icon-btn mini" data-del-playlist-mp="${p.id}" aria-label="Excluir">${ICONS.trash}</button>
+        </div>
+        <div class="row" style="margin-top:10px;">
+          <button class="btn small ${playing?'secondary':''}" data-pick-playlist-mp="${p.id}" style="flex:1;">
+            ${playing ? 'Fechar player' : ICONS.play + ' Tocar'}
+          </button>
+        </div>
+      </div>`;
+    }).join('') : `
+      <div class="empty" style="padding:30px 10px;">
+        ${ICONS.music}
+        <div style="margin-top:8px;">Nenhuma playlist ainda.</div>
+      </div>`}
+
+    <button class="btn" id="btn-add-playlist-mp" style="margin-top:6px;">${ICONS.plus} Adicionar playlist</button>
+  `);
+
+  bg.querySelector('.close-x').onclick = ()=> closeModal(bg);
+
+  bg.querySelectorAll('[data-pick-playlist-mp]').forEach(el=> el.addEventListener('click', ()=>{
+    const id = el.dataset.pickPlaylistMp;
+    closeModal(bg);
+    if(MUSIC_STATE.playlistId === id){ closeMusicPlayer(); showToast('Player fechado'); }
+    else { openMusicPlayer(id, true); showToast('Tocando: ' + (loadPlaylists().find(p=>p.id===id)?.name || '')); }
+    updateMusicFAB();
+  }));
+
+  bg.querySelectorAll('[data-del-playlist-mp]').forEach(el=> el.addEventListener('click', async ()=>{
+    const id = el.dataset.delPlaylistMp;
+    const removed = loadPlaylists().find(p=> p.id === id);
+    if(MUSIC_STATE.playlistId === id) closeMusicPlayer();
+    savePlaylists(loadPlaylists().filter(p=> p.id !== id));
+    closeModal(bg);
+    undoableAction('Playlist excluída', ()=>{ render(); updateMusicFAB(); }, ()=>{ const arr = loadPlaylists(); arr.push(removed); savePlaylists(arr); render(); updateMusicFAB(); });
+  }));
+
+  bg.querySelector('#btn-add-playlist-mp').addEventListener('click', async ()=>{
+    const name = await promptDialog('Nome da playlist', {title:'Nova playlist', placeholder:'Ex: Foco no treino'});
+    if(!name || !name.trim()) return;
+    const url = await promptDialog('Cole a URL do YouTube ou Spotify', {title:'URL', placeholder:'https://...'});
+    if(!url || !url.trim()) return;
+    const embed = extractEmbedUrl(url);
+    if(!embed){ showToast('URL inválida ou não suportada'); return; }
+    const arr = loadPlaylists();
+    arr.push({ id: uid(), name: name.trim(), url: url.trim(), ts: Date.now() });
+    savePlaylists(arr);
+    closeModal(bg);
+    showToast('Playlist adicionada!');
+    openMusicPanel(); // reabre com a nova lista
+  });
+}
+function updateMusicFAB(){
+  const fab = document.getElementById('fab-music');
+  if(!fab) return;
+  const playing = !!MUSIC_STATE.playlistId;
+  fab.classList.toggle('playing', playing);
+  fab.setAttribute('aria-label', playing ? 'Música (tocando)' : 'Música');
+}
 /* ============================================================
    PAINEL PRINCIPAL (TREINAR)
 ============================================================ */
@@ -3381,7 +3480,7 @@ function renderPerfilSobre(){
   <div style="text-align:center;padding:8px 0 18px 0;">
     <div class="plate-badge" style="margin:0 auto 14px auto;width:64px;height:64px;border-width:3px;"><span class="pnum" style="font-size:20px;">86</span></div>
     <h2 style="font-family:var(--font-display);font-size:22px;margin:0 0 4px 0;">86 Training & Grind</h2>
-    <p style="color:var(--muted);font-size:12.5px;margin:0;">Versão 6.0</p>
+    <p style="color:var(--muted);font-size:12.5px;margin:0;">Versão 2.0</p>
   </div>
   <div class="card">
     <h3 style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px;">Desenvolvido por</h3>
@@ -4010,7 +4109,20 @@ function bindScreenEvents(){
   if(window._onScrollRef) viewEl.removeEventListener('scroll', window._onScrollRef);
   window._onScrollRef = onScroll;
   viewEl.addEventListener('scroll', onScroll); onScroll();
-  fab.onclick = ()=> viewEl.scrollTo({top:0, behavior:'smooth'});
+  
+    fab.onclick = ()=> viewEl.scrollTo({top:0, behavior:'smooth'});
+
+  const fabMusicEl = document.getElementById('fab-music');
+  if(fabMusicEl){
+    fabMusicEl.classList.add('show');    // ← sempre visível
+    fabMusicEl.addEventListener('click', openMusicPanel);
+  }
+  updateMusicFAB();
+
+const fabMusic = document.getElementById('fab-music');
+if(fabMusic){
+  fabMusic.addEventListener('click', openMusicPanel);
+}
 
   const miniS = document.getElementById('mini-session');
   if(miniS) miniS.onclick = ()=>{ if(SESSION) go('treino_exec', {treinoId:SESSION.treinoId, divisaoId:SESSION.divisaoId}); };
@@ -4846,6 +4958,7 @@ async function initApp(){
   document.documentElement.style.setProperty('--gym-pattern-strong', buildGymPatternDataUri(0.09));
   mountBgAnimation();
   initMusicPlayer();
+  updateMusicFAB();
   applyTheme();
   render();
 

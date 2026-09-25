@@ -349,6 +349,8 @@
     display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;z-index:2;}
   .ex-img-nav:hover{background:rgba(0,0,0,0.8);}
   .ex-img-dot{width:7px;height:7px;border-radius:50%;}
+  .video-frame-wrap{position:relative;width:100%;padding-top:56.25%;border-radius:12px;overflow:hidden;background:#000;margin-bottom:6px;}
+  .video-frame-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
   .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
     background:var(--lime);color:#0A0B0D;padding:12px 20px;border-radius:30px;
     font-weight:700;font-size:13px;z-index:300;box-shadow:0 8px 20px rgba(0,0,0,0.4);
@@ -551,26 +553,6 @@
     .modal-box{max-width:600px;border-radius:20px;margin-bottom:auto;}
     .modal-bg{align-items:center;}
   }
-.ex-thumb{
-  width:48px; height:48px; border-radius:50%;
-  background:var(--surface-2); border:1px solid var(--line);
-  flex-shrink:0; display:flex; align-items:center; justify-content:center;
-  overflow:hidden; position:relative;
-}
-.ex-thumb img{
-  width:100%; height:100%; object-fit:cover;
-  display:block; background:var(--surface-2);
-}
-.ex-thumb .ex-thumb-fallback{
-  font-family:var(--font-display); font-weight:700; font-size:15px;
-  color:var(--muted); text-transform:uppercase;
-}
-.ex-thumb.sm{ width:40px; height:40px; }
-.ex-thumb.sm .ex-thumb-fallback{ font-size:13px; }
-.ex-thumb.lg{ width:56px; height:56px; }
-.ex-thumb.lg .ex-thumb-fallback{ font-size:18px; }
-.ex-row > .ex-thumb{ margin-right:10px; }
-
 </style>
 </head>
 <body>
@@ -1100,18 +1082,6 @@ function exerciseImages(name){
   const d = exerciseData(name);
   if(!d || !d.images || !d.images.length) return [];
   return d.images.map(p=> EXERCISE_IMG_BASE + p);
-}
-
-function exerciseThumb(name, size){
-  const imgs = exerciseImages(name);
-  const cls = 'ex-thumb' + (size === 'sm' ? ' sm' : size === 'lg' ? ' lg' : '');
-  const initial = escapeHtml((name||'?').trim().charAt(0).toUpperCase());
-  if(imgs.length){
-    const src = escapeHtml(imgs[0]);
-    return `<div class="${cls}"><img src="${src}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">` +
-           `<span class="ex-thumb-fallback" style="display:none;">${initial}</span></div>`;
-  }
-  return `<div class="${cls}"><span class="ex-thumb-fallback">${initial}</span></div>`;
 }
 
 function normalizeStr(s){
@@ -2145,12 +2115,6 @@ function ExerciseBlockHtml(di, ei, ex){
   <div class="ex-block" data-di="${di}" data-ei="${ei}">
     <button class="remove-x" data-del-ex="${di}:${ei}">✕</button>
     <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
-     <div class="ex-block" data-di="${di}" data-ei="${ei}">
-    <button class="remove-x" data-del-ex="${di}:${ei}">✕</button>
-    <div style="display:flex; align-items:flex-start; gap:10px; margin-bottom:6px;">
-      ${ex.nome ? exerciseThumb(ex.nome, 'sm') : ''}
-      <div style="flex:1; min-width:0;">
-        <!-- resto do conteúdo do bloco (os botões de mover, superset, input de nome, grids...) --> 
       <button class="icon-btn mini" data-move-ex="${di}:${ei}:-1" ${ei===0?'disabled':''}>${ICONS.arrowUp}</button>
       <button class="icon-btn mini" data-move-ex="${di}:${ei}:1">${ICONS.arrowDown}</button>
       <button class="icon-btn mini" data-toggle-ss="${di}:${ei}" title="Superset">${ICONS.link2}</button>
@@ -2430,9 +2394,6 @@ function ExecucaoScreen(treinoId, divisaoId){
     return `<div class="exec-ex-card ${done?'done':''} ${collapsed?'collapsed':''} ${ssClass}" data-exi="${exi}">
       <div class="exec-ex-head">
         <button class="toggle-btn" data-toggle-collapse="${exi}">${ICONS.chevronDown}</button>
-        <div class="exec-ex-head">
-  <button class="toggle-btn" data-toggle-collapse="${exi}">${ICONS.chevronDown}</button>
-  ${exerciseThumb(ex.nome, 'sm')}
         <h3>
           ${ssLabel?`<span class="superset-badge">${ssLabel}</span>`:''}
           <span class="grp-chip" data-grp="${escapeHtml(eGrp)}">${escapeHtml(eGrp)}</span>
@@ -2919,6 +2880,8 @@ function openDemoModal(name){
   const cargaRef = last?.ex?.carga || (b?.carga) || 0;
   const warm = calcWarmup(cargaRef);
   const plates = calcPlates(cargaRef);
+  const ytQuery = encodeURIComponent(name + ' execução correta');
+  const ytEmbed = `https://www.youtube-nocookie.com/embed?listType=search&list=${ytQuery}&rel=0&modestbranding=1`;
   const exNote = getExNote(name);
   const fav = isFav(name);
   const bg = openModal(`
@@ -2929,7 +2892,9 @@ function openDemoModal(name){
     </div>
     <p style="color:var(--muted);font-size:13px;margin-bottom:10px;"><span class="grp-chip" data-grp="${escapeHtml(exerciseGroup(name))}">${escapeHtml(exerciseGroup(name))}</span></p>
     ${metaBadges.length ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">${metaBadges.map(m=>`<span style="font-size:11px;background:var(--surface-2);border:1px solid var(--line);border-radius:20px;padding:4px 10px;color:var(--muted);text-transform:capitalize;">${escapeHtml(m)}</span>`).join('')}</div>` : ''}
-    <div id="ex-media-slot" style="margin-bottom:14px;">${renderExImages(name)}</div>
+    <div id="ex-media-slot">${renderExImages(name)}</div>
+    <div class="video-frame-wrap"><iframe src="${ytEmbed}" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe></div>
+    <div style="margin-top:10px;font-size:11px;color:var(--muted);text-align:center;">Se não carregar, <a href="https://www.youtube.com/results?search_query=${ytQuery}" target="_blank" style="color:var(--blue);">abra no YouTube</a>.</div>
     <div class="divider"></div>
     <h3 style="font-size:14px;margin-bottom:6px;">📝 Sua nota</h3>
     <textarea id="ex-note-input" placeholder="Ex: subir carga na próxima...">${escapeHtml(exNote)}</textarea>

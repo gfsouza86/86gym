@@ -4292,110 +4292,156 @@ function buildSparkline(values, opts={}){
     <path d="${line}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>`;
 }
-const TORSO_PATH_D = 'M27,30 C19,40 23,54 35,63 C25,74 24,85 29,94 L71,94 C76,85 75,74 65,63 C77,54 81,40 73,30 Q50,22 27,30 Z';
-function muscleBlob(cx, y0, y1, wTop, wMid, wBot, bias=0.4){
-  const yMid = y0 + (y1-y0)*bias;
-  const rT=wTop/2, rM=wMid/2, rB=wBot/2;
-  const c1 = y0 + (yMid-y0)*0.6, c2 = yMid - (yMid-y0)*0.2;
-  const c3 = yMid + (y1-yMid)*0.2, c4 = y1 - (y1-yMid)*0.6;
-  const n = v=> Number(v).toFixed(1);
-  return `M${n(cx-rT)},${n(y0)} C${n(cx-rT)},${n(c1)} ${n(cx-rM)},${n(c2)} ${n(cx-rM)},${n(yMid)} C${n(cx-rM)},${n(c3)} ${n(cx-rB)},${n(c4)} ${n(cx-rB)},${n(y1)} L${n(cx+rB)},${n(y1)} C${n(cx+rB)},${n(c4)} ${n(cx+rM)},${n(c3)} ${n(cx+rM)},${n(yMid)} C${n(cx+rM)},${n(c2)} ${n(cx+rT)},${n(c1)} ${n(cx+rT)},${n(y0)} Z`;
-}
+
+/* ═══════════════════════════════════════════════════════════
+   Corpo humano (SVG anatômico redesenhado)
+═══════════════════════════════════════════════════════════ */
 const BODY_ZONES = {
   front: [
-    {id:'arm_l_u', shape:{type:'blob',cx:15,y0:33,y1:70,wTop:13,wMid:17,wBot:11,bias:0.4}, group:'Bíceps'},
-    {id:'arm_r_u', shape:{type:'blob',cx:85,y0:33,y1:70,wTop:13,wMid:17,wBot:11,bias:0.4}, group:'Bíceps'},
-    {id:'arm_l_l', shape:{type:'blob',cx:14,y0:68,y1:106,wTop:13,wMid:12,wBot:8,bias:0.22}, group:'Antebraço'},
-    {id:'arm_r_l', shape:{type:'blob',cx:86,y0:68,y1:106,wTop:13,wMid:12,wBot:8,bias:0.22}, group:'Antebraço'},
-    {id:'leg_l_u', shape:{type:'blob',cx:37,y0:89,y1:135,wTop:17,wMid:21,wBot:14,bias:0.4}, group:'Pernas'},
-    {id:'leg_r_u', shape:{type:'blob',cx:63,y0:89,y1:135,wTop:17,wMid:21,wBot:14,bias:0.4}, group:'Pernas'},
-    {id:'leg_l_l', shape:{type:'blob',cx:37,y0:130,y1:178,wTop:15,wMid:16,wBot:8,bias:0.26}, group:'Panturrilha'},
-    {id:'leg_r_l', shape:{type:'blob',cx:63,y0:130,y1:178,wTop:15,wMid:16,wBot:8,bias:0.26}, group:'Panturrilha'},
-    {id:'foot_l', shape:{type:'ellipse',cx:37,cy:180,rx:10,ry:4.5}, deco:true},
-    {id:'foot_r', shape:{type:'ellipse',cx:63,cy:180,rx:10,ry:4.5}, deco:true},
-    {id:'chest', shape:{type:'rect',x:29,y:30,w:42,h:26,rx:10}, group:'Peito', torso:true},
-    {id:'abs', shape:{type:'rect',x:33,y:56,w:34,h:38,rx:8}, group:'Abdômen', torso:true},
-    {id:'sh_l', shape:{type:'ellipse',cx:19,cy:36,rx:12,ry:10}, group:'Ombros'},
-    {id:'sh_r', shape:{type:'ellipse',cx:81,cy:36,rx:12,ry:10}, group:'Ombros'},
-    {id:'neck', shape:{type:'rect',x:44,y:24,w:12,h:10,rx:3}, deco:true},
-    {id:'head', shape:{type:'circle',cx:50,cy:14,r:13}, deco:true}
+    // ─── Decoração ───
+    { id:'head',       deco:true, shape:'circle', cx:50, cy:18, r:11 },
+    { id:'neck',       deco:true, shape:'rect', x:44, y:27, w:12, h:12, rx:3 },
+    { id:'arm_l',      deco:true, shape:'path', d:'M22,44 C18,46 16,52 15,62 L14,84 C13,100 13,118 14,130 C14,134 16,136 18,136 L22,136 C24,134 24,130 24,126 L24,108 C24,92 23,76 22,64 C21,54 22,48 22,44 Z' },
+    { id:'arm_r',      deco:true, shape:'path', d:'M78,44 C82,46 84,52 85,62 L86,84 C87,100 87,118 86,130 C86,134 84,136 82,136 L78,136 C76,134 76,130 76,126 L76,108 C76,92 77,76 78,64 C79,54 78,48 78,44 Z' },
+        { id:'hips',       deco:true, shape:'path', d:'M32,98 L68,98 L68,106 C68,110 64,112 58,112 L42,112 C36,112 32,110 32,106 Z' },
+    
+    // ─── Ombros ───
+    { id:'sh_l', group:'Ombros', shape:'path', d:'M22,44 C20,44 18,46 17,50 L16,60 C16,64 18,66 21,66 L26,66 L27,54 L26,44 Z' },
+    { id:'sh_r', group:'Ombros', shape:'path', d:'M78,44 C80,44 82,46 83,50 L84,60 C84,64 82,66 79,66 L74,66 L73,54 L74,44 Z' },
+
+    // ─── Peito ───
+    { id:'pec_l', group:'Peito', shape:'path', d:'M34,44 L48,44 L48,64 L40,64 C36,64 32,60 32,54 L32,46 Z' },
+    { id:'pec_r', group:'Peito', shape:'path', d:'M66,44 L52,44 L52,64 L60,64 C64,64 68,60 68,54 L68,46 Z' },
+
+    // ─── Abdômen (6 gomos) ───
+    { id:'abs_l1', group:'Abdômen', shape:'rect', x:42, y:66, w:7, h:8, rx:2 },
+    { id:'abs_r1', group:'Abdômen', shape:'rect', x:51, y:66, w:7, h:8, rx:2 },
+    { id:'abs_l2', group:'Abdômen', shape:'rect', x:42, y:75, w:7, h:8, rx:2 },
+    { id:'abs_r2', group:'Abdômen', shape:'rect', x:51, y:75, w:7, h:8, rx:2 },
+    { id:'abs_l3', group:'Abdômen', shape:'rect', x:42, y:84, w:7, h:8, rx:2 },
+    { id:'abs_r3', group:'Abdômen', shape:'rect', x:51, y:84, w:7, h:8, rx:2 },
+
+    // ─── Oblíquos (laterais) ───
+    { id:'obl_l', group:'Abdômen', shape:'rect', x:34, y:66, w:7, h:26, rx:3 },
+    { id:'obl_r', group:'Abdômen', shape:'rect', x:59, y:66, w:7, h:26, rx:3 },
+
+    // ─── Bíceps ───
+    { id:'bicep_l', group:'Bíceps', shape:'ellipse', cx:19, cy:66, rx:5, ry:13 },
+    { id:'bicep_r', group:'Bíceps', shape:'ellipse', cx:81, cy:66, rx:5, ry:13 },
+
+    // ─── Antebraços ───
+    { id:'farm_l', group:'Antebraço', shape:'path', d:'M15,84 L24,84 L23,102 C23,116 21,128 20,134 L18,134 C17,128 15,116 15,102 Z' },
+    { id:'farm_r', group:'Antebraço', shape:'path', d:'M85,84 L76,84 L77,102 C77,116 79,128 80,134 L82,134 C83,128 85,116 85,102 Z' },
+
+    // ─── Quadríceps ───
+    { id:'quad_l', group:'Pernas', shape:'path', d:'M33,114 L46,114 L46,142 C46,150 44,158 40,164 L36,164 C32,158 30,150 30,142 C30,132 30,122 33,114 Z' },
+    { id:'quad_r', group:'Pernas', shape:'path', d:'M67,114 L54,114 L54,142 C54,150 56,158 60,164 L64,164 C68,158 70,150 70,142 C70,132 70,122 67,114 Z' },
+
+    // ─── Panturrilhas ───
+    { id:'calf_l', group:'Panturrilha', shape:'ellipse', cx:37, cy:172, rx:6, ry:14 },
+    { id:'calf_r', group:'Panturrilha', shape:'ellipse', cx:63, cy:172, rx:6, ry:14 },
+
+    // ─── Pés ───
+    { id:'foot_l', deco:true, shape:'ellipse', cx:37, cy:189, rx:7, ry:3.5 },
+    { id:'foot_r', deco:true, shape:'ellipse', cx:63, cy:189, rx:7, ry:3.5 }
   ],
+
   back: [
-    {id:'arm_l_u', shape:{type:'blob',cx:15,y0:33,y1:70,wTop:13,wMid:17,wBot:11,bias:0.45}, group:'Tríceps'},
-    {id:'arm_r_u', shape:{type:'blob',cx:85,y0:33,y1:70,wTop:13,wMid:17,wBot:11,bias:0.45}, group:'Tríceps'},
-    {id:'arm_l_l', shape:{type:'blob',cx:14,y0:68,y1:106,wTop:13,wMid:12,wBot:8,bias:0.22}, group:'Antebraço'},
-    {id:'arm_r_l', shape:{type:'blob',cx:86,y0:68,y1:106,wTop:13,wMid:12,wBot:8,bias:0.22}, group:'Antebraço'},
-    {id:'leg_l_u', shape:{type:'blob',cx:37,y0:89,y1:135,wTop:17,wMid:20,wBot:14,bias:0.35}, group:'Pernas'},
-    {id:'leg_r_u', shape:{type:'blob',cx:63,y0:89,y1:135,wTop:17,wMid:20,wBot:14,bias:0.35}, group:'Pernas'},
-    {id:'leg_l_l', shape:{type:'blob',cx:37,y0:130,y1:178,wTop:15,wMid:17,wBot:8,bias:0.32}, group:'Panturrilha'},
-    {id:'leg_r_l', shape:{type:'blob',cx:63,y0:130,y1:178,wTop:15,wMid:17,wBot:8,bias:0.32}, group:'Panturrilha'},
-    {id:'foot_l', shape:{type:'ellipse',cx:37,cy:180,rx:10,ry:4.5}, deco:true},
-    {id:'foot_r', shape:{type:'ellipse',cx:63,cy:180,rx:10,ry:4.5}, deco:true},
-    {id:'back', shape:{type:'rect',x:29,y:30,w:42,h:64,rx:10}, group:'Costas', torso:true},
-    {id:'hip_l', shape:{type:'ellipse',cx:37,cy:92,rx:11,ry:9}, group:'Glúteos'},
-    {id:'hip_r', shape:{type:'ellipse',cx:63,cy:92,rx:11,ry:9}, group:'Glúteos'},
-    {id:'sh_l', shape:{type:'ellipse',cx:19,cy:36,rx:12,ry:10}, group:'Ombros'},
-    {id:'sh_r', shape:{type:'ellipse',cx:81,cy:36,rx:12,ry:10}, group:'Ombros'},
-    {id:'neck', shape:{type:'rect',x:44,y:24,w:12,h:10,rx:3}, deco:true},
-    {id:'head', shape:{type:'circle',cx:50,cy:14,r:13}, deco:true}
+    // ─── Decoração ───
+    { id:'head',       deco:true, shape:'circle', cx:50, cy:18, r:11 },
+    { id:'neck',       deco:true, shape:'rect', x:44, y:27, w:12, h:12, rx:3 },
+    { id:'arm_l',      deco:true, shape:'path', d:'M22,44 C18,46 16,52 15,62 L14,84 C13,100 13,118 14,130 C14,134 16,136 18,136 L22,136 C24,134 24,130 24,126 L24,108 C24,92 23,76 22,64 C21,54 22,48 22,44 Z' },
+    { id:'arm_r',      deco:true, shape:'path', d:'M78,44 C82,46 84,52 85,62 L86,84 C87,100 87,118 86,130 C86,134 84,136 82,136 L78,136 C76,134 76,130 76,126 L76,108 C76,92 77,76 78,64 C79,54 78,48 78,44 Z' },
+    { id:'hips',       deco:true, shape:'path', d:'M32,98 L68,98 L68,106 C68,110 64,112 58,112 L42,112 C36,112 32,110 32,106 Z' },
+    
+    // ─── Trapézio ───
+    { id:'trap_l', group:'Costas', shape:'path', d:'M50,38 L38,42 L36,52 L44,58 L50,52 Z' },
+    { id:'trap_r', group:'Costas', shape:'path', d:'M50,38 L62,42 L64,52 L56,58 L50,52 Z' },
+
+    // ─── Dorsais ───
+    { id:'lat_l', group:'Costas', shape:'path', d:'M32,54 L48,60 L48,86 L36,84 C30,80 30,64 32,54 Z' },
+    { id:'lat_r', group:'Costas', shape:'path', d:'M68,54 L52,60 L52,86 L64,84 C70,80 70,64 68,54 Z' },
+
+    // ─── Lombar ───
+    { id:'lowback', group:'Costas', shape:'rect', x:44, y:80, w:12, h:16, rx:3 },
+
+    // ─── Ombros (mesma forma que front) ───
+    { id:'sh_l', group:'Ombros', shape:'path', d:'M22,44 C20,44 18,46 17,50 L16,60 C16,64 18,66 21,66 L26,66 L27,54 L26,44 Z' },
+    { id:'sh_r', group:'Ombros', shape:'path', d:'M78,44 C80,44 82,46 83,50 L84,60 C84,64 82,66 79,66 L74,66 L73,54 L74,44 Z' },
+
+    // ─── Tríceps ───
+    { id:'tri_l', group:'Tríceps', shape:'ellipse', cx:19, cy:66, rx:5, ry:13 },
+    { id:'tri_r', group:'Tríceps', shape:'ellipse', cx:81, cy:66, rx:5, ry:13 },
+
+    // ─── Antebraços ───
+    { id:'farm_l', group:'Antebraço', shape:'path', d:'M15,84 L24,84 L23,102 C23,116 21,128 20,134 L18,134 C17,128 15,116 15,102 Z' },
+    { id:'farm_r', group:'Antebraço', shape:'path', d:'M85,84 L76,84 L77,102 C77,116 79,128 80,134 L82,134 C83,128 85,116 85,102 Z' },
+
+    // ─── Glúteos ───
+    { id:'glute_l', group:'Glúteos', shape:'path', d:'M34,100 C28,100 26,106 26,112 C26,120 32,124 42,122 L48,118 L48,102 C46,100 42,100 34,100 Z' },
+    { id:'glute_r', group:'Glúteos', shape:'path', d:'M66,100 C72,100 74,106 74,112 C74,120 68,124 58,122 L52,118 L52,102 C54,100 58,100 66,100 Z' },
+
+    // ─── Posteriores de coxa ───
+    { id:'ham_l', group:'Pernas', shape:'path', d:'M33,124 L46,124 L46,150 C46,158 44,164 40,168 L36,168 C32,164 30,158 30,150 C30,140 30,130 33,124 Z' },
+    { id:'ham_r', group:'Pernas', shape:'path', d:'M67,124 L54,124 L54,150 C54,158 56,164 60,168 L64,168 C68,164 70,158 70,150 C70,140 70,130 67,124 Z' },
+
+    // ─── Panturrilhas ───
+    { id:'calf_l', group:'Panturrilha', shape:'ellipse', cx:37, cy:175, rx:6, ry:13 },
+    { id:'calf_r', group:'Panturrilha', shape:'ellipse', cx:63, cy:175, rx:6, ry:13 },
+
+    // ─── Pés ───
+    { id:'foot_l', deco:true, shape:'ellipse', cx:37, cy:189, rx:7, ry:3.5 },
+    { id:'foot_r', deco:true, shape:'ellipse', cx:63, cy:189, rx:7, ry:3.5 }
   ]
 };
-const BODY_LINES = {
-  front: '<path d="M50,32 L50,60" fill="none"/><path d="M50,64 L50,92" fill="none"/><path d="M41,71 L59,71" fill="none"/><path d="M41,80 L59,80" fill="none"/><path d="M42,88 L58,88" fill="none"/>',
-  back: '<path d="M50,32 L50,92" fill="none"/><path d="M50,32 L35,50" fill="none"/><path d="M50,32 L65,50" fill="none"/><path d="M38,52 L38,88" fill="none"/><path d="M62,52 L62,88" fill="none"/>'
-};
+
 function zoneShapeSvg(z, fill, opacity, strokeCol){
-  const s = z.shape;
-  const attrs = `fill="${fill}" fill-opacity="${opacity}" stroke="${strokeCol}" stroke-width="1" stroke-opacity="${z.deco?0.4:0.32}"`;
-  if(s.type==='circle') return `<circle cx="${s.cx}" cy="${s.cy}" r="${s.r}" ${attrs}/>`;
-  if(s.type==='ellipse') return `<ellipse cx="${s.cx}" cy="${s.cy}" rx="${s.rx}" ry="${s.ry}" ${attrs}/>`;
-  if(s.type==='blob') return `<path d="${muscleBlob(s.cx,s.y0,s.y1,s.wTop,s.wMid,s.wBot,s.bias)}" ${attrs}/>`;
-  const rx = s.pill ? s.w/2 : (s.rx||6);
-  return `<rect x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}" rx="${rx}" ry="${rx}" ${attrs}/>`;
+  const sw = z.deco ? 0 : 1.1;
+  const so = z.deco ? 0 : 0.7;
+  const attrs = `fill="${fill}" fill-opacity="${opacity}" stroke="${strokeCol}" stroke-width="${sw}" stroke-opacity="${so}" stroke-linejoin="round"`;
+  if(z.shape === 'circle')   return `<circle cx="${z.cx}" cy="${z.cy}" r="${z.r}" ${attrs}/>`;
+  if(z.shape === 'ellipse')  return `<ellipse cx="${z.cx}" cy="${z.cy}" rx="${z.rx}" ry="${z.ry}" ${attrs}/>`;
+  if(z.shape === 'rect')     return `<rect x="${z.x}" y="${z.y}" width="${z.w}" height="${z.h}" rx="${z.rx||4}" ${attrs}/>`;
+  if(z.shape === 'path')     return `<path d="${z.d}" ${attrs}/>`;
+  return '';
 }
+
 function bodySvg(view, groupVolumes, sharedMax){
   const zones = BODY_ZONES[view];
-  const uid = 'bd' + Math.random().toString(36).slice(2,8);
-  const trainable = zones.filter(z=>!z.deco);
-  const max = sharedMax || Math.max(1, ...trainable.map(z=> groupVolumes[z.group]||0));
-  const baseFill = 'color-mix(in srgb, #d8a97c 15%, var(--surface-2))';
-  const strokeCol = 'var(--line)';
-  const colorFor = z=>{
-    if(z.deco) return {fill:baseFill, op:1};
-    const v = groupVolumes[z.group]||0;
-    if(v<=0) return {fill:baseFill, op:1};
+  const trainable = zones.filter(z => !z.deco);
+  const max = sharedMax || Math.max(1, ...trainable.map(z => groupVolumes[z.group] || 0));
+
+  const decoFill = 'color-mix(in srgb, #6a5a48 45%, var(--surface-2))';
+  const emptyFill = 'color-mix(in srgb, #8a7a68 55%, var(--surface-2))';
+  const strokeCol = 'rgba(0,0,0,0.55)';
+
+  const colorFor = z => {
+    if(z.deco) return { fill: decoFill, op: 1 };
+    const v = groupVolumes[z.group] || 0;
+    if(v <= 0) return { fill: emptyFill, op: 1 };
     const r = v / max;
-    const fill = r < 0.25 ? 'color-mix(in srgb, var(--orange) 30%, var(--surface-2))'
-      : r < 0.50 ? 'color-mix(in srgb, var(--orange) 55%, var(--surface-2))'
-      : r < 0.75 ? 'color-mix(in srgb, var(--orange) 80%, var(--surface-2))'
+    const fill = r < 0.25 ? 'color-mix(in srgb, var(--orange) 40%, var(--surface-2))'
+      : r < 0.50 ? 'color-mix(in srgb, var(--orange) 65%, var(--surface-2))'
+      : r < 0.75 ? 'color-mix(in srgb, var(--orange) 88%, var(--surface-2))'
       : 'var(--orange)';
-    return {fill, op:1};
+    return { fill, op: 1 };
   };
-  const titleFor = z=> `<title>${escapeHtml(z.group)}: ${Math.round(groupVolumes[z.group]||0).toLocaleString('pt-BR')}kg</title>`;
-  const torsoZones = zones.filter(z=> z.torso);
-  const limbZones = zones.filter(z=> !z.torso && !['sh_l','sh_r','hip_l','hip_r','head','neck'].includes(z.id));
-  const jointZones = zones.filter(z=> ['sh_l','sh_r','hip_l','hip_r'].includes(z.id));
-  const capZones = zones.filter(z=> ['head','neck'].includes(z.id));
-  const renderZone = z=>{
+
+  const titleFor = z => `<title>${escapeHtml(z.group)}: ${Math.round(groupVolumes[z.group] || 0).toLocaleString('pt-BR')}kg</title>`;
+
+  // Renderiza TODAS as zonas por cima. Decoração fica atrás (ordem do array).
+  const zoneMarkup = zones.map(z => {
     const c = colorFor(z);
-    return z.deco ? zoneShapeSvg(z, c.fill, c.op, strokeCol) : `<g>${zoneShapeSvg(z, c.fill, c.op, strokeCol)}${titleFor(z)}</g>`;
-  };
-  const linesMarkup = (BODY_LINES[view]||'').replace(/<path /g, `<path stroke="${strokeCol}" stroke-width="0.6" stroke-opacity="0.4" `);
-  const torsoMarkup = torsoZones.length ? `
-    <clipPath id="tclip-${uid}"><path d="${TORSO_PATH_D}"/></clipPath>
-    <g clip-path="url(#tclip-${uid})">
-      <path d="${TORSO_PATH_D}" fill="${baseFill}"/>
-      ${torsoZones.map(z=>{ const c=colorFor(z); return `<g>${zoneShapeSvg(z, c.fill, c.op, strokeCol)}${titleFor(z)}</g>`; }).join('')}
-      ${linesMarkup}
-    </g>
-    <path d="${TORSO_PATH_D}" fill="none" stroke="${strokeCol}" stroke-width="1.2" stroke-opacity="0.45"/>` : '';
-  return `<svg viewBox="0 0 100 192" style="display:block;margin:0 auto;width:100%;max-width:190px;height:auto;">
-    ${limbZones.map(renderZone).join('')}
-    ${torsoMarkup}
-    ${jointZones.map(renderZone).join('')}
-    ${capZones.map(renderZone).join('')}
+    const inner = zoneShapeSvg(z, c.fill, c.op, strokeCol);
+    return z.deco ? inner : `<g>${inner}${titleFor(z)}</g>`;
+  }).join('');
+
+  return `<svg viewBox="0 0 100 195" xmlns="http://www.w3.org/2000/svg"
+    style="display:block;margin:0 auto;width:100%;max-width:190px;height:auto;">
+    ${zoneMarkup}
   </svg>`;
 }
+
 function renderResumoSummary(){
   const days = RESUMO_PERIOD;
   const d = computeResumoData(days);

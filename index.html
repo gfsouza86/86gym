@@ -398,6 +398,20 @@
   .carga-btn:disabled{opacity:0.35;}
   .exec-ex-card{background:var(--surface);border:1px solid var(--line);
     border-radius:var(--radius);padding:14px;margin-bottom:12px;position:relative;}
+      /* Thumb do exercício (miniatura) */
+  .ex-thumb{flex-shrink:0;width:44px;height:44px;border-radius:10px;
+    background:var(--surface-2);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;position:relative;
+    transition:background-color .25s ease,border-color .25s ease;}
+  .ex-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .ex-thumb-letter{font-family:var(--font-display);font-weight:800;font-size:18px;
+    color:#0A0B0D;line-height:1;letter-spacing:-0.02em;text-transform:uppercase;}
+  .exec-ex-titles{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+  .exec-ex-title{display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+    font-size:14.5px;font-weight:700;line-height:1.2;}
+  .exec-ex-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+    justify-content:flex-end;flex-shrink:0;}
   .exec-ex-card.done{border-color:var(--lime);}
   .exec-ex-card.pr{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 20px rgba(255,209,102,0.2);}
   .exec-ex-card.collapsed{padding:10px 14px;}
@@ -2539,6 +2553,80 @@ function ExerciciosScreen(){
     <div id="ex-list-wrap">${groupsHtml}</div>`;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   Miniaturas de exercício (com cache IndexedDB)
+═══════════════════════════════════════════════════════════ */
+const IMG_CACHE_PREFIX = 'eximg_';
+const _imgMemoryCache = new Map();
+
+async function getCachedExerciseImage(name){
+  const key = normalizeStr(name);
+  if(!key) return null;
+  if(_imgMemoryCache.has(key)) return _imgMemoryCache.get(key);
+  try{
+    const cached = await IDB.get(IMG_CACHE_PREFIX + key);
+    if(cached && typeof cached === 'string'){
+      _imgMemoryCache.set(key, cached);
+      return cached;
+    }
+  }catch(e){}
+  return null;
+}
+
+async function cacheExerciseImage(name, url){
+  const key = normalizeStr(name);
+  if(!key || !url) return null;
+  if(_imgMemoryCache.has(key)) return _imgMemoryCache.get(key);
+  try{
+    const r = await fetch(url, { mode:'cors' });
+    if(!r.ok) return null;
+    const blob = await r.blob();
+    const dataUrl = await new Promise((res, rej)=>{
+      const fr = new FileReader();
+      fr.onload = ()=> res(fr.result);
+      fr.onerror = rej;
+      fr.readAsDataURL(blob);
+    });
+    await IDB.set(IMG_CACHE_PREFIX + key, dataUrl);
+    _imgMemoryCache.set(key, dataUrl);
+    return dataUrl;
+  }catch(e){
+    console.warn('[86gym] cache img falhou:', name, e && e.message);
+    return null;
+  }
+}
+
+function exThumbHtml(name, grupo){
+  const g = grupo || 'Outros';
+  const letter = (g[0] || '?').toUpperCase();
+  const grpVar = `var(--grp-${g})`;
+  return `<div class="ex-thumb" data-ex-thumb="${escapeHtml(name)}" data-grp-thumb="${escapeHtml(g)}"
+    style="background:${grpVar};border-color:${grpVar};">
+    <span class="ex-thumb-letter">${letter}</span>
+  </div>`;
+}
+
+function applyThumbImg(el, src){
+  if(!el || !el.isConnected) return;
+  el.innerHTML = `<img src="${src}" alt="">`;
+  el.style.background = '';
+  el.style.borderColor = '';
+}
+
+async function hydrateExerciseThumbs(container){
+  const thumbs = container.querySelectorAll('.ex-thumb[data-ex-thumb]');
+  if(!thumbs.length) return;
+  await Promise.allSettled([...thumbs].map(async el => {
+    const name = el.dataset.exThumb;
+    let src = await getCachedExerciseImage(name);
+    if(src){ applyThumbImg(el, src); return; }
+    const urls = exerciseImages(name);
+    if(!urls.length) return;
+    const dataUrl = await cacheExerciseImage(name, urls[0]);
+    if(dataUrl) applyThumbImg(el, dataUrl);
+  }));
+}
+
 /* ============================================================
    SESSÃO
 ============================================================ */
@@ -2776,13 +2864,17 @@ function ExecucaoScreen(treinoId, divisaoId){
     return `<div class="exec-ex-card ${done?'done':''} ${collapsed?'collapsed':''} ${ssClass}" data-exi="${exi}">
       <div class="exec-ex-head">
         <button class="toggle-btn" data-toggle-collapse="${exi}">${ICONS.chevronDown}</button>
-        <h3>
-          ${ssLabel?`<span class="superset-badge">${ssLabel}</span>`:''}
+        ${exThumbHtml(ex.nome, eGrp)}
+        <div class="exec-ex-titles">
+          <div class="exec-ex-title">
+            ${ssLabel?`<span class="superset-badge">${ssLabel}</span>`:''}
+            ${escapeHtml(ex.nome)}
+            ${injured?'<span class="banned-tag">EVITAR</span>':''}
+            ${ex.dropSet? '<span class="grp-chip" data-grp="Outros" style="background:var(--orange);">DS</span>':''}
+          </div>
+        </div>
+        <div class="exec-ex-actions">
           <span class="grp-chip" data-grp="${escapeHtml(eGrp)}">${escapeHtml(eGrp)}</span>
-          ${escapeHtml(ex.nome)}
-          ${injured?'<span class="banned-tag">EVITAR</span>':''}
-        </h3>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
           ${compareBadge}
           ${!ex.sets.some(st=>st.warmup) ? `<button class="icon-btn mini" data-gen-warmup="${exi}" title="Gerar aquecimento" style="color:var(--orange);">${ICONS.bolt}</button>` : ''}
           ${injured ? `<button class="icon-btn mini" data-suggest-swap="${exi}" title="Sugerir substituto" style="color:var(--lime);background:var(--lime-dim);">${ICONS.bolt}</button>` : ''}
@@ -5513,6 +5605,7 @@ function bindScreenEvents(){
       if(SESSION.timer.endTime && SESSION.timer.endTime > Date.now()){ _restTimerRef = setInterval(restTimerTick, 200); SESSION.timer.interval = _restTimerRef; }
       else stopRestTimer();
     }
+    hydrateExerciseThumbs(view).catch(e => console.warn('[86gym] hydrate thumbs', e));
   }
 
   const btnNovoCardio = document.getElementById('btn-novo-cardio'); if(btnNovoCardio) btnNovoCardio.addEventListener('click', ()=>{ DRAFT_CARDIO=null; go('cardio_form', {id:null}); });

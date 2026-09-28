@@ -363,6 +363,52 @@
     border-radius:3px;flex-shrink:0;}
     flex-shrink:0;}
 
+      /* ═══ Resumo mensal (carrossel de cartões) ═══ */
+  .summary-bg{position:fixed;inset:0;z-index:500;
+    background:rgba(6,7,8,0.96);
+    display:flex;flex-direction:column;
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    opacity:0;transition:opacity .3s ease;overflow:hidden;}
+  .summary-bg.show{opacity:1;}
+  .summary-close{position:absolute;top:16px;right:16px;z-index:3;
+    width:38px;height:38px;border-radius:12px;
+    background:var(--surface);border:1px solid var(--line);color:var(--text);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    font-size:18px;padding:0;}
+  .summary-head{text-align:center;padding:26px 20px 14px 20px;flex-shrink:0;}
+  .summary-head .sh-spark{font-size:34px;display:block;margin-bottom:10px;
+    animation:sparkPulse 2s ease-in-out infinite;}
+  @keyframes sparkPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.12);}}
+  .summary-head h2{font-family:var(--font-display);font-weight:800;font-size:20px;
+    color:var(--text);margin:0;letter-spacing:-0.01em;line-height:1.2;padding:0 16px;}
+  .summary-head .sh-sub{color:var(--muted);font-size:12.5px;margin-top:8px;}
+    .summary-scroll{flex:1;overflow-y:auto;overflow-x:hidden;
+    padding:6px 16px calc(24px + env(safe-area-inset-bottom)) 16px;
+    scrollbar-width:none;}
+  .summary-scroll::-webkit-scrollbar{display:none;}
+  .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);
+    gap:10px;}
+  .summary-card{aspect-ratio:0.82;border-radius:16px;position:relative;
+    display:flex;flex-direction:column;padding:12px 10px 10px 10px;
+    cursor:pointer;overflow:hidden;
+    border:1px solid rgba(255,255,255,0.10);
+    box-shadow:0 8px 20px rgba(0,0,0,0.35);
+    transition:transform .15s ease;}
+  .summary-card:active{transform:scale(0.94);}
+  .summary-card .sc-tag{font-size:8px;font-weight:800;text-transform:uppercase;
+    letter-spacing:1px;opacity:0.75;line-height:1.1;}
+  .summary-card .sc-body{font-family:var(--font-display);font-weight:800;
+    font-size:10.5px;line-height:1.2;letter-spacing:-0.01em;
+    margin-top:auto;margin-bottom:0;position:relative;z-index:1;
+    padding-right:2px;}
+  .summary-card .sc-body .big{font-size:30px;display:block;line-height:1;
+    margin-bottom:6px;letter-spacing:-0.03em;}
+  .summary-card .sc-body .big.small{font-size:19px;line-height:1.05;}
+  .summary-card .sc-emoji{position:absolute;bottom:-18px;right:-18px;
+    font-size:82px;opacity:0.18;line-height:1;pointer-events:none;
+    transform:rotate(-12deg);}
+
+
       /* ═══ Grid de grupos musculares (Exercícios) ═══ */
   .grp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
   .grp-card{background:linear-gradient(160deg, var(--surface) 0%, var(--surface-2) 100%);
@@ -2451,11 +2497,73 @@ function TreinarScreen(){
     <button class="btn mini secondary" id="home-sync-now" style="padding:4px 10px;">Sincronizar</button>
   </div>` : ''}
 
-  <div class="stat-grid">
-    <button class="stat-box" data-stat-go="historico"><div class="v">${DB.historico.filter(h=>h.tipo==='forca').length}</div><div class="l">Treinos</div></button>
-    <button class="stat-box" data-stat-go="perfil-an"><div class="v">${streak}</div><div class="l">Sem. seguidas</div></button>
-    <button class="stat-box" data-stat-go="treinar"><div class="v">${weekCount}/${meta}</div><div class="l">Meta semanal</div></button>
-  </div>
+  ${(()=>{
+    if(DB.historico.length === 0) return '';
+    const now = new Date();
+    const stats = computeMonthlyStats(now.getMonth(), now.getFullYear());
+    const weekVol = weekVolume();
+    const prCount = computePRsThisMonth();
+    const lateGroups = getLateGroups(7, true);
+    const lateCount = lateGroups.length;
+    const metaSem = p.metaTreinos || 4;
+    const weekCnt = DB.historico.filter(h => h.tipo === 'forca' && h.data >= Date.now()-7*86400000).length;
+    const metaPct = Math.min(100, Math.round(weekCnt/metaSem*100));
+    const volLabel = weekVol >= 10000
+      ? (weekVol/1000).toFixed(1).replace('.', ',') + 't'
+      : Math.round(weekVol).toLocaleString('pt-BR') + 'kg';
+    const monthVolLabel = stats.volume >= 10000
+      ? (stats.volume/1000).toFixed(1).replace('.', ',') + 't'
+      : Math.round(stats.volume).toLocaleString('pt-BR') + 'kg';
+
+    return `<div class="card" id="monthly-summary-cta" style="cursor:pointer;
+      border-left:3px solid var(--orange);overflow:hidden;
+      background:linear-gradient(100deg, var(--surface) 0%, color-mix(in srgb, var(--orange) 8%, var(--surface)) 100%);">
+
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div style="width:44px;height:44px;border-radius:12px;
+          background:linear-gradient(135deg,var(--orange),var(--gold));
+          color:#fff;display:flex;align-items:center;justify-content:center;
+          font-size:22px;flex-shrink:0;">✨</div>
+        <div style="flex:1;min-width:0;">
+          <b style="font-size:13.5px;display:block;">Resumo de ${stats.monthName}</b>
+          <div style="color:var(--muted);font-size:11.5px;margin-top:2px;">
+            ${stats.force.length} treino${stats.force.length!==1?'s':''}${stats.volume > 0 ? ' · ' + monthVolLabel + ' levantadas' : ''}
+          </div>
+        </div>
+        <div style="color:var(--muted-2);">${ICONS.chevron}</div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <div class="progress-bar" style="height:5px;">
+          <div class="fill" style="width:${metaPct}%;background:var(--orange);"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:6px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">
+          <span>Meta semanal</span>
+          <span style="color:var(--text);">${weekCnt}/${metaSem}</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line-soft);">
+        <div style="text-align:center;">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:17px;color:var(--lime);line-height:1;">${volLabel}</div>
+          <div style="font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;margin-top:5px;">Vol. semana</div>
+        </div>
+        <div style="text-align:center;border-left:1px solid var(--line-soft);border-right:1px solid var(--line-soft);">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:17px;color:var(--gold);line-height:1;">${prCount}</div>
+          <div style="font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;margin-top:5px;">PRs mês</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:17px;color:${lateCount > 0 ? 'var(--orange)' : 'var(--lime)'};line-height:1;">${lateCount}</div>
+          <div style="font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;margin-top:5px;">Atrasados</div>
+        </div>
+      </div>
+
+      ${lateCount > 0 ? `<div style="font-size:10.5px;color:var(--muted);margin-top:12px;line-height:1.4;text-align:center;">
+        ${lateGroups.slice(0,3).map(g => `<span style="color:var(--orange);font-weight:800;">${escapeHtml(g.group)}</span> <span style="font-weight:600;">${g.days ? g.days+'d' : 'novo'}</span>`).join(' <span style="color:var(--muted-2);">·</span> ')}
+        ${lateCount > 3 ? ` <span style="color:var(--muted-2);">·</span> <span>+${lateCount-3}</span>` : ''}
+      </div>` : ''}
+    </div>`;
+  })()}
 
   ${renderMiniCalendar()}
 
@@ -4492,6 +4600,331 @@ function renderTopMusclesRank(){
   </div>`;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   Resumo mensal (carrossel compartilhável)
+═══════════════════════════════════════════════════════════ */
+const MONTH_NAMES_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+function computeMonthlyStats(month, year){
+  const start = new Date(year, month, 1).getTime();
+  const end = new Date(year, month+1, 1).getTime();
+  const sessions = DB.historico.filter(h => h.data >= start && h.data < end);
+  const force = sessions.filter(h => h.tipo === 'forca');
+  const cardio = sessions.filter(h => h.tipo === 'cardio');
+  const totalSeg = sessions.reduce((a,h) => a + (Number(h.duracaoSegundos)||0), 0);
+  let volume = 0, exCount = 0, setsCount = 0;
+  const groupVol = {};
+  force.forEach(h => {
+    (h.exercicios||[]).forEach(e => {
+      if(!e.setsFeitas) return;
+      const v = (Number(e.carga)||0) * (Number(e.setsFeitas)||0) * (Number(e.repsMedias)||0);
+      volume += v;
+      exCount++;
+      setsCount += Number(e.setsFeitas)||0;
+      const g = exerciseGroup(e.nome);
+      groupVol[g] = (groupVol[g]||0) + v;
+    });
+  });
+  const favGroupEntry = Object.entries(groupVol).sort((a,b)=>b[1]-a[1])[0];
+  let bestPR = null;
+  force.forEach(h => {
+    (h.exercicios||[]).forEach(e => {
+      (e.setsDetalhados||[]).forEach(s => {
+        if(!s.done || s.warmup) return;
+        const c = Number(s.carga)||0, r = Number(s.repeticoes)||0;
+        if(c<=0 || r<=0) return;
+        const rm = c*(1+r/30);
+        if(!bestPR || rm > bestPR.oneRm) bestPR = { nome: e.nome, carga: c, reps: r, oneRm: rm };
+      });
+    });
+  });
+  const daysTrained = new Set(force.map(h => todayKey(h.data))).size;
+  return {
+    monthName: MONTH_NAMES_PT[month],
+    month, year,
+    force, cardio, sessions,
+    totalSeg, volume, exCount, setsCount,
+    daysTrained,
+    favGroup: favGroupEntry ? favGroupEntry[0] : null,
+    bestPR
+  };
+}
+
+function computePRsThisMonth(){
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const monthEnd = new Date(now.getFullYear(), now.getMonth()+1, 1).getTime();
+  const bestBefore = {};
+  const bestInMonth = {};
+  DB.historico.filter(h => h.tipo === 'forca').forEach(h => {
+    (h.exercicios||[]).forEach(e => {
+      (e.setsDetalhados||[]).forEach(s => {
+        if(!s.done || s.warmup) return;
+        const c = Number(s.carga)||0, r = Number(s.repeticoes)||0;
+        if(c<=0 || r<=0) return;
+        const rm = c*(1+r/30);
+        if(h.data < monthStart){
+          if(!bestBefore[e.nome] || rm > bestBefore[e.nome]) bestBefore[e.nome] = rm;
+        } else if(h.data < monthEnd){
+          if(!bestInMonth[e.nome] || rm > bestInMonth[e.nome]) bestInMonth[e.nome] = rm;
+        }
+      });
+    });
+  });
+  let count = 0;
+  for(const [name, rm] of Object.entries(bestInMonth)){
+    if(rm > (bestBefore[name] || 0) + 0.5) count++;
+  }
+  return count;
+}
+
+function getLateGroups(minDays = 7, onlyTrained = true){
+  const all = ['Peito','Costas','Ombros','Bíceps','Tríceps','Antebraço','Pernas','Glúteos','Abdômen','Panturrilha'];
+  const result = [];
+  all.forEach(g => {
+    const lastT = lastTrainingOfGroup(g);
+    if(!lastT){
+      if(!onlyTrained) result.push({ group:g, days:null });
+      return;
+    }
+    const d = Math.floor((Date.now()-lastT)/86400000);
+    if(d >= minDays) result.push({ group:g, days:d });
+  });
+  return result.sort((a,b) => {
+    if(a.days === null && b.days === null) return 0;
+    if(a.days === null) return 1;
+    if(b.days === null) return -1;
+    return b.days - a.days;
+  });
+}
+
+
+function buildMonthlyCards(stats){
+  const cards = [];
+  if(stats.force.length > 0){
+    cards.push({
+      id:'treinos',
+      tag: 'Treinos',
+      emoji: '💪',
+      bg: 'linear-gradient(155deg, #C9FF4D 0%, #7FA800 100%)',
+      color: '#0A0B0D',
+      big: String(stats.force.length),
+      bigClass: '',
+      desc: `treinos em ${stats.monthName}`
+    });
+  }
+  if(stats.daysTrained > 0){
+    cards.push({
+      id:'dias',
+      tag: 'Constância',
+      emoji: '🔥',
+      bg: 'linear-gradient(155deg, #FF6A45 0%, #B33C1F 100%)',
+      color: '#ffffff',
+      big: String(stats.daysTrained),
+      bigClass: '',
+      desc: `dias ativos em ${stats.monthName}`
+    });
+  }
+  if(stats.volume > 0){
+    const vLabel = stats.volume >= 10000
+      ? (stats.volume/1000).toFixed(1).replace('.', ',') + 't'
+      : Math.round(stats.volume).toLocaleString('pt-BR');
+    cards.push({
+      id:'volume',
+      tag: 'Volume',
+      emoji: '🏋️',
+      bg: 'linear-gradient(155deg, #FFD166 0%, #C79020 100%)',
+      color: '#1a0d05',
+      big: vLabel,
+      bigClass: '',
+      desc: 'quilogramas levantados'
+    });
+  }
+  if(stats.totalSeg > 0){
+    const label = stats.totalSeg >= 3600
+      ? Math.round(stats.totalSeg/3600) + 'h'
+      : Math.round(stats.totalSeg/60) + 'min';
+    cards.push({
+      id:'tempo',
+      tag: 'Tempo',
+      emoji: '⏱️',
+      bg: 'linear-gradient(155deg, #4DA6FF 0%, #2E6BB3 100%)',
+      color: '#ffffff',
+      big: label,
+      bigClass: '',
+      desc: 'de treino dedicado'
+    });
+  }
+  if(stats.setsCount > 0){
+    cards.push({
+      id:'series',
+      tag: 'Séries',
+      emoji: '📊',
+      bg: 'linear-gradient(155deg, #A78BFA 0%, #7C3AED 100%)',
+      color: '#ffffff',
+      big: String(stats.setsCount),
+      bigClass: '',
+      desc: `séries completadas (${stats.exCount} exercícios)`
+    });
+  }
+  if(stats.bestPR){
+    cards.push({
+      id:'pr',
+      tag: 'Recorde do mês',
+      emoji: '🏆',
+      bg: 'linear-gradient(155deg, #FF6A45 0%, #FFD166 100%)',
+      color: '#0A0B0D',
+      big: stats.bestPR.carga + 'kg',
+      bigClass: '',
+      desc: `maior PR em ${truncateStr(stats.bestPR.nome, 22)}`
+    });
+  }
+  if(stats.favGroup){
+    cards.push({
+      id:'grupo',
+      tag: 'Grupo favorito',
+      emoji: '🎯',
+      bg: 'linear-gradient(155deg, #EC4899 0%, #8B5CF6 100%)',
+      color: '#ffffff',
+      big: stats.favGroup,
+      bigClass: 'small',
+      desc: 'seu grupo mais treinado'
+    });
+  }
+  if(stats.cardio.length > 0){
+    const cardioMin = stats.cardio.reduce((a,h) => a + (Number(h.duracaoSegundos)||0), 0) / 60;
+    cards.push({
+      id:'cardio',
+      tag: 'Cardio',
+      emoji: '🏃',
+      bg: 'linear-gradient(155deg, #22D3EE 0%, #0891B2 100%)',
+      color: '#ffffff',
+      big: String(stats.cardio.length),
+      bigClass: '',
+      desc: `sessões (${Math.round(cardioMin)} min)`
+    });
+  }
+  return cards;
+}
+
+function showMonthlySummary(month, year){
+  const now = new Date();
+  if(month === undefined) month = now.getMonth();
+  if(year === undefined) year = now.getFullYear();
+  const stats = computeMonthlyStats(month, year);
+  if(stats.force.length === 0 && stats.cardio.length === 0){
+    showToast('Nenhum treino em ' + stats.monthName);
+    return;
+  }
+  const cards = buildMonthlyCards(stats);
+  const bg = document.createElement('div');
+  bg.className = 'summary-bg';
+  bg.innerHTML = `
+    <button class="summary-close" id="sm-close" aria-label="Fechar">✕</button>
+    <div class="summary-head">
+      <span class="sh-spark">✨</span>
+      <h2>Seus resultados de<br>${escapeHtml(stats.monthName)} já estão disponíveis</h2>
+      <p class="sh-sub">Toque num cartão para compartilhar</p>
+    </div>
+    <div class="summary-scroll">
+      <div class="summary-grid">
+        ${cards.map(c => `
+          <div class="summary-card" style="background:${c.bg};color:${c.color};" data-share-card="${c.id}">
+            <div class="sc-tag">${escapeHtml(c.tag)}</div>
+            <div class="sc-body">
+              <span class="big ${c.bigClass}">${escapeHtml(c.big)}</span>
+              ${escapeHtml(c.desc)}
+            </div>
+            <div class="sc-emoji">${c.emoji}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  document.body.appendChild(bg);
+  requestAnimationFrame(()=> bg.classList.add('show'));
+  bg.querySelector('#sm-close').onclick = ()=>{ bg.classList.remove('show'); setTimeout(()=> bg.remove(), 300); };
+  bg.querySelectorAll('[data-share-card]').forEach(el => el.addEventListener('click', async ()=>{
+    const id = el.dataset.shareCard;
+    const card = cards.find(x => x.id === id);
+    if(card) await shareMonthlyCard(stats, card);
+  }));
+  haptic('success');
+}
+
+async function shareMonthlyCard(stats, card){
+  showToast('Gerando imagem…', {dark:true, duration:1500});
+  if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
+  const W = 1080, H = 1350;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+
+  const grads = {
+    treinos: ['#C9FF4D', '#7FA800', '#0A0B0D'],
+    dias:    ['#FF6A45', '#B33C1F', '#ffffff'],
+    volume:  ['#FFD166', '#C79020', '#1a0d05'],
+    tempo:   ['#4DA6FF', '#2E6BB3', '#ffffff'],
+    series:  ['#A78BFA', '#7C3AED', '#ffffff'],
+    pr:      ['#FF6A45', '#FFD166', '#0A0B0D'],
+    grupo:   ['#EC4899', '#8B5CF6', '#ffffff'],
+    cardio:  ['#22D3EE', '#0891B2', '#ffffff']
+  };
+  const [c1, c2, textCol] = grads[card.id] || ['#141619', '#0A0B0D', '#F3F4F1'];
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, c1); grad.addColorStop(1, c2);
+  ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 1;
+  for(let i=0;i<W;i+=80){ ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,H); ctx.stroke(); }
+  for(let i=0;i<H;i+=80){ ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(W,i); ctx.stroke(); }
+
+  ctx.fillStyle = textCol;
+  ctx.font = '900 96px "Space Grotesk", Inter, sans-serif';
+  ctx.fillText('86', 80, 170);
+  ctx.font = '800 28px "Space Grotesk", Inter, sans-serif';
+  ctx.fillText('TRAINING & GRIND', 80, 220);
+
+  ctx.font = '800 22px Inter, sans-serif';
+  ctx.globalAlpha = 0.72;
+  ctx.fillText(card.tag.toUpperCase(), 80, 400);
+  ctx.globalAlpha = 1;
+
+  const bigFontSize = card.bigClass === 'small' ? 130 : 260;
+  ctx.font = `900 ${bigFontSize}px "Space Grotesk", Inter, sans-serif`;
+  ctx.fillText(card.big, 80, 400 + bigFontSize * 0.95);
+
+  ctx.font = '700 42px Inter, sans-serif';
+  ctx.globalAlpha = 0.9;
+  const descY = 400 + bigFontSize * 0.95 + 70;
+  ctx.fillText(card.desc, 80, descY);
+  ctx.globalAlpha = 1;
+
+  ctx.font = '700 22px Inter, sans-serif';
+  ctx.globalAlpha = 0.55;
+  ctx.fillText('86 Training & Grind', 80, H - 60);
+  ctx.textAlign = 'right';
+  ctx.fillText(stats.monthName + ' ' + stats.year, W-80, H - 60);
+  ctx.textAlign = 'left';
+  ctx.globalAlpha = 1;
+
+  const blob = await new Promise(res => c.toBlob(res, 'image/png', 0.95));
+  if(!blob){ showToast('Falha ao gerar imagem'); return; }
+  const fname = `86tg-${card.id}-${stats.monthName.toLowerCase()}-${stats.year}.png`;
+  const file = new File([blob], fname, { type:'image/png' });
+
+  if(navigator.share && navigator.canShare && navigator.canShare({ files:[file] })){
+    try{ await navigator.share({ files:[file], title:'86 TG · ' + card.tag, text:`${card.big} — ${card.desc}` }); return; }
+    catch(e){ if(e.name === 'AbortError') return; }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = fname;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=> URL.revokeObjectURL(url), 2000);
+  showToast('Imagem salva ✓');
+}
+
 function renderPerfilAnalises(){
   const streak = computeStreak(), streakDays = computeStreakDays();
   const vol = weekVolume(), volMes = monthVolume();
@@ -5310,13 +5743,6 @@ function bindScreenEvents(){
     openDayDetail(k);
   }));
 
-  view.querySelectorAll('[data-stat-go]').forEach(el=> el.addEventListener('click', ()=>{
-    const t = el.dataset.statGo;
-    if(t === 'historico') go('historico');
-    else if(t === 'perfil-an'){ PERFIL_TAB = 'analises'; go('perfil'); }
-    else if(t === 'treinar') go('treinar');
-  }));
-
   // DASHBOARD handlers
   const dashStart = document.getElementById('dash-start-btn');
   if(dashStart) dashStart.addEventListener('click', async ()=>{
@@ -5332,6 +5758,13 @@ function bindScreenEvents(){
     SESSION = s; go('treino_exec', {treinoId:s.treinoId, divisaoId:s.divisaoId});
   });
   const dashCreate = document.getElementById('dash-create-btn');
+
+    const monthlyCta = document.getElementById('monthly-summary-cta');
+  if(monthlyCta) monthlyCta.addEventListener('click', ()=>{
+    haptic('tap');
+    showMonthlySummary();
+  });
+
   if(dashCreate) dashCreate.addEventListener('click', ()=> go('treinos'));
 
   const openProfile = document.getElementById('open-profile');

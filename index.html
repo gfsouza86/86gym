@@ -118,7 +118,7 @@
   .profile-strip .chev{margin-left:auto;color:var(--muted-2);}
   .section-label{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--muted-2);
     font-weight:700;margin:4px 0 10px 2px;}
-  .home-menu{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .home-menu{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
   .menu-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
     padding:14px 12px;display:flex;flex-direction:column;gap:14px;cursor:pointer;}
   .menu-card:active{transform:scale(0.97);}
@@ -347,14 +347,129 @@
   .mini-cal .day.trained{background:var(--lime);border-color:var(--lime);}
   .mini-cal .day.trained .d{color:#0A0B0D;}
   .mini-cal .day.trained .wd{color:rgba(10,11,13,0.55);}
-  .mini-cal .day.trained .dot-indicator{background:#0A0B0D;opacity:0.7;}
   .mini-cal .day.rest{background:var(--blue);border-color:var(--blue);}
   .mini-cal .day.rest .d{color:#fff;}
   .mini-cal .day.rest .wd{color:rgba(255,255,255,0.65);}
-  .mini-cal .day.rest .dot-indicator{background:#fff;opacity:0.9;}
   .mini-cal .day.today{border-color:var(--lime);border-width:2px;}
   .mini-cal .day.today.trained{border-color:var(--orange);}
   .mini-cal .day.rest-day-pending{border:1.5px dashed var(--line);}
+  
+  /* ═══ Legenda (mini-cal + calendário mensal) ═══ */
+  .mini-cal-legend{display:flex;gap:10px;margin-top:10px;font-size:10px;
+    color:var(--muted);justify-content:center;align-items:center;flex-wrap:wrap;}
+  .mini-cal-legend > span{display:inline-flex;align-items:center;gap:5px;}
+  .mini-cal-legend .dot{display:inline-block;width:9px;height:9px;border-radius:50%;
+      .mini-cal-legend .dot-square{display:inline-block;width:11px;height:11px;
+    border-radius:3px;flex-shrink:0;}
+    flex-shrink:0;}
+
+      /* ═══ Grid de grupos musculares (Exercícios) ═══ */
+  .grp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+  .grp-card{background:linear-gradient(160deg, var(--surface) 0%, var(--surface-2) 100%);
+    border:1px solid var(--line);border-radius:14px;padding:12px 10px 10px 10px;
+    display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+    gap:6px;cursor:pointer;position:relative;overflow:hidden;
+    min-height:148px;
+    transition:transform .12s ease, border-color .2s ease, box-shadow .2s ease;}
+  .grp-card:active{transform:scale(0.97);}
+  .grp-card:hover{border-color:color-mix(in srgb, var(--line) 40%, var(--lime) 60%);
+    box-shadow:0 4px 14px rgba(0,0,0,0.25);}
+  .grp-card.fav{background:linear-gradient(160deg, rgba(255,209,102,0.10) 0%, var(--surface) 60%);
+    border-color:rgba(255,209,102,0.3);}
+  .grp-card.fav .grp-card-name{color:var(--gold);}
+  .grp-card-art{flex:1;width:100%;display:flex;align-items:center;justify-content:center;
+    min-height:88px;pointer-events:none;}
+  .grp-card-art svg{width:auto;height:100%;max-height:96px;max-width:80px;display:block;}
+  .grp-card-icon{width:56px;height:56px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-display);font-weight:800;font-size:24px;color:#0A0B0D;}
+  .grp-card-info{text-align:center;width:100%;}
+  .grp-card-name{font-size:13.5px;font-weight:800;letter-spacing:-0.01em;line-height:1.1;}
+  .grp-card-count{font-size:10px;color:var(--muted);font-weight:600;margin-top:3px;
+    text-transform:uppercase;letter-spacing:0.4px;}
+
+    
+  /* ═══ Expansão + filtros de equipamento (Exercícios) ═══ */
+  .grp-card .expand-btn{position:absolute;top:8px;right:8px;
+    width:26px;height:26px;border-radius:8px;
+    background:rgba(0,0,0,0.35);border:1px solid var(--line);
+    color:var(--muted);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    padding:0;z-index:2;transition:all .15s ease;}
+  .grp-card .expand-btn:hover{color:var(--lime);border-color:var(--lime);}
+  .grp-card .expand-btn svg{width:14px;height:14px;transition:transform .2s ease;}
+  .grp-card .expand-btn.expanded{color:var(--lime);border-color:var(--lime);}
+  .grp-card .expand-btn.expanded svg{transform:rotate(180deg);}
+
+  .grp-card.expanded{grid-column:1/-1;padding:16px 14px 12px 14px;
+    align-items:flex-start;}
+  .grp-card.expanded .grp-card-art{max-height:78px;min-height:64px;width:auto;
+    align-self:center;}
+  .grp-card.expanded .grp-card-art svg{max-height:78px;}
+  .grp-card.expanded .grp-card-info{text-align:left;padding:0 4px;}
+
+  .grp-expanded-list{width:100%;margin-top:10px;
+    border-top:1px solid var(--line);padding-top:8px;}
+  .grp-expanded-row{display:flex;align-items:center;justify-content:space-between;
+    padding:8px 6px;border-radius:8px;cursor:pointer;font-size:13px;
+    transition:background .12s ease;}
+  .grp-expanded-row:hover{background:var(--surface);}
+  .grp-expanded-row .name{font-weight:600;flex:1;min-width:0;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .grp-expanded-row .equip{font-size:9.5px;color:var(--muted);margin-left:8px;
+    text-transform:uppercase;letter-spacing:0.4px;font-weight:700;}
+  .grp-expanded-all{display:block;text-align:center;margin-top:6px;padding:10px 8px;
+    color:var(--lime);font-weight:700;font-size:12px;cursor:pointer;
+    border-top:1px solid var(--line-soft);border-radius:8px;}
+  .grp-expanded-all:hover{background:var(--surface);}
+
+  .equip-chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px 0;
+    margin-bottom:8px;}
+  .equip-chips::-webkit-scrollbar{display:none;}
+  .equip-chips .equip-chip{flex-shrink:0;padding:6px 12px;border-radius:20px;
+    background:var(--surface-2);border:1px solid var(--line);
+    font-size:11.5px;font-weight:700;cursor:pointer;color:var(--text);
+    white-space:nowrap;transition:all .15s ease;}
+  .equip-chips .equip-chip:active{transform:scale(0.94);}
+  .equip-chips .equip-chip.active{background:var(--lime);color:#0A0B0D;
+    border-color:var(--lime);}
+
+  /* ═══ Header de grupo (voltar) ═══ */
+  .grp-back-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;
+    padding-bottom:12px;border-bottom:1px solid var(--line);}
+  .grp-back-header .back-btn{background:var(--surface-2);border:1px solid var(--line);
+    color:var(--text);width:36px;height:36px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+  .grp-back-header .back-btn svg{width:16px;height:16px;}
+  .grp-back-header .grp-title{flex:1;font-size:19px;font-weight:800;letter-spacing:-0.01em;}
+  .grp-back-header .grp-sub{font-size:11px;color:var(--muted);font-weight:600;margin-top:1px;}
+  
+  /* ═══════════════════════════════════════════════════════════
+     CALENDÁRIO MENSAL (histórico)
+  ═══════════════════════════════════════════════════════════ */
+  .hc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .hc-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;
+    font-size:10px;color:var(--muted);text-align:center;font-weight:700;
+    text-transform:uppercase;margin-bottom:6px;letter-spacing:0.5px;}
+  .hc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .hc-day{aspect-ratio:1;border-radius:9px;background:var(--surface-2);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:2px;cursor:pointer;position:relative;border:1.5px solid transparent;
+    transition:transform .12s ease,background-color .2s ease;
+    font-family:var(--font-display);}
+  .hc-day:active{transform:scale(0.92);}
+  .hc-day.empty{background:transparent;cursor:default;pointer-events:none;}
+  .hc-day .hc-num{font-size:13px;font-weight:700;color:var(--text);line-height:1;}
+  .hc-day.trained{background:color-mix(in srgb, var(--lime) 22%, var(--surface-2));}
+  .hc-day.trained .hc-num{color:var(--lime);}
+  .hc-day.rest{background:color-mix(in srgb, var(--blue) 18%, var(--surface-2));}
+  .hc-day.rest .hc-num{color:var(--blue);}
+  .hc-day.today{border-color:var(--lime);border-width:2px;}
+  .hc-day.today .hc-num{font-weight:800;}
+  .hc-dots{display:flex;gap:2px;align-items:center;margin-top:1px;}
+  .hc-dots span{width:4px;height:4px;border-radius:50%;display:block;}
+  .hc-dots .dot-force{background:var(--orange);}
+  .hc-dots .dot-cardio{background:#22D3EE;}
 
   /* ═══════════════════════════════════════════════════════════
      BOTTOM SHEET (modais arrastáveis)
@@ -2208,9 +2323,23 @@ function renderMiniCalendar(){
         </div>`;
       }).join('')}
     </div>
-    <div class="mini-cal-legend">
-      <span><span class="dot" style="background:var(--lime);"></span>Treinou</span>
-      <span><span class="dot" style="background:var(--blue);"></span>Descanso</span>
+    <div class="mini-cal-legend" style="display:flex;gap:12px;margin-top:10px;font-size:10.5px;color:var(--muted);justify-content:center;align-items:center;flex-wrap:wrap;">
+      <span style="display:inline-flex;align-items:center;gap:5px;">
+        <span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--lime);flex-shrink:0;"></span>
+        Treinou
+      </span>
+      <span style="display:inline-flex;align-items:center;gap:5px;">
+        <span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--blue);flex-shrink:0;"></span>
+        Descanso
+      </span>
+      <span style="display:inline-flex;align-items:center;gap:5px;">
+        <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--orange);flex-shrink:0;"></span>
+        Força
+      </span>
+      <span style="display:inline-flex;align-items:center;gap:5px;">
+        <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#22D3EE;flex-shrink:0;"></span>
+        Cardio
+      </span>
     </div>
   </div>`;
 }
@@ -2460,10 +2589,43 @@ function TreinoFormScreen(id){
     <button class="btn secondary" id="btn-add-div" style="margin-bottom:16px;">${ICONS.plus} Adicionar divisão</button>
     <button class="btn" id="btn-save-treino">Salvar treino</button>`;
 }
+
 function ExerciseBlockHtml(di, ei, ex){
   const last = ex.nome ? lastRecordFor(ex.nome) : null;
   const ss = ex.supersetId ? `<span class="superset-badge" style="background:#8B5CF6;">SS</span>` : '';
-  const inj = ex.nome && hasInjury(exerciseGroup(ex.nome));
+
+  const data = ex.nome ? exerciseData(ex.nome) : null;
+  const isCustom = ex.nome ? isCustomExercise(ex.nome) : false;
+  const isKnown = !!(data || isCustom);
+  const knownGroup = isKnown ? exerciseGroup(ex.nome) : '';
+  const muscleValue = isKnown ? knownGroup : (ex.muscleGroup || '');
+  const inj = muscleValue && hasInjury(muscleValue);
+
+  const COMMON_GROUPS = ['Peito','Costas','Ombros','Bíceps','Tríceps','Antebraço','Pernas','Glúteos','Abdômen','Panturrilha'];
+
+  const muscleField = `
+    <div style="margin-top:10px;">
+      <label style="font-size:10px;color:var(--muted);font-weight:700;display:block;margin-bottom:4px;">
+        Músculo
+        ${isKnown
+          ? `<span style="color:var(--muted-2);font-weight:600;">· ${isCustom?'personalizado':'biblioteca'}</span>`
+          : (ex.nome ? `<span style="color:var(--lime);font-weight:800;">· novo (salva como personalizado)</span>` : '')}
+      </label>
+      <div class="autocomplete-wrap">
+        <input type="text" class="ex-muscle-input" placeholder="Ex: Peito, Costas, Bíceps..."
+          value="${escapeHtml(muscleValue)}"
+          data-di="${di}" data-ei="${ei}" autocomplete="off"
+          ${isKnown ? 'readonly style="opacity:0.72;cursor:not-allowed;"' : ''}>
+        <div class="ac-list" data-muscle-list="${di}:${ei}"></div>
+      </div>
+      ${!isKnown && ex.nome ? `
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;">
+        ${COMMON_GROUPS.map(g => `<span class="chip ${muscleValue===g?'active':''}" data-muscle-pick="${g}" data-di="${di}" data-ei="${ei}" style="margin:0;font-size:10px;padding:4px 8px;">${g}</span>`).join('')}
+      </div>
+      ` : ''}
+    </div>
+  `;
+
   return `
   <div class="ex-block" data-di="${di}" data-ei="${ei}">
     <button class="remove-x" data-del-ex="${di}:${ei}">✕</button>
@@ -2480,6 +2642,7 @@ function ExerciseBlockHtml(di, ei, ex){
       </div>
       <div class="help-icon" data-help="${escapeHtml(ex.nome||'')}" role="button" tabindex="0">?</div>
     </div>
+    ${muscleField}
     <div class="ex-grid">
       <div><label>Séries</label><input type="text" inputmode="numeric" value="${ex.series ?? 3}" data-field="series" data-di="${di}" data-ei="${ei}"></div>
       <div><label>Reps</label><input type="text" inputmode="numeric" value="${ex.repeticoes ?? 10}" data-field="repeticoes" data-di="${di}" data-ei="${ei}"></div>
@@ -2508,33 +2671,100 @@ function ExerciciosScreen(){
     return `<div class="top-actions"><h1 class="page-title">Exercícios</h1></div>
       <div class="skeleton" style="height:44px;margin-bottom:14px;"></div>
       <div class="skeleton" style="height:44px;margin-bottom:18px;"></div>
-      ${Array.from({length:8}).map(()=>`<div class="skeleton skel-row"></div>`).join('')}
+      ${Array.from({length:6}).map(()=>`<div class="skeleton skel-row" style="height:110px;"></div>`).join('')}
       <p style="color:var(--muted);text-align:center;font-size:12.5px;margin-top:12px;">Carregando biblioteca…</p>`;
   }
   safeSet(KEYS.libViewed, '1');
+
+  const searchBar = `
+    <div class="autocomplete-wrap" style="margin-bottom:16px;">
+      <input type="text" id="ex-search" placeholder="Buscar em toda a biblioteca..." value="${escapeHtml(EXERCICIOS_SEARCH)}" autocomplete="off" style="margin-top:0;">
+    </div>`;
+
+  if(EXERCICIOS_SEARCH){
+    return `<div class="top-actions"><h1 class="page-title" style="margin:0;">Exercícios</h1></div>
+      ${searchBar}
+      ${renderExerciciosSearchResults()}`;
+  }
+
+  if(EXERCICIOS_VIEW === 'list' && EXERCICIOS_GROUP){
+    return renderExerciciosGroupList(searchBar);
+  }
+
+  return renderExerciciosGroupGrid(searchBar);
+}
+
+function renderExerciciosGroupGrid(searchBar){
   const groups = allExerciseGroups();
   const favs = loadFavs();
-  const groupsHtml = groups.map(([group, list])=>`
-    <div class="group-title" data-group-title>${escapeHtml(group)} <span style="color:var(--muted);font-weight:600;text-transform:none;">(${list.length})</span></div>
-    ${list.map(name=>{
-      const data = exerciseData(name);
-      const meta = data ? [LEVEL_LABEL[data.level], EQUIPMENT_LABEL[data.equipment] || data.equipment].filter(Boolean).join(' · ') : '';
-      const searchBlob = (name+' '+(data ? (data.nameEn||'')+' '+(data.primaryMuscles||[]).join(' ')+' '+(data.equipment||'')+' '+(data.category||'') : '')).toLowerCase();
-      const fav = !!favs[name.toLowerCase()];
-      const inj = hasInjury(exerciseGroup(name));
-      return `<div class="ex-row ${inj?'banned':''}" data-ex-row data-ex-search="${escapeHtml(searchBlob)}">
-        <div class="ex-row-info">
-          <b>${fav?'<span style="color:var(--gold);">★</span> ':''}${escapeHtml(name)}${inj?' <span class="banned-tag">EVITAR</span>':''}</b>
-          ${meta ? `<small>${escapeHtml(meta)}</small>` : ''}
-        </div>
-        ${isCustomExercise(name) ? `<span style="font-size:10px;color:var(--lime);font-weight:700;margin-right:6px;">CUSTOM</span>`:''}
-        <div class="help-icon" data-help="${escapeHtml(name)}" role="button" tabindex="0">?</div>
+  const favCount = Object.keys(favs).length;
+  const blockedGroups = loadInjuries();
+
+  const favCard = favCount > 0 ? `
+    <div class="grp-card fav" data-open-favs="1">
+      <div class="grp-card-art" style="font-size:38px;line-height:1;">⭐</div>
+      <div class="grp-card-info">
+        <div class="grp-card-name">Favoritos</div>
+        <div class="grp-card-count">${favCount} exercício${favCount!==1?'s':''}</div>
+      </div>
+    </div>` : '';
+
+  const groupCards = groups.map(([group, list]) => {
+    const region = getGroupRegion(group);
+    const side = bodySideForGroup(group);
+    const isExpanded = EXERCICIOS_EXPANDED === group;
+    let art;
+    if(region === 'none'){
+      art = `<div class="grp-card-icon" style="background:var(--grp-${group});">${escapeHtml(group[0])}</div>`;
+    } else {
+      const map = {}; map[group] = 1;
+      art = bodySvgCropped(side, map, region);
+    }
+    const inj = blockedGroups.includes(group);
+
+    let expandedContent = '';
+    if(isExpanded){
+      const preview = list.slice(0, 5);
+      const rest = list.length - preview.length;
+      const rows = preview.map(name => {
+        const eq = equipLabel(equipKeyOf(name));
+        return `<div class="grp-expanded-row" data-help="${escapeHtml(name)}">
+          <span class="name">${escapeHtml(name)}</span>
+          <span class="equip">${escapeHtml(eq)}</span>
+        </div>`;
+      }).join('');
+      expandedContent = `<div class="grp-expanded-list">
+        ${rows}
+        ${rest > 0
+          ? `<div class="grp-expanded-all" data-open-group="${escapeHtml(group)}">Ver todos os ${list.length} exercícios →</div>`
+          : `<div class="grp-expanded-all" data-open-group="${escapeHtml(group)}">Abrir grupo →</div>`}
       </div>`;
-    }).join('')}`).join('');
-  return `
-    <div class="top-actions"><h1 class="page-title" style="margin:0;">Exercícios</h1></div>
-    <p class="page-sub">${EXERCISE_DB.length} exercícios. Toque no "?" para ver imagens, PR e sugestões.</p>
-    <div class="rpe-legend">
+    }
+
+    return `<div class="grp-card ${isExpanded?'expanded':''}" data-open-group="${escapeHtml(group)}">
+      <button class="expand-btn ${isExpanded?'expanded':''}" data-expand-group="${escapeHtml(group)}" aria-label="Expandir">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="grp-card-art">${art}</div>
+      <div class="grp-card-info">
+        <div class="grp-card-name">${escapeHtml(group)}${inj?' <span style="font-size:9px;color:var(--danger);font-weight:800;">⚠</span>':''}</div>
+        <div class="grp-card-count">${list.length} exercício${list.length!==1?'s':''}</div>
+      </div>
+      ${expandedContent}
+    </div>`;
+  }).join('');
+
+  const totalEx = EXERCISE_DB.length + CUSTOM_EXERCISES.length;
+
+  return `<div class="top-actions"><h1 class="page-title" style="margin:0;">Exercícios</h1></div>
+    <p class="page-sub">${totalEx} exercícios em ${groups.length} grupos. Toque para explorar.</p>
+    ${searchBar}
+    <div class="grp-grid">
+      ${favCard}
+      ${groupCards}
+    </div>
+    <button class="btn secondary" id="btn-novo-exercicio" style="margin-top:8px;">${ICONS.plus} Criar exercício personalizado</button>
+    <div class="rpe-legend" style="margin-top:22px;">
       <details>
         <summary>O que é RPE?</summary>
         <div>
@@ -2546,11 +2776,96 @@ function ExerciciosScreen(){
           <code>RPE 6-7</code> = margem grande, considere subir carga.
         </div>
       </details>
+    </div>`;
+}
+
+function renderExerciciosGroupList(searchBar){
+  const group = EXERCICIOS_GROUP;
+  const favs = loadFavs();
+  const groups = allExerciseGroups();
+  const entry = groups.find(([g]) => g === group);
+  const fullList = entry ? entry[1] : [];
+  const inj = hasInjury(group);
+
+  const equipKeys = equipmentsInList(fullList);
+  const showFilter = equipKeys.length >= 2;
+  const filtered = filterByEquip(fullList, EXERCICIOS_EQUIP);
+
+  const chipsHtml = showFilter ? `
+    <div class="equip-chips">
+      <span class="equip-chip ${EXERCICIOS_EQUIP==='todos'?'active':''}" data-equip-filter="todos">Todos (${fullList.length})</span>
+      ${equipKeys.map(k => {
+        const n = fullList.filter(x => equipKeyOf(x) === k).length;
+        return `<span class="equip-chip ${EXERCICIOS_EQUIP===k?'active':''}" data-equip-filter="${escapeHtml(k)}">${escapeHtml(equipLabel(k))} (${n})</span>`;
+      }).join('')}
+    </div>` : '';
+
+  const rows = filtered.map(name => {
+    const data = exerciseData(name);
+    const meta = data ? [LEVEL_LABEL[data.level], EQUIPMENT_LABEL[data.equipment] || data.equipment].filter(Boolean).join(' · ') : '';
+    const fav = !!favs[name.toLowerCase()];
+    const isInj = hasInjury(exerciseGroup(name));
+    return `<div class="ex-row ${isInj?'banned':''}" data-help="${escapeHtml(name)}" style="cursor:pointer;">
+      <div class="ex-row-info">
+        <b>${fav?'<span style="color:var(--gold);">★</span> ':''}${escapeHtml(name)}${isInj?' <span class="banned-tag">EVITAR</span>':''}</b>
+        ${meta ? `<small>${escapeHtml(meta)}</small>` : ''}
+      </div>
+      ${isCustomExercise(name) ? `<span style="font-size:10px;color:var(--lime);font-weight:700;margin-right:6px;">CUSTOM</span>`:''}
+      <span style="color:var(--muted-2);">${ICONS.chevron}</span>
+    </div>`;
+  }).join('');
+
+  const emptyMsg = filtered.length === 0
+    ? (fullList.length === 0
+        ? 'Nenhum exercício neste grupo.'
+        : `Nenhum exercício de ${escapeHtml(equipLabel(EXERCICIOS_EQUIP))} neste grupo.`)
+    : '';
+
+  return `<div class="grp-back-header">
+      <button class="back-btn" id="ex-back-to-groups">${ICONS.back}</button>
+      <div style="flex:1;min-width:0;">
+        <div class="grp-title">${escapeHtml(group)}${inj?' <span style="font-size:11px;color:var(--danger);">⚠</span>':''}</div>
+        <div class="grp-sub">${filtered.length}${filtered.length !== fullList.length ? ' de ' + fullList.length : ''} exercício${filtered.length!==1?'s':''}</div>
+      </div>
     </div>
-    <input type="text" id="ex-search" placeholder="Buscar por nome, músculo ou equipamento..." style="margin-bottom:14px;" autocomplete="off">
-    <button class="btn secondary" id="btn-novo-exercicio" style="margin-bottom:18px;">${ICONS.plus} Criar exercício</button>
-    <div class="empty" id="ex-empty" style="display:none;">${ICONS.empty}<div>Nenhum exercício encontrado.</div></div>
-    <div id="ex-list-wrap">${groupsHtml}</div>`;
+    ${searchBar}
+    ${chipsHtml}
+    ${filtered.length === 0
+      ? `<div class="empty">${ICONS.empty}<div>${emptyMsg}</div></div>`
+      : rows}`;
+}
+
+function renderExerciciosSearchResults(){
+  const q = EXERCICIOS_SEARCH.toLowerCase().trim();
+  const favs = loadFavs();
+  const allFlat = exerciseFlat();
+  const matches = allFlat.filter(e => {
+    if(!q) return false;
+    const data = exerciseData(e.name);
+    const en = data ? (data.nameEn || '') : '';
+    return e.name.toLowerCase().includes(q) || en.toLowerCase().includes(q) ||
+      (data && (data.primaryMuscles || []).some(m => m.toLowerCase().includes(q)));
+  }).slice(0, 100);
+
+  if(!matches.length){
+    return `<div class="empty">${ICONS.empty}<div>Nada encontrado para "${escapeHtml(EXERCICIOS_SEARCH)}".</div></div>`;
+  }
+
+  const rows = matches.map(e => {
+    const data = exerciseData(e.name);
+    const meta = data ? [LEVEL_LABEL[data.level], EQUIPMENT_LABEL[data.equipment] || data.equipment].filter(Boolean).join(' · ') : '';
+    const fav = !!favs[e.name.toLowerCase()];
+    const isInj = hasInjury(exerciseGroup(e.name));
+    return `<div class="ex-row ${isInj?'banned':''}" data-help="${escapeHtml(e.name)}" style="cursor:pointer;">
+      <div class="ex-row-info">
+        <b>${fav?'<span style="color:var(--gold);">★</span> ':''}${escapeHtml(e.name)}${isInj?' <span class="banned-tag">EVITAR</span>':''}</b>
+        ${meta ? `<small>${escapeHtml(meta)}</small>` : ''}
+      </div>
+      <span style="font-size:10px;color:var(--muted-2);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">${escapeHtml(e.group)}</span>
+    </div>`;
+  }).join('');
+
+  return `<div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:600;">${matches.length} resultado${matches.length!==1?'s':''}</div>${rows}`;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -3053,13 +3368,178 @@ function getExerciciosComHistorico(){
   _cacheExerciciosHistoricoKey = key;
   return _cacheExerciciosHistorico;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Calendário mensal (Histórico)
+═══════════════════════════════════════════════════════════ */
+let HIST_VIEW = 'calendar';
+
+let EXERCICIOS_VIEW = 'groups';
+let EXERCICIOS_GROUP = null;
+let EXERCICIOS_SEARCH = '';
+
+function getGroupRegion(group){
+  if(['Peito','Costas','Ombros','Bíceps','Tríceps','Antebraço','Abdômen','Pescoço'].includes(group)) return 'upper';
+  if(['Pernas','Glúteos','Panturrilha'].includes(group)) return 'lower';
+  return 'none';
+}
+
+function bodySvgCropped(view, groups, region){
+  let vb = '0 0 100 192';
+  if(region === 'upper') vb = '0 0 100 108';
+  else if(region === 'lower') vb = '5 82 90 110';
+  const svg = bodySvg(view, groups, 1);
+  return svg
+    .replace('viewBox="0 0 100 192"', `viewBox="${vb}"`)
+    .replace('max-width:190px', 'max-width:100%')
+    .replace('width:100%;', 'width:100%;');
+}
+
+let EXERCICIOS_EXPANDED = null;
+let EXERCICIOS_EQUIP = 'todos';
+
+const EQUIP_FRIENDLY = {
+  'barra':'Barra',
+  'halteres':'Halteres',
+  'maquina':'Máquina',
+  'cabo':'Cabo',
+  'peso-do-corpo':'Peso do corpo',
+  'barra-w':'Barra W',
+  'kettlebell':'Kettlebell',
+  'outros':'Outros'
+};
+function equipLabel(key){
+  return EQUIP_FRIENDLY[key] || (key ? key.charAt(0).toUpperCase()+key.slice(1) : 'Outros');
+}
+function equipKeyOf(name){
+  const d = exerciseData(name);
+  return (d && d.equipment) ? d.equipment : 'outros';
+}
+function equipmentsInList(list){
+  const set = new Set();
+  list.forEach(name => set.add(equipKeyOf(name)));
+  return [...set].sort();
+}
+function filterByEquip(list, equip){
+  if(!equip || equip === 'todos') return list;
+  return list.filter(n => equipKeyOf(n) === equip);
+}
+
+
+function renderHistoryCalendar(){
+  const monthNames = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const first = new Date(CAL_YEAR, CAL_MONTH, 1);
+  const lastDay = new Date(CAL_YEAR, CAL_MONTH+1, 0).getDate();
+  const startWd = (first.getDay()+6)%7; // segunda = 0
+  const hoje = todayKey();
+
+  const daysForce  = new Set(DB.historico.filter(h => h.tipo === 'forca').map(h => todayKey(h.data)));
+  const daysCardio = new Set(DB.historico.filter(h => h.tipo === 'cardio').map(h => todayKey(h.data)));
+  const restDays = loadRestDays();
+
+  const cells = [];
+  for(let i=0;i<startWd;i++) cells.push('<div class="hc-day empty"></div>');
+  for(let d=1; d<=lastDay; d++){
+    const dt = new Date(CAL_YEAR, CAL_MONTH, d);
+    const k = todayKey(dt);
+    const isToday = k === hoje;
+    const hasForce = daysForce.has(k);
+    const hasCardio = daysCardio.has(k);
+    const isRest = !!restDays[k];
+    const cls = ['hc-day', hasForce ? 'trained' : '', (isRest && !hasForce) ? 'rest' : '', isToday ? 'today' : ''].filter(Boolean).join(' ');
+    const dots = (hasForce || hasCardio)
+      ? `<div class="hc-dots">${hasForce?'<span class="dot-force"></span>':''}${hasCardio?'<span class="dot-cardio"></span>':''}</div>`
+      : '';
+    cells.push(`<div class="${cls}" data-day-key="${k}" title="${k}"><span class="hc-num">${d}</span>${dots}</div>`);
+  }
+
+  const monthStart = new Date(CAL_YEAR, CAL_MONTH, 1).getTime();
+  const monthEnd = new Date(CAL_YEAR, CAL_MONTH+1, 1).getTime();
+  const monthSessions = DB.historico.filter(h => h.data >= monthStart && h.data < monthEnd).sort((a,b)=>b.data-a.data);
+  const monthForce = monthSessions.filter(h => h.tipo === 'forca');
+  const monthCardio = monthSessions.filter(h => h.tipo === 'cardio');
+  const monthVol = monthForce.reduce((a,h) => a + (h.exercicios||[]).reduce((x,e) => x + (Number(e.carga)||0)*(Number(e.setsFeitas)||0)*(Number(e.repsMedias)||0), 0), 0);
+
+  const monthTag = t => t==='cardio' ? 'Cardio' : t==='descanso' ? 'Descanso' : 'Força';
+  const monthTagColor = t => t==='cardio' ? 'var(--orange)' : t==='descanso' ? 'var(--muted)' : 'var(--lime)';
+
+  return `
+    <div class="card" style="padding:14px 12px;">
+      <div class="hc-header">
+        <button class="icon-btn mini" data-hc-prev>${ICONS.back}</button>
+        <b style="font-size:15px;">${monthNames[CAL_MONTH]} ${CAL_YEAR}</b>
+        <button class="icon-btn mini" data-hc-next style="transform:rotate(180deg);">${ICONS.back}</button>
+      </div>
+      <div class="hc-weekdays"><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span><span>D</span></div>
+      <div class="hc-grid">${cells.join('')}</div>
+      <div style="display:flex;gap:12px;margin-top:14px;font-size:10.5px;color:var(--muted);justify-content:center;align-items:center;flex-wrap:wrap;">
+        <span style="display:inline-flex;align-items:center;gap:5px;">
+          <span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--lime);flex-shrink:0;"></span>
+          Treinou
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:5px;">
+          <span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--blue);flex-shrink:0;"></span>
+          Descanso
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:5px;">
+          <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--orange);flex-shrink:0;"></span>
+          Força
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:5px;">
+          <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#22D3EE;flex-shrink:0;"></span>
+          Cardio
+        </span>
+      </div>
+    </div>
+
+    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);margin-top:14px;">
+      <div class="stat-box"><div class="v">${monthForce.length}</div><div class="l">Treinos</div></div>
+      <div class="stat-box"><div class="v">${monthCardio.length}</div><div class="l">Cardios</div></div>
+      <div class="stat-box"><div class="v">${monthVol >= 10000 ? Math.round(monthVol/1000)+'t' : Math.round(monthVol).toLocaleString('pt-BR')}</div><div class="l">Volume</div></div>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:8px;">
+        ${monthSessions.length} ${monthSessions.length===1?'sessão':'sessões'} no mês
+      </div>
+      ${monthSessions.length === 0
+        ? '<p style="color:var(--muted);font-size:12.5px;margin:0;">Nada registrado neste mês.</p>'
+        : monthSessions.slice(0, 6).map(h => `
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line-soft);">
+            <div style="flex:1;min-width:0;">
+              <b style="font-size:13px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(h.treinoNome||'—')}${h.divisaoLetra? ' · '+escapeHtml(h.divisaoLetra):''}</b>
+              <span style="font-size:10.5px;color:${monthTagColor(h.tipo)};font-weight:800;text-transform:uppercase;letter-spacing:0.5px;">${monthTag(h.tipo)}</span>
+              <span style="font-size:10.5px;color:var(--muted);font-weight:600;margin-left:8px;">${new Date(h.data).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}</span>
+            </div>
+            <span style="font-family:var(--font-display);font-size:12px;color:var(--muted);font-weight:700;flex-shrink:0;">${formatSeconds(h.duracaoSegundos||0)}</span>
+          </div>
+        `).join('')
+      }
+      ${monthSessions.length > 6 ? `<div style="text-align:center;font-size:11.5px;color:var(--muted);margin-top:10px;">+${monthSessions.length-6} sessões neste mês</div>` : ''}
+    </div>
+  `;
+}
+
 function HistoricoScreen(){
+const toggleChips = `<div style="display:flex;gap:6px;margin-bottom:14px;">
+    <span class="chip ${HIST_VIEW==='calendar'?'active':''}" data-hist-view="calendar">📅 Calendário</span>
+    <span class="chip ${HIST_VIEW==='list'?'active':''}" data-hist-view="list">📋 Lista</span>
+  </div>`;
+
+  if(HIST_VIEW === 'calendar'){
+    return `<div class="top-actions"><h1 class="page-title" style="margin:0;">Histórico</h1></div>
+      ${toggleChips}
+      ${renderHistoryCalendar()}`;
+  }
+
   let hist = [...DB.historico].sort((a,b)=> b.data - a.data);
   if(HIST_FILTER.tipo!=='todos') hist = hist.filter(h=> h.tipo===HIST_FILTER.tipo);
   if(HIST_FILTER.q){ const q = HIST_FILTER.q.toLowerCase(); hist = hist.filter(h=> (h.treinoNome||'').toLowerCase().includes(q)); }
   const totalHist = hist.length; const LIMIT = 30;
   const visiveis = hist.slice(0, LIMIT);
   const exHist = getExerciciosComHistorico();
+
+
   const filterChips = `<div style="margin-bottom:14px;">
       <span class="chip ${HIST_FILTER.tipo==='todos'?'active':''}" data-hist-tipo="todos">Todos</span>
       <span class="chip ${HIST_FILTER.tipo==='forca'?'active':''}" data-hist-tipo="forca">Força</span>
@@ -3103,8 +3583,8 @@ function HistoricoScreen(){
       </div>`;
     }).join('');
   const more = totalHist > LIMIT ? `<div style="text-align:center;color:var(--muted);font-size:12px;padding:16px;">Mostrando ${LIMIT} de ${totalHist}</div>` : '';
-  return `<div class="top-actions"><h1 class="page-title" style="margin:0;">Histórico</h1></div>
-    ${filterChips}${evoChips}${body}${more}
+ return `<div class="top-actions"><h1 class="page-title" style="margin:0;">Histórico</h1></div>
+    ${toggleChips}${filterChips}${evoChips}${body}${more}
     <p style="text-align:center;color:var(--muted);font-size:11px;margin-top:12px;">Deslize um cartão para a esquerda para excluir.</p>`;
 }
 
@@ -5175,6 +5655,52 @@ function bindScreenEvents(){
     const di=Number(el.dataset.di), ei=Number(el.dataset.ei);
     DRAFT.divisoes[di].exercicios[ei][el.dataset.field] = el.checked;
   }));
+
+  /* ── Campo Músculo (custom exercises) ── */
+  view.querySelectorAll('.ex-muscle-input').forEach(input=>{
+    if(input.hasAttribute('readonly')) return;
+    input.addEventListener('input', ()=>{
+      const di = Number(input.dataset.di), ei = Number(input.dataset.ei);
+      DRAFT.divisoes[di].exercicios[ei].muscleGroup = input.value;
+      const listEl = view.querySelector(`.ac-list[data-muscle-list="${di}:${ei}"]`);
+      const q = input.value.trim().toLowerCase();
+      if(!q){ listEl.style.display='none'; return; }
+      const groups = ['Peito','Costas','Ombros','Bíceps','Tríceps','Antebraço','Pernas','Glúteos','Abdômen','Panturrilha','Pescoço','Cardio','Outros'];
+      const matches = groups.filter(g => g.toLowerCase().includes(q));
+      if(!matches.length){ listEl.style.display='none'; return; }
+      listEl.innerHTML = matches.map(g => `<div data-pick-muscle="${escapeHtml(g)}">${escapeHtml(g)}</div>`).join('');
+      listEl.style.display='block';
+      listEl.querySelectorAll('[data-pick-muscle]').forEach(el => {
+        el.addEventListener('mousedown', ev => {
+          ev.preventDefault();
+          input.value = el.dataset.pickMuscle;
+          DRAFT.divisoes[di].exercicios[ei].muscleGroup = el.dataset.pickMuscle;
+          view.querySelectorAll(`[data-muscle-pick][data-di="${di}"][data-ei="${ei}"]`).forEach(c => {
+            c.classList.toggle('active', c.dataset.musclePick === el.dataset.pickMuscle);
+          });
+          listEl.style.display='none';
+        });
+      });
+    });
+    input.addEventListener('blur', ()=> setTimeout(()=>{
+      const l = view.querySelector(`.ac-list[data-muscle-list="${input.dataset.di}:${input.dataset.ei}"]`);
+      if(l) l.style.display='none';
+    }, 150));
+  });
+  view.querySelectorAll('[data-muscle-pick]').forEach(chip => {
+    chip.addEventListener('click', ()=>{
+      const di = Number(chip.dataset.di), ei = Number(chip.dataset.ei);
+      const val = chip.dataset.musclePick;
+      DRAFT.divisoes[di].exercicios[ei].muscleGroup = val;
+      const input = view.querySelector(`.ex-muscle-input[data-di="${di}"][data-ei="${ei}"]`);
+      if(input) input.value = val;
+      view.querySelectorAll(`[data-muscle-pick][data-di="${di}"][data-ei="${ei}"]`).forEach(c => {
+        c.classList.toggle('active', c.dataset.musclePick === val);
+      });
+      haptic('tap');
+    });
+  });
+
   view.querySelectorAll('.ex-nome-input').forEach(input=>{
     input.addEventListener('input', ()=>{
       const di=Number(input.dataset.di), ei=Number(input.dataset.ei);
@@ -5200,16 +5726,51 @@ function bindScreenEvents(){
         opt.addEventListener('mousedown', ev=>{ ev.preventDefault(); input.value = opt.dataset.pick; DRAFT.divisoes[di].exercicios[ei].nome = opt.dataset.pick; if(hb) hb.dataset.help = opt.dataset.pick; listEl.style.display='none'; });
       });
     });
-    input.addEventListener('blur', ()=> setTimeout(()=>{ const l = view.querySelector(`.ac-list[data-di="${input.dataset.di}"][data-ei="${input.dataset.ei}"]`); if(l) l.style.display='none'; }, 150));
+
+        input.addEventListener('blur', ()=>{
+      setTimeout(()=>{
+        const l = view.querySelector(`.ac-list[data-di="${input.dataset.di}"][data-ei="${input.dataset.ei}"]`);
+        if(l) l.style.display='none';
+      }, 150);
+      const di = Number(input.dataset.di), ei = Number(input.dataset.ei);
+      const ex = DRAFT.divisoes[di].exercicios[ei];
+      const name = (ex.nome || '').trim();
+      const isKnownNow = !!(exerciseData(name) || isCustomExercise(name));
+      const muscleInp = view.querySelector(`.ex-muscle-input[data-di="${di}"][data-ei="${ei}"]`);
+      const wasKnown = !!(muscleInp && muscleInp.hasAttribute('readonly'));
+      if(isKnownNow !== wasKnown) render();
+    });
   });
+  
   const btnSave = document.getElementById('btn-save-treino');
   if(btnSave) btnSave.addEventListener('click', ()=>{
     if(!DRAFT.nome.trim()){ showToast('Nome vazio'); return; }
     if(!DRAFT.divisoes.length){ showToast('Adicione divisão'); return; }
     for(const d of DRAFT.divisoes){ if(!d.letra.trim()){ showToast('Divisão sem letra'); return; } if(!d.exercicios.length){ showToast(`Sem exercícios na ${d.letra}`); return; } for(const ex of d.exercicios){ if(!ex.nome.trim()){ showToast('Exercício sem nome'); return; } } }
+    let newCustoms = 0;
+    DRAFT.divisoes.forEach(d => {
+      d.exercicios.forEach(ex => {
+        const name = (ex.nome || '').trim();
+        if(!name) return;
+        const inDb = !!exerciseData(name);
+        const inCustom = isCustomExercise(name);
+        if(!inDb && !inCustom){
+          const group = (ex.muscleGroup || '').trim() || 'Personalizados';
+          CUSTOM_EXERCISES.push({ name, group });
+          newCustoms++;
+        }
+      });
+    });
+    if(newCustoms > 0){
+      saveCustomExercises(CUSTOM_EXERCISES);
+      showToast(`✓ ${newCustoms} personalizado${newCustoms>1?'s':''} salvo${newCustoms>1?'s':''}`);
+    }
+
     const idx = DB.treinos.findIndex(t=>t.id===DRAFT.id);
     if(idx>=0) DB.treinos[idx] = DRAFT; else DB.treinos.push(DRAFT);
-    saveTreinos(); showToast('Salvo'); DRAFT=null; go('treinos');
+    saveTreinos();
+    if(newCustoms === 0) showToast('Salvo');
+    DRAFT=null; go('treinos');
   });
 
   const btnNovoEx = document.getElementById('btn-novo-exercicio');
@@ -5221,25 +5782,75 @@ function bindScreenEvents(){
     CUSTOM_EXERCISES.push({name:name.trim(), group:g.trim()||'Personalizados'});
     saveCustomExercises(CUSTOM_EXERCISES); showToast('Criado'); render();
   });
+  
   const exSearch = document.getElementById('ex-search');
   if(exSearch){
     exSearch.addEventListener('input', ()=>{
-      const q = exSearch.value.trim().toLowerCase();
-      const wrap = document.getElementById('ex-list-wrap');
-      const emptyEl = document.getElementById('ex-empty');
-      let anyVisible = false, currentTitle = null, groupHasVisible = false;
-      Array.from(wrap.children).forEach(el=>{
-        if(el.hasAttribute('data-group-title')){ if(currentTitle) currentTitle.style.display = groupHasVisible ? '' : 'none'; currentTitle = el; groupHasVisible = false; }
-        else if(el.hasAttribute('data-ex-row')){
-          const match = !q || (el.dataset.exSearch||'').includes(q);
-          el.style.display = match ? '' : 'none';
-          if(match){ groupHasVisible = true; anyVisible = true; }
-        }
-      });
-      if(currentTitle) currentTitle.style.display = groupHasVisible ? '' : 'none';
-      if(emptyEl) emptyEl.style.display = (q && !anyVisible) ? 'block' : 'none';
+      const v = exSearch.value;
+      EXERCICIOS_SEARCH = v;
+      const caret = exSearch.selectionStart;
+      render();
+      const el = document.getElementById('ex-search');
+      if(el){ el.focus(); try{ el.setSelectionRange(caret, caret); }catch(e){} }
     });
   }
+  view.querySelectorAll('[data-expand-group]').forEach(btn => btn.addEventListener('click', e => {
+    e.stopPropagation();
+    const g = btn.dataset.expandGroup;
+    EXERCICIOS_EXPANDED = EXERCICIOS_EXPANDED === g ? null : g;
+    haptic('tap');
+    render();
+  }));
+  view.querySelectorAll('[data-open-group]').forEach(el => el.addEventListener('click', e => {
+    if(e.target.closest('[data-expand-group]')) return;
+    if(e.target.closest('[data-help]')) return;
+    EXERCICIOS_GROUP = el.dataset.openGroup;
+    EXERCICIOS_VIEW = 'list';
+    EXERCICIOS_SEARCH = '';
+    EXERCICIOS_EQUIP = 'todos';
+    EXERCICIOS_EXPANDED = null;
+    haptic('tap');
+    render();
+    document.getElementById('view').scrollTop = 0;
+  }));
+  view.querySelectorAll('[data-equip-filter]').forEach(c => c.addEventListener('click', () => {
+    EXERCICIOS_EQUIP = c.dataset.equipFilter;
+    haptic('tap');
+    render();
+  }));
+  view.querySelectorAll('[data-open-favs]').forEach(el => el.addEventListener('click', ()=>{
+    const favs = loadFavs();
+    const favNames = Object.keys(favs);
+    if(!favNames.length){ showToast('Nenhum favorito ainda'); return; }
+    const bg = openModal(`
+      <button class="close-x">&times;</button>
+      <h3 style="margin-bottom:12px;">⭐ Favoritos</h3>
+      ${favNames.map(k => {
+        const real = exerciseFlat().find(e => e.name.toLowerCase() === k);
+        const name = real ? real.name : k;
+        const group = real ? real.group : '—';
+        return `<div class="ex-row" data-help="${escapeHtml(name)}" style="cursor:pointer;">
+          <div class="ex-row-info"><b>${escapeHtml(name)}</b><small>${escapeHtml(group)}</small></div>
+          <span style="color:var(--muted-2);">${ICONS.chevron}</span>
+        </div>`;
+      }).join('')}
+    `);
+    bg.querySelector('.close-x').onclick = ()=> closeModal(bg);
+    bg.querySelectorAll('[data-help]').forEach(r => r.addEventListener('click', ()=>{
+      closeModal(bg);
+      setTimeout(()=> openDemoModal(r.dataset.help), 200);
+    }));
+  }));
+  const backBtn = document.getElementById('ex-back-to-groups');
+  if(backBtn) backBtn.addEventListener('click', ()=>{
+    EXERCICIOS_VIEW = 'groups';
+    EXERCICIOS_GROUP = null;
+    EXERCICIOS_SEARCH = '';
+    EXERCICIOS_EQUIP = 'todos';
+    render();
+    document.getElementById('view').scrollTop = 0;
+  });
+
   view.querySelectorAll('[data-help]').forEach(el=>{ el.addEventListener('click', ()=> openDemoModal(el.dataset.help)); });
   view.querySelectorAll('[data-ver-evolucao]').forEach(el=> el.addEventListener('click', ()=> openDemoModal(el.dataset.verEvolucao)));
 
@@ -5654,6 +6265,21 @@ function bindScreenEvents(){
   const btnFinC = document.getElementById('btn-finalizar-cardio'); if(btnFinC) btnFinC.addEventListener('click', finalizeCardio);
   if(ROUTE.name==='cardio_exec' && CARDIO_SESSION) startCardioTicker();
 
+    view.querySelectorAll('[data-hist-view]').forEach(c => c.addEventListener('click', ()=>{
+    HIST_VIEW = c.dataset.histView;
+    haptic('tap');
+    render();
+  }));
+  view.querySelectorAll('[data-hc-prev]').forEach(el => el.addEventListener('click', ()=>{
+    CAL_MONTH--; if(CAL_MONTH<0){CAL_MONTH=11;CAL_YEAR--;}
+    render();
+  }));
+  view.querySelectorAll('[data-hc-next]').forEach(el => el.addEventListener('click', ()=>{
+    CAL_MONTH++; if(CAL_MONTH>11){CAL_MONTH=0;CAL_YEAR++;}
+    render();
+  }));
+
+  
   view.querySelectorAll('[data-hist-tipo]').forEach(c=> c.addEventListener('click', ()=>{ HIST_FILTER.tipo = c.dataset.histTipo; render(); }));
   const hs = document.getElementById('hist-search');
   if(hs){

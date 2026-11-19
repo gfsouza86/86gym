@@ -2,7 +2,7 @@
 <html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0A0B0D">
 <title>86 Training & Grind</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230A0B0D'/%3E%3Ctext x='16' y='22' font-family='sans-serif' font-weight='800' font-size='16' fill='%23C9FF4D' text-anchor='middle'%3E86%3C/text%3E%3C/svg%3E">
@@ -358,10 +358,8 @@
   .mini-cal-legend{display:flex;gap:10px;margin-top:10px;font-size:10px;
     color:var(--muted);justify-content:center;align-items:center;flex-wrap:wrap;}
   .mini-cal-legend > span{display:inline-flex;align-items:center;gap:5px;}
-  .mini-cal-legend .dot{display:inline-block;width:9px;height:9px;border-radius:50%;
-      .mini-cal-legend .dot-square{display:inline-block;width:11px;height:11px;
-    border-radius:3px;flex-shrink:0;}
-    flex-shrink:0;}
+   .mini-cal-legend .dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .mini-cal-legend .dot-square{display:inline-block;width:11px;height:11px;border-radius:3px;flex-shrink:0;}
 
       /* ═══ Resumo mensal (carrossel de cartões) ═══ */
   .summary-bg{position:fixed;inset:0;z-index:500;
@@ -494,15 +492,19 @@
      CALENDÁRIO MENSAL (histórico)
   ═══════════════════════════════════════════════════════════ */
   .hc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-  .hc-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;
+
+   .hc-weekdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;
     font-size:10px;color:var(--muted);text-align:center;font-weight:700;
     text-transform:uppercase;margin-bottom:6px;letter-spacing:0.5px;}
-  .hc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .hc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;}
+
   .hc-day{aspect-ratio:1;border-radius:9px;background:var(--surface-2);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:2px;cursor:pointer;position:relative;border:1.5px solid transparent;
     transition:transform .12s ease,background-color .2s ease;
-    font-family:var(--font-display);}
+    font-family:var(--font-display);min-width:0;overflow:hidden;}
+
+
   .hc-day:active{transform:scale(0.92);}
   .hc-day.empty{background:transparent;cursor:default;pointer-events:none;}
   .hc-day .hc-num{font-size:13px;font-weight:700;color:var(--text);line-height:1;}

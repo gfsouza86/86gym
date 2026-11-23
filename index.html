@@ -2,7 +2,7 @@
 <html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0A0B0D">
 <title>86 Training & Grind</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230A0B0D'/%3E%3Ctext x='16' y='22' font-family='sans-serif' font-weight='800' font-size='16' fill='%23C9FF4D' text-anchor='middle'%3E86%3C/text%3E%3C/svg%3E">
@@ -14,7 +14,7 @@
     --line:#25282D; --line-soft:#1A1D21;
     --lime:#C9FF4D; --lime-dim:rgba(201,255,77,0.10);
     --orange:#FF6A45; --blue:#4DA6FF; --gold:#FFD166;
-    --text:#F3F4F1; --muted:#8A9099; --muted-2:#7A818B;
+    --text:#F3F4F1; --muted:#8A9099; --muted-2:#5A6069;
     --danger:#FF5A5A; --radius:14px;
     --font-display:'Space Grotesk', sans-serif;
     --grp-Peito:#FF5A5A; --grp-Costas:#4DA6FF; --grp-Ombros:#FFD166;
@@ -66,7 +66,7 @@
   @media (prefers-reduced-motion: reduce){
     .bg-item,.bg-particle,.bg-plate-big,#bg-anim .bg-glow{animation:none !important;}
   }
-#app{max-width:520px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;position:relative;z-index:1;}
+  #app{max-width:520px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1;}
   h1,h2,h3{margin:0;font-weight:800;}
   #view{flex:1;padding:20px 18px 104px 18px;overflow-y:auto;}
   nav.tabbar{position:fixed;bottom:0;left:0;right:0;max-width:520px;margin:0 auto;
@@ -358,8 +358,10 @@
   .mini-cal-legend{display:flex;gap:10px;margin-top:10px;font-size:10px;
     color:var(--muted);justify-content:center;align-items:center;flex-wrap:wrap;}
   .mini-cal-legend > span{display:inline-flex;align-items:center;gap:5px;}
-   .mini-cal-legend .dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex-shrink:0;}
-  .mini-cal-legend .dot-square{display:inline-block;width:11px;height:11px;border-radius:3px;flex-shrink:0;}
+  .mini-cal-legend .dot{display:inline-block;width:9px;height:9px;border-radius:50%;
+      .mini-cal-legend .dot-square{display:inline-block;width:11px;height:11px;
+    border-radius:3px;flex-shrink:0;}
+    flex-shrink:0;}
 
       /* ═══ Resumo mensal (carrossel de cartões) ═══ */
   .summary-bg{position:fixed;inset:0;z-index:500;
@@ -492,19 +494,15 @@
      CALENDÁRIO MENSAL (histórico)
   ═══════════════════════════════════════════════════════════ */
   .hc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-
-   .hc-weekdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;
+  .hc-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;
     font-size:10px;color:var(--muted);text-align:center;font-weight:700;
     text-transform:uppercase;margin-bottom:6px;letter-spacing:0.5px;}
-  .hc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;}
-
+  .hc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
   .hc-day{aspect-ratio:1;border-radius:9px;background:var(--surface-2);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:2px;cursor:pointer;position:relative;border:1.5px solid transparent;
     transition:transform .12s ease,background-color .2s ease;
-    font-family:var(--font-display);min-width:0;overflow:hidden;}
-
-
+    font-family:var(--font-display);}
   .hc-day:active{transform:scale(0.92);}
   .hc-day.empty{background:transparent;cursor:default;pointer-events:none;}
   .hc-day .hc-num{font-size:13px;font-weight:700;color:var(--text);line-height:1;}
@@ -882,15 +880,6 @@
     .stat-grid{grid-template-columns:repeat(3,1fr);}
     #view{padding:28px 30px 120px 30px;}
   }
-
-/* iOS: evita zoom automático ao focar campos */
-@media (max-width:767px){
-  input[type=text],input[type=number],input[type=date],input[type=time],input[type=password],select,textarea{font-size:16px;}
-  .set-stepper input{font-size:16px;}
-  /* fundo mais leve no celular (bateria) */
-  #bg-anim .bg-glow{animation:none;filter:blur(40px);}
-  .bg-plate-big{animation:none;}
-}
 </style>
 </head>
 <body>
@@ -995,7 +984,6 @@ let RESUMO_PERIOD = 14;
 let EXDB_LOADING = true;
 let _histSearchDebounce = null, _cacheExerciciosHistorico = null, _cacheExerciciosHistoricoKey = '';
 let ASK_RPE_AFTER_SET = true;
-let _groupCache = null;
 
 /* ============================================================
    SAVE
@@ -1035,7 +1023,7 @@ function loadSettings(){
 const saveSettings = s => { safeSet(KEYS.settings, JSON.stringify(s)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 
 const loadCustomExercises = () => safeJSON(KEYS.customEx, []);
-const saveCustomExercises = a => { _groupCache = null; safeSet(KEYS.customEx, JSON.stringify(a)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
+const saveCustomExercises = a => { safeSet(KEYS.customEx, JSON.stringify(a)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 const loadBadges = () => safeJSON(KEYS.badges, {});
 const saveBadges = b => { safeSet(KEYS.badges, JSON.stringify(b)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 const loadAnnual = () => safeJSON(KEYS.annual, {});
@@ -1306,7 +1294,7 @@ const MUSCLE_GROUP_MAP = {
 const GROUP_ORDER = ['Peito','Costas','Ombros','Bíceps','Tríceps','Antebraço','Pernas','Glúteos','Abdômen','Panturrilha','Pescoço','Cardio','Outros'];
 function groupForExercise(ex){ if(ex.category==='cardio') return 'Cardio'; return MUSCLE_GROUP_MAP[(ex.primaryMuscles||[])[0]] || 'Outros'; }
 const EXERCISE_BY_NAME = new Map();
-function reindexExercises(){ _groupCache = null; EXERCISE_BY_NAME.clear(); EXERCISE_DB.forEach(ex=>{ ex.group = ex.group || groupForExercise(ex); const key = ex.name.toLowerCase(); if(!EXERCISE_BY_NAME.has(key)) EXERCISE_BY_NAME.set(key, ex); }); }
+function reindexExercises(){ EXERCISE_BY_NAME.clear(); EXERCISE_DB.forEach(ex=>{ ex.group = ex.group || groupForExercise(ex); const key = ex.name.toLowerCase(); if(!EXERCISE_BY_NAME.has(key)) EXERCISE_BY_NAME.set(key, ex); }); }
 reindexExercises();
 const LEVEL_LABEL = {iniciante:'Iniciante', intermediario:'Intermediário', avancado:'Avançado'};
 const EQUIPMENT_LABEL = { 'peso-do-corpo':'Peso do corpo', barra:'Barra', 'barra-w':'Barra W', halteres:'Halteres', maquina:'Máquina', cabo:'Cabo' };
@@ -1325,13 +1313,7 @@ function allExerciseGroups(){
   return groups;
 }
 function exerciseFlat(){ const flat = []; allExerciseGroups().forEach(([g,l])=> l.forEach(n=> flat.push({name:n, group:g}))); return flat; }
-function exerciseGroup(name){
-  if(!_groupCache){
-    _groupCache = new Map();
-    exerciseFlat().forEach(e=>{ const k = e.name.toLowerCase(); if(!_groupCache.has(k)) _groupCache.set(k, e.group); });
-  }
-  return _groupCache.get(String(name).toLowerCase()) || 'Personalizado';
-}
+function exerciseGroup(name){ const f = exerciseFlat().find(e=> e.name.toLowerCase()===String(name).toLowerCase()); return f ? f.group : 'Personalizado'; }
 function isCustomExercise(name){ return CUSTOM_EXERCISES.some(c=> c.name.toLowerCase() === String(name).toLowerCase()); }
 function exerciseData(name){ return EXERCISE_BY_NAME.get(String(name||'').toLowerCase().trim()) || null; }
 function exerciseImages(name){
@@ -2355,14 +2337,6 @@ document.addEventListener('visibilitychange', ()=>{
 /* ============================================================
    MINI CALENDAR (novo)
 ============================================================ */
-
-const legendHtml = () => `<div class="mini-cal-legend">
-  <span><i class="dot-square" style="background:var(--lime)"></i>Treinou</span>
-  <span><i class="dot-square" style="background:var(--blue)"></i>Descanso</span>
-  <span><i class="dot" style="background:var(--orange)"></i>Força</span>
-  <span><i class="dot" style="background:#22D3EE"></i>Cardio</span>
-</div>`;
-
 function renderMiniCalendar(){
   const trained = new Set(DB.historico.filter(h=>h.tipo==='forca').map(h=> todayKey(h.data)));
   const restDays = loadRestDays();
@@ -2395,7 +2369,25 @@ function renderMiniCalendar(){
         </div>`;
       }).join('')}
     </div>
-        ${legendHtml()}
+    <div class="mini-cal-legend" style="display:flex;gap:12px;margin-top:10px;font-size:10.5px;color:var(--muted);justify-content:center;align-items:center;flex-wrap:wrap;">
+      <span style="display:inline-flex;align-items:center;gap:5px;">
+        <span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--lime);flex-shrink:0;"></span>
+        Treinou
+      </span>
+      <span style="display:inline-flex;align-items:center;gap:5px;">
+        <span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--blue);flex-shrink:0;"></span>
+        Descanso
+      </span>
+      <span style="display:inline-flex;align-items:center;gap:5px;">
+        <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--orange);flex-shrink:0;"></span>
+        Força
+      </span>
+      <span style="display:inline-flex;align-items:center;gap:5px;">
+        <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#22D3EE;flex-shrink:0;"></span>
+        Cardio
+      </span>
+    </div>
+  </div>`;
 }
 
 /* ============================================================
@@ -2488,7 +2480,7 @@ function TreinarScreen(){
 
   return `
   <div class="hero">
-    
+    <div class="streak-chip ${streakDias<1?'off':''}">🔥 ${streakDias}</div>
     <div class="brandmark">
       <div class="plate-badge"><span class="pnum">86</span><span class="pkg">TG</span></div>
       <div class="wordmark-gym">TRAINING &<br><span class="accent">GRIND</span></div>
@@ -3425,8 +3417,8 @@ function editSessionModal(sessionId){
       });
     });
   });
-bg.querySelectorAll('[data-edit-del-ex]').forEach(el=> el.addEventListener('click', async ()=>{
-    if(!await confirmDialog('Excluir este exercício da sessão?', {danger:true, okText:'Excluir'})) return;
+  bg.querySelectorAll('[data-edit-del-ex]').forEach(el=> el.addEventListener('click', ()=>{
+    if(!confirm('Excluir este exercício da sessão?')) return;
     edit.exercicios.splice(Number(el.dataset.editDelEx), 1);
     closeModal(bg);
     const h2 = DB.historico.find(x=> x.id === sessionId);
@@ -3583,13 +3575,30 @@ function renderHistoryCalendar(){
     <div class="card" style="padding:14px 12px;">
       <div class="hc-header">
         <button class="icon-btn mini" data-hc-prev>${ICONS.back}</button>
-<b data-hc-today style="font-size:15px;cursor:pointer;" title="Ir para hoje">${monthNames[CAL_MONTH]} ${CAL_YEAR}</b>
+        <b style="font-size:15px;">${monthNames[CAL_MONTH]} ${CAL_YEAR}</b>
         <button class="icon-btn mini" data-hc-next style="transform:rotate(180deg);">${ICONS.back}</button>
       </div>
       <div class="hc-weekdays"><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span><span>D</span></div>
       <div class="hc-grid">${cells.join('')}</div>
-      
-${legendHtml()}
+      <div style="display:flex;gap:12px;margin-top:14px;font-size:10.5px;color:var(--muted);justify-content:center;align-items:center;flex-wrap:wrap;">
+        <span style="display:inline-flex;align-items:center;gap:5px;">
+          <span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--lime);flex-shrink:0;"></span>
+          Treinou
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:5px;">
+          <span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--blue);flex-shrink:0;"></span>
+          Descanso
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:5px;">
+          <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--orange);flex-shrink:0;"></span>
+          Força
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:5px;">
+          <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#22D3EE;flex-shrink:0;"></span>
+          Cardio
+        </span>
+      </div>
+    </div>
 
     <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);margin-top:14px;">
       <div class="stat-box"><div class="v">${monthForce.length}</div><div class="l">Treinos</div></div>
@@ -4527,18 +4536,36 @@ function bodySideForGroup(group){
 }
 function bodySvgHighlightDay(view, groups){
   const zones = BODY_ZONES[view];
+  const uid = 'bdd' + Math.random().toString(36).slice(2,8);
   const baseFill = 'color-mix(in srgb, #d8a97c 15%, var(--surface-2))';
   const strokeCol = 'var(--line)';
   const trained = new Set(Object.keys(groups));
-  const renderZone = z => {
-    const on = !z.deco && trained.has(z.group);
-    const svg = zoneShapeSvg(z, on ? 'var(--lime)' : baseFill, on ? 0.85 : 1, strokeCol);
-    return z.deco ? svg : `<g>${svg}<title>${escapeHtml(z.group)}${on ? ' ✓' : ''}</title></g>`;
+  const colorFor = z => {
+    if(z.deco) return { fill:baseFill, op:1 };
+    if(trained.has(z.group)) return { fill:'var(--lime)', op:0.85 };
+    return { fill:baseFill, op:1 };
   };
-  return `<svg viewBox="0 0 100 195" style="display:block;margin:0 auto;width:100%;max-width:130px;height:auto;">
-    ${zones.map(renderZone).join('')}
+  const titleFor = z => `<title>${escapeHtml(z.group)}${trained.has(z.group)?' ✓':''}</title>`;
+  const torsoZones = zones.filter(z => z.torso);
+  const limbZones = zones.filter(z => !z.torso && !['sh_l','sh_r','hip_l','hip_r','head','neck'].includes(z.id));
+  const jointZones = zones.filter(z => ['sh_l','sh_r','hip_l','hip_r'].includes(z.id));
+  const capZones = zones.filter(z => ['head','neck'].includes(z.id));
+  const renderZone = z => { const c = colorFor(z); return z.deco ? zoneShapeSvg(z, c.fill, c.op, strokeCol) : `<g>${zoneShapeSvg(z, c.fill, c.op, strokeCol)}${titleFor(z)}</g>`; };
+  const linesMarkup = (BODY_LINES[view]||'').replace(/<path /g, `<path stroke="${strokeCol}" stroke-width="0.6" stroke-opacity="0.4" `);
+  const torsoMarkup = torsoZones.length ? `
+    <clipPath id="tclip-${uid}"><path d="${TORSO_PATH_D}"/></clipPath>
+    <g clip-path="url(#tclip-${uid})">
+      <path d="${TORSO_PATH_D}" fill="${baseFill}"/>
+      ${torsoZones.map(z=>{ const c=colorFor(z); return `<g>${zoneShapeSvg(z, c.fill, c.op, strokeCol)}${titleFor(z)}</g>`; }).join('')}
+      ${linesMarkup}
+    </g>
+    <path d="${TORSO_PATH_D}" fill="none" stroke="${strokeCol}" stroke-width="1.2" stroke-opacity="0.45"/>` : '';
+  return `<svg viewBox="0 0 100 192" style="display:block;margin:0 auto;width:100%;max-width:130px;height:auto;">
+    ${limbZones.map(renderZone).join('')}
+    ${torsoMarkup}
+    ${jointZones.map(renderZone).join('')}
+    ${capZones.map(renderZone).join('')}
   </svg>`;
-}
 }
 function openDayDetail(dateKey){
   const groups = muscleHighlightsForDay(dateKey);
@@ -6569,7 +6596,7 @@ function bindScreenEvents(){
       const grupo = ex.grupo;
       const isLastSet = si === ex.sets.length-1;
       // RPE picker automático (depois do change)
-      const askRPE = s2.askRPE && el.checked && !isWarmup && ex.sets[si].rir == null;
+      const askRPE = s2.askRPE && el.checked && !isWarmup && !ex.sets[si].rir;
       if(el.checked && !isLastSet && descansoEfetivo>0){ ex.descanso = descansoEfetivo; startRestTimer(exi); if(askRPE) setTimeout(()=> openRPEPicker(exi, si), 300); return; }
       if(el.checked && isLastSet && grupo){
         const grupoExs = SESSION.exercicios.filter(e=> e.grupo === grupo);
@@ -6725,10 +6752,6 @@ function bindScreenEvents(){
   view.querySelectorAll('[data-hc-prev]').forEach(el => el.addEventListener('click', ()=>{
     CAL_MONTH--; if(CAL_MONTH<0){CAL_MONTH=11;CAL_YEAR--;}
     render();
-  }));
-  view.querySelectorAll('[data-hc-today]').forEach(el => el.addEventListener('click', ()=>{
-    const n = new Date(); CAL_MONTH = n.getMonth(); CAL_YEAR = n.getFullYear();
-    haptic('tap'); render();
   }));
   view.querySelectorAll('[data-hc-next]').forEach(el => el.addEventListener('click', ()=>{
     CAL_MONTH++; if(CAL_MONTH>11){CAL_MONTH=0;CAL_YEAR++;}
@@ -6920,8 +6943,7 @@ function setupPWA(){
   document.head.appendChild(link);
 }
 async function initApp(){
-migrate();
-try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+  migrate();
   DB = { treinos: safeJSON(KEYS.treinos, []), historico: safeJSON(KEYS.hist, []), cardios: safeJSON(KEYS.cardios, []) };
   const persisted = safeJSON(KEYS.session, null);
   if(persisted && !validateSession(persisted)){ safeDel(KEYS.session); }

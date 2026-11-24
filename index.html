@@ -1029,7 +1029,7 @@ function loadSettings(){
 const saveSettings = s => { safeSet(KEYS.settings, JSON.stringify(s)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 
 const loadCustomExercises = () => safeJSON(KEYS.customEx, []);
-const saveCustomExercises = a => { _GROUP_CACHE=NULL; safeSet(KEYS.customEx, JSON.stringify(a)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
+const saveCustomExercises = a => { _GROUP_CACHE = null; safeSet(KEYS.customEx, JSON.stringify(a)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 const loadBadges = () => safeJSON(KEYS.badges, {});
 const saveBadges = b => { safeSet(KEYS.badges, JSON.stringify(b)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 const loadAnnual = () => safeJSON(KEYS.annual, {});
@@ -1301,7 +1301,7 @@ const GROUP_ORDER = ['Peito','Costas','Ombros','Bíceps','Tríceps','Antebraço'
 function groupForExercise(ex){ if(ex.category==='cardio') return 'Cardio'; return MUSCLE_GROUP_MAP[(ex.primaryMuscles||[])[0]] || 'Outros'; }
 let _GROUP_CACHE = null;
 const EXERCISE_BY_NAME = new Map();
-function reindexExercises(){ EXERCISE_BY_NAME.clear(); EXERCISE_DB.forEach(ex=>{ ex.group = ex.group || groupForExercise(ex); const key = ex.name.toLowerCase(); if(!EXERCISE_BY_NAME.has(key)) EXERCISE_BY_NAME.set(key, ex); }); }
+function reindexExercises(){ _GROUP_CACHE = null; EXERCISE_BY_NAME.clear(); EXERCISE_DB.forEach(ex=>{ ex.group = ex.group || groupForExercise(ex); const key = ex.name.toLowerCase(); if(!EXERCISE_BY_NAME.has(key)) EXERCISE_BY_NAME.set(key, ex); }); }
 reindexExercises();
 const LEVEL_LABEL = {iniciante:'Iniciante', intermediario:'Intermediário', avancado:'Avançado'};
 const EQUIPMENT_LABEL = { 'peso-do-corpo':'Peso do corpo', barra:'Barra', 'barra-w':'Barra W', halteres:'Halteres', maquina:'Máquina', cabo:'Cabo' };
@@ -4583,7 +4583,7 @@ function openDayDetail(dateKey){
   const bg = openModal(`
     <button class="close-x">&times;</button>
     <h3 style="margin-bottom:2px;text-transform:capitalize;">${escapeHtml(dateLabel)}</h3>
-    <p style="color:var(--muted);font-size:12.5px;margin:0 0 14px 0;">${sessionList.length} sessão${sessionList.length!==1?'ões':''} · ${Math.round(totalVol).toLocaleString('pt-BR')} kg de volume</p>
+    <p style="color:var(--muted);font-size:12.5px;margin:0 0 14px 0;">${sessionList.length} ${sessionList.length===1?'sessão':'sessões'}${sessionList.length} sessão${sessionList.length!==1?'ões':''} · ${Math.round(totalVol).toLocaleString('pt-BR')} kg de volume</p>
     ${groupEntries.length ? `
       <div style="padding:6px 0 10px 0;display:flex;justify-content:center;gap:6px;">
         <div style="text-align:center;flex:1;">${bodySvgHighlightDay('front', groups)}<div style="font-size:10.5px;color:var(--muted);margin-top:2px;">Frente</div></div>

@@ -4536,35 +4536,26 @@ function bodySideForGroup(group){
 }
 function bodySvgHighlightDay(view, groups){
   const zones = BODY_ZONES[view];
-  const uid = 'bdd' + Math.random().toString(36).slice(2,8);
   const baseFill = 'color-mix(in srgb, #d8a97c 15%, var(--surface-2))';
   const strokeCol = 'var(--line)';
   const trained = new Set(Object.keys(groups));
+
   const colorFor = z => {
-    if(z.deco) return { fill:baseFill, op:1 };
-    if(trained.has(z.group)) return { fill:'var(--lime)', op:0.85 };
-    return { fill:baseFill, op:1 };
+    if(z.deco) return { fill: baseFill, op: 1 };
+    if(trained.has(z.group)) return { fill: 'var(--lime)', op: 0.85 };
+    return { fill: baseFill, op: 1 };
   };
-  const titleFor = z => `<title>${escapeHtml(z.group)}${trained.has(z.group)?' ✓':''}</title>`;
-  const torsoZones = zones.filter(z => z.torso);
-  const limbZones = zones.filter(z => !z.torso && !['sh_l','sh_r','hip_l','hip_r','head','neck'].includes(z.id));
-  const jointZones = zones.filter(z => ['sh_l','sh_r','hip_l','hip_r'].includes(z.id));
-  const capZones = zones.filter(z => ['head','neck'].includes(z.id));
-  const renderZone = z => { const c = colorFor(z); return z.deco ? zoneShapeSvg(z, c.fill, c.op, strokeCol) : `<g>${zoneShapeSvg(z, c.fill, c.op, strokeCol)}${titleFor(z)}</g>`; };
-  const linesMarkup = (BODY_LINES[view]||'').replace(/<path /g, `<path stroke="${strokeCol}" stroke-width="0.6" stroke-opacity="0.4" `);
-  const torsoMarkup = torsoZones.length ? `
-    <clipPath id="tclip-${uid}"><path d="${TORSO_PATH_D}"/></clipPath>
-    <g clip-path="url(#tclip-${uid})">
-      <path d="${TORSO_PATH_D}" fill="${baseFill}"/>
-      ${torsoZones.map(z=>{ const c=colorFor(z); return `<g>${zoneShapeSvg(z, c.fill, c.op, strokeCol)}${titleFor(z)}</g>`; }).join('')}
-      ${linesMarkup}
-    </g>
-    <path d="${TORSO_PATH_D}" fill="none" stroke="${strokeCol}" stroke-width="1.2" stroke-opacity="0.45"/>` : '';
-  return `<svg viewBox="0 0 100 192" style="display:block;margin:0 auto;width:100%;max-width:130px;height:auto;">
-    ${limbZones.map(renderZone).join('')}
-    ${torsoMarkup}
-    ${jointZones.map(renderZone).join('')}
-    ${capZones.map(renderZone).join('')}
+  const titleFor = z => `<title>${escapeHtml(z.group)}${trained.has(z.group) ? ' ✓' : ''}</title>`;
+
+  const zoneMarkup = zones.map(z => {
+    const c = colorFor(z);
+    const inner = zoneShapeSvg(z, c.fill, c.op, strokeCol);
+    return z.deco ? inner : `<g>${inner}${titleFor(z)}</g>`;
+  }).join('');
+
+  return `<svg viewBox="0 0 100 195" xmlns="http://www.w3.org/2000/svg"
+    style="display:block;margin:0 auto;width:100%;max-width:130px;height:auto;">
+    ${zoneMarkup}
   </svg>`;
 }
 function openDayDetail(dateKey){

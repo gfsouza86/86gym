@@ -6635,11 +6635,14 @@ function bindScreenEvents(){
     ex.sets.push({ repeticoes: last?last.repeticoes:10, carga: last?last.carga:0, done:false, rir:null, falha:false, isDrop:false });
     persistSession(); render();
   }));
-  view.querySelectorAll('[data-del-set]').forEach(el=> el.addEventListener('click', ()=>{
-    const [exi, si] = el.dataset.delSet.split(':').map(Number);
-    const ex = SESSION.exercicios[exi]; if(ex.sets.length<=1) return;
-    ex.sets.splice(si,1); persistSession(); render();
-  }));
+view.querySelectorAll('[data-del-set]').forEach(el=> el.addEventListener('click', ()=>{
+  const [exi, si] = el.dataset.delSet.split(':').map(Number);
+  const ex = SESSION.exercicios[exi]; if(ex.sets.length<=1) return;
+  const removed = ex.sets[si];
+  undoableAction('Série removida',
+    ()=>{ ex.sets.splice(si,1); persistSession(); render(); },
+    ()=>{ ex.sets.splice(si,0,removed); persistSession(); render(); });
+}));
   const btnPlank = document.getElementById('btn-plank'); if(btnPlank) btnPlank.addEventListener('click', startPlankTimer);
 
   const btnFinalizar = document.getElementById('btn-finalizar-treino');
@@ -6676,7 +6679,7 @@ function bindScreenEvents(){
       }
       DB.historico.push({
         id: uid(), tipo:'forca', treinoId: SESSION.treinoId, treinoNome: SESSION.treinoNome, divisaoLetra: SESSION.divisaoLetra,
-        data: Date.now(), duracaoSegundos, exercicios: resumo, nota: post.nota || ''
+        data: Date.now(), duracaoSegundos, exercicios: resumo, nota: post.nota || '', humor: post.humor || null
       });
       saveHistorico();
       stopRestTimer();

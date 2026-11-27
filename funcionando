@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0A0B0D">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="86 TG">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>86 Training & Grind</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230A0B0D'/%3E%3Ctext x='16' y='22' font-family='sans-serif' font-weight='800' font-size='16' fill='%23C9FF4D' text-anchor='middle'%3E86%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -68,7 +74,7 @@
   }
   #app{max-width:520px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1;}
   h1,h2,h3{margin:0;font-weight:800;}
-  #view{flex:1;padding:20px 18px 104px 18px;overflow-y:auto;}
+  #view{flex:1;min-width:0;padding:20px 18px 104px 18px;overflow-y:auto;overflow-x:hidden;}
   nav.tabbar{position:fixed;bottom:0;left:0;right:0;max-width:520px;margin:0 auto;
     background:color-mix(in srgb,var(--surface) 94%,transparent);backdrop-filter:blur(10px);
     border-top:1px solid var(--line);display:flex;
@@ -494,11 +500,11 @@
      CALENDÁRIO MENSAL (histórico)
   ═══════════════════════════════════════════════════════════ */
   .hc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-  .hc-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;
+  .hc-weekdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;
     font-size:10px;color:var(--muted);text-align:center;font-weight:700;
     text-transform:uppercase;margin-bottom:6px;letter-spacing:0.5px;}
-  .hc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-  .hc-day{aspect-ratio:1;border-radius:9px;background:var(--surface-2);
+  .hc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;}
+  .hc-day{min-width:0;width:100%;aspect-ratio:1;border-radius:9px;background:var(--surface-2);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:2px;cursor:pointer;position:relative;border:1.5px solid transparent;
     transition:transform .12s ease,background-color .2s ease;
@@ -516,6 +522,12 @@
   .hc-dots span{width:4px;height:4px;border-radius:50%;display:block;}
   .hc-dots .dot-force{background:var(--orange);}
   .hc-dots .dot-cardio{background:#22D3EE;}
+
+  @media (max-width:360px){
+  .hc-grid,.hc-weekdays{gap:3px;}
+  .hc-day{border-radius:8px;}
+  .hc-day .hc-num{font-size:12px;}
+}
 
   /* ═══════════════════════════════════════════════════════════
      BOTTOM SHEET (modais arrastáveis)
@@ -1023,7 +1035,7 @@ function loadSettings(){
 const saveSettings = s => { safeSet(KEYS.settings, JSON.stringify(s)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 
 const loadCustomExercises = () => safeJSON(KEYS.customEx, []);
-const saveCustomExercises = a => { safeSet(KEYS.customEx, JSON.stringify(a)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
+const saveCustomExercises = a => { _GROUP_CACHE = null; safeSet(KEYS.customEx, JSON.stringify(a)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 const loadBadges = () => safeJSON(KEYS.badges, {});
 const saveBadges = b => { safeSet(KEYS.badges, JSON.stringify(b)); touchLocalModified(); scheduleAutoBackup(); scheduleGistSync(); };
 const loadAnnual = () => safeJSON(KEYS.annual, {});
@@ -1293,8 +1305,9 @@ const MUSCLE_GROUP_MAP = {
 };
 const GROUP_ORDER = ['Peito','Costas','Ombros','Bíceps','Tríceps','Antebraço','Pernas','Glúteos','Abdômen','Panturrilha','Pescoço','Cardio','Outros'];
 function groupForExercise(ex){ if(ex.category==='cardio') return 'Cardio'; return MUSCLE_GROUP_MAP[(ex.primaryMuscles||[])[0]] || 'Outros'; }
+let _GROUP_CACHE = null;
 const EXERCISE_BY_NAME = new Map();
-function reindexExercises(){ EXERCISE_BY_NAME.clear(); EXERCISE_DB.forEach(ex=>{ ex.group = ex.group || groupForExercise(ex); const key = ex.name.toLowerCase(); if(!EXERCISE_BY_NAME.has(key)) EXERCISE_BY_NAME.set(key, ex); }); }
+function reindexExercises(){ _GROUP_CACHE = null; EXERCISE_BY_NAME.clear(); EXERCISE_DB.forEach(ex=>{ ex.group = ex.group || groupForExercise(ex); const key = ex.name.toLowerCase(); if(!EXERCISE_BY_NAME.has(key)) EXERCISE_BY_NAME.set(key, ex); }); }
 reindexExercises();
 const LEVEL_LABEL = {iniciante:'Iniciante', intermediario:'Intermediário', avancado:'Avançado'};
 const EQUIPMENT_LABEL = { 'peso-do-corpo':'Peso do corpo', barra:'Barra', 'barra-w':'Barra W', halteres:'Halteres', maquina:'Máquina', cabo:'Cabo' };
@@ -1313,7 +1326,16 @@ function allExerciseGroups(){
   return groups;
 }
 function exerciseFlat(){ const flat = []; allExerciseGroups().forEach(([g,l])=> l.forEach(n=> flat.push({name:n, group:g}))); return flat; }
-function exerciseGroup(name){ const f = exerciseFlat().find(e=> e.name.toLowerCase()===String(name).toLowerCase()); return f ? f.group : 'Personalizado'; }
+function exerciseGroup(name){
+  if(!_GROUP_CACHE){
+    _GROUP_CACHE = new Map();
+    exerciseFlat().forEach(e=>{
+      const k = e.name.toLowerCase();
+      if(!_GROUP_CACHE.has(k)) _GROUP_CACHE.set(k, e.group); // o primeiro encontrado vence, como antes
+    });
+  }
+  return _GROUP_CACHE.get(String(name).toLowerCase()) || 'Personalizado';
+}
 function isCustomExercise(name){ return CUSTOM_EXERCISES.some(c=> c.name.toLowerCase() === String(name).toLowerCase()); }
 function exerciseData(name){ return EXERCISE_BY_NAME.get(String(name||'').toLowerCase().trim()) || null; }
 function exerciseImages(name){
@@ -1437,10 +1459,7 @@ async function initServiceWorker(){
   if(!('serviceWorker' in navigator)) return;
   if(location.protocol === 'file:') return;
   try{
-    const swCode = `self.addEventListener('message', function(e){ if(e.data && e.data.type === 'scheduleNotification'){ var delay = e.data.endTime - Date.now(); if(delay < 0) delay = 0; setTimeout(function(){ self.registration.showNotification(e.data.title || 'Descanso terminou', { body: e.data.body || 'Hora da próxima série', tag: '86gym-rest', renotify: true, vibrate: [200,100,200,100,200] }); }, delay); } }); self.addEventListener('notificationclick', function(e){ e.notification.close(); e.waitUntil(clients.matchAll({type:'window'}).then(function(cs){ for(var i=0;i<cs.length;i++){ if('focus' in cs[i]) return cs[i].focus(); } if(clients.openWindow) return clients.openWindow('./'); })); });`;
-    const blob = new Blob([swCode], {type:'application/javascript'});
-    const url = URL.createObjectURL(blob);
-    _swRegistration = await navigator.serviceWorker.register(url, { scope: './' });
+    _swRegistration = await navigator.serviceWorker.register('./sw.js', { scope: './' });
   }catch(e){ console.warn('[86gym] SW falhou', e); }
 }
 async function requestNotificationPermission(){
@@ -4570,7 +4589,7 @@ function openDayDetail(dateKey){
   const bg = openModal(`
     <button class="close-x">&times;</button>
     <h3 style="margin-bottom:2px;text-transform:capitalize;">${escapeHtml(dateLabel)}</h3>
-    <p style="color:var(--muted);font-size:12.5px;margin:0 0 14px 0;">${sessionList.length} sessão${sessionList.length!==1?'ões':''} · ${Math.round(totalVol).toLocaleString('pt-BR')} kg de volume</p>
+    <p style="color:var(--muted);font-size:12.5px;margin:0 0 14px 0;">${sessionList.length} ${sessionList.length===1?'sessão':'sessões'}${sessionList.length} sessão${sessionList.length!==1?'ões':''} · ${Math.round(totalVol).toLocaleString('pt-BR')} kg de volume</p>
     ${groupEntries.length ? `
       <div style="padding:6px 0 10px 0;display:flex;justify-content:center;gap:6px;">
         <div style="text-align:center;flex:1;">${bodySvgHighlightDay('front', groups)}<div style="font-size:10.5px;color:var(--muted);margin-top:2px;">Frente</div></div>
@@ -6622,11 +6641,14 @@ function bindScreenEvents(){
     ex.sets.push({ repeticoes: last?last.repeticoes:10, carga: last?last.carga:0, done:false, rir:null, falha:false, isDrop:false });
     persistSession(); render();
   }));
-  view.querySelectorAll('[data-del-set]').forEach(el=> el.addEventListener('click', ()=>{
-    const [exi, si] = el.dataset.delSet.split(':').map(Number);
-    const ex = SESSION.exercicios[exi]; if(ex.sets.length<=1) return;
-    ex.sets.splice(si,1); persistSession(); render();
-  }));
+view.querySelectorAll('[data-del-set]').forEach(el=> el.addEventListener('click', ()=>{
+  const [exi, si] = el.dataset.delSet.split(':').map(Number);
+  const ex = SESSION.exercicios[exi]; if(ex.sets.length<=1) return;
+  const removed = ex.sets[si];
+  undoableAction('Série removida',
+    ()=>{ ex.sets.splice(si,1); persistSession(); render(); },
+    ()=>{ ex.sets.splice(si,0,removed); persistSession(); render(); });
+}));
   const btnPlank = document.getElementById('btn-plank'); if(btnPlank) btnPlank.addEventListener('click', startPlankTimer);
 
   const btnFinalizar = document.getElementById('btn-finalizar-treino');
@@ -6663,7 +6685,7 @@ function bindScreenEvents(){
       }
       DB.historico.push({
         id: uid(), tipo:'forca', treinoId: SESSION.treinoId, treinoNome: SESSION.treinoNome, divisaoLetra: SESSION.divisaoLetra,
-        data: Date.now(), duracaoSegundos, exercicios: resumo, nota: post.nota || ''
+        data: Date.now(), duracaoSegundos, exercicios: resumo, nota: post.nota || '', humor: post.humor || null
       });
       saveHistorico();
       stopRestTimer();
@@ -6927,19 +6949,13 @@ async function loadExerciseDB(){
   EXDB_LOADING = false;
   return { source: 'inline', count: EXERCISE_DB.length };
 }
-function setupPWA(){
-  const manifest = { name:'86 Training & Grind', short_name:'86 TG', start_url:'./', display:'standalone', background_color:'#0A0B0D', theme_color:'#0A0B0D', orientation:'portrait' };
-  const blob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
-  const link = document.createElement('link'); link.rel = 'manifest'; link.href = URL.createObjectURL(blob);
-  document.head.appendChild(link);
-}
+
 async function initApp(){
   migrate();
   DB = { treinos: safeJSON(KEYS.treinos, []), historico: safeJSON(KEYS.hist, []), cardios: safeJSON(KEYS.cardios, []) };
   const persisted = safeJSON(KEYS.session, null);
   if(persisted && !validateSession(persisted)){ safeDel(KEYS.session); }
   seedDefaultCardio();
-  setupPWA();
   document.documentElement.style.setProperty('--gym-pattern', buildGymPatternDataUri(0.028));
   document.documentElement.style.setProperty('--gym-pattern-strong', buildGymPatternDataUri(0.09));
   mountBgAnimation();

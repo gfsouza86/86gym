@@ -81,7 +81,7 @@
     padding:7px 2px calc(7px + env(safe-area-inset-bottom)) 2px;z-index:50;}
   nav.tabbar button{flex:1;background:none;border:none;color:var(--muted);
     display:flex;flex-direction:column;align-items:center;gap:3px;
-    font-size:9.5px;font-family:'Inter';font-weight:600;padding:5px 1px;border-radius:10px;cursor:pointer;}
+    font-size:11px;font-family:'Inter';font-weight:600;padding:5px 1px;border-radius:10px;cursor:pointer;}
   nav.tabbar button svg{width:19px;height:19px;}
   nav.tabbar button.active{color:var(--lime);}
   nav.tabbar button.active svg{filter:drop-shadow(0 0 6px var(--lime-dim));}
@@ -141,7 +141,7 @@
   .stat-box{background:var(--surface);border:1px solid var(--line);border-radius:12px;
     padding:12px 8px;text-align:center;font-family:'Inter';color:var(--text);cursor:pointer;}
   .stat-box .v{font-family:var(--font-display);font-weight:700;font-size:19px;color:var(--lime);line-height:1;}
-  .stat-box .l{font-size:9.5px;color:var(--muted);text-transform:uppercase;
+  .stat-box .l{font-size:11px;color:var(--muted);text-transform:uppercase;
     letter-spacing:0.5px;margin-top:4px;font-weight:700;}
   .stat-box:active{transform:scale(0.97);}
   .page-title{font-size:24px;margin-bottom:4px;}
@@ -200,7 +200,7 @@
     padding:12px;margin-top:12px;position:relative;}
   .ex-block .ex-head{display:flex;align-items:center;gap:8px;}
   .ex-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;}
-  .ex-grid label{font-size:10px;color:var(--muted);font-weight:700;display:block;margin-bottom:4px;}
+  .ex-grid label{font-size:11px;color:var(--muted);font-weight:700;display:block;margin-bottom:4px;}
   .remove-x{position:absolute;top:10px;right:10px;color:var(--muted);background:none;
     border:none;font-size:16px;cursor:pointer;}
   .division-block{border:1px solid var(--line);border-radius:var(--radius);padding:14px;
@@ -218,14 +218,14 @@
   .ex-row-info b{font-size:14px;font-weight:600;display:block;}
   .ex-row-info small{color:var(--muted);font-size:11px;display:block;margin-top:2px;text-transform:capitalize;}
   .ex-row.banned{opacity:0.55;}
-  .banned-tag{font-size:9.5px; color:#fff; background:var(--danger);
+  .banned-tag{font-size:11px; color:#fff; background:var(--danger);
     padding:2px 6px; border-radius:5px; font-weight:800; letter-spacing:0.5px; margin-right:6px;}
 
   /* ═══════════════════════════════════════════════════════════
      SET TABLE — nova estrutura com steppers + swipe
   ═══════════════════════════════════════════════════════════ */
   .set-table{width:100%;border-collapse:collapse;margin-top:10px;}
-  .set-table th{font-size:9.5px;color:var(--muted);text-transform:uppercase;
+  .set-table th{font-size:11px;color:var(--muted);text-transform:uppercase;
     text-align:center;padding:6px 2px;font-weight:700;letter-spacing:0.3px;}
   .set-table td{text-align:center;padding:6px 2px;border-top:1px solid var(--line-soft);font-size:13px;position:relative;}
   .set-table td:first-child, .set-table th:first-child{text-align:left;padding-left:4px;}
@@ -263,7 +263,7 @@
     transition:border-color .15s ease, background-color .15s ease;}
   .rpe-btn:active{transform:scale(0.94);}
   .rpe-btn .em{font-size:15px;line-height:1;display:block;}
-  .rpe-btn .nm{font-size:9.5px;font-weight:800;color:var(--muted);margin-top:1px;
+  .rpe-btn .nm{font-size:11px;font-weight:800;color:var(--muted);margin-top:1px;
     font-family:var(--font-display);}
   .rpe-btn.set{border-color:var(--lime);background:var(--lime-dim);}
   .rpe-btn.set .nm{color:var(--lime);}
@@ -281,7 +281,7 @@
   .rpe-opt .num{font-size:12px;font-weight:800;color:var(--muted);
     font-family:var(--font-display);}
   .rpe-opt.active .num{color:var(--lime);}
-  .rpe-opt .hint{font-size:9px;color:var(--muted-2);font-weight:600;}
+  .rpe-opt .hint{font-size:11px;color:var(--muted-2);font-weight:600;}
 
   /* Set row actions (small buttons under series number) */
   .set-actions{display:flex;gap:2px;margin-top:3px;justify-content:flex-start;}
@@ -297,7 +297,7 @@
   .dash-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
     background:linear-gradient(90deg,var(--lime) 0%,var(--orange) 100%);}
   .dash-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px;}
-  .dash-lbl{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;font-weight:800;}
+  .dash-lbl{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;font-weight:800;}
   .dash-name{font-size:20px;font-weight:800;line-height:1.12;margin-top:5px;letter-spacing:-0.01em;}
   .dash-name .div-badge{display:inline-flex;align-items:center;justify-content:center;
     width:26px;height:26px;border-radius:8px;background:var(--lime);color:#0A0B0D;
@@ -308,7 +308,7 @@
   .dash-streak .num{font-family:var(--font-display);font-weight:800;font-size:28px;
     color:var(--orange);line-height:1;display:flex;align-items:center;gap:4px;}
   .dash-streak .num .fl{font-size:20px;}
-  .dash-streak .lbl{font-size:9px;color:var(--muted);text-transform:uppercase;
+  .dash-streak .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;
     letter-spacing:0.8px;font-weight:700;text-align:right;}
   .dash-meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;
     font-size:11.5px;color:var(--muted);margin-bottom:12px;font-weight:600;}
@@ -342,7 +342,7 @@
     overflow:hidden;}
   .mini-cal .day .d{font-size:13px;font-weight:800;color:var(--text);
     font-family:var(--font-display);line-height:1;}
-  .mini-cal .day .wd{font-size:8px;opacity:0.65;line-height:1;letter-spacing:0.3px;}
+  .mini-cal .day .wd{font-size:11px;opacity:0.65;line-height:1;letter-spacing:0.3px;}
   .mini-cal .day .dots{position:absolute;top:5px;right:5px;display:flex;gap:3px;align-items:center;}
   .mini-cal .day .dots span{width:5px;height:5px;border-radius:50%;display:block;}
   .mini-cal .day .dots .dot-force{background:var(--orange);}
@@ -361,7 +361,7 @@
   .mini-cal .day.rest-day-pending{border:1.5px dashed var(--line);}
   
   /* ═══ Legenda (mini-cal + calendário mensal) ═══ */
-  .mini-cal-legend{display:flex;gap:10px;margin-top:10px;font-size:10px;
+  .mini-cal-legend{display:flex;gap:10px;margin-top:10px;font-size:11px;
     color:var(--muted);justify-content:center;align-items:center;flex-wrap:wrap;}
   .mini-cal-legend > span{display:inline-flex;align-items:center;gap:5px;}
   .mini-cal-legend .dot{display:inline-block;width:9px;height:9px;border-radius:50%;
@@ -401,10 +401,10 @@
     box-shadow:0 8px 20px rgba(0,0,0,0.35);
     transition:transform .15s ease;}
   .summary-card:active{transform:scale(0.94);}
-  .summary-card .sc-tag{font-size:8px;font-weight:800;text-transform:uppercase;
+  .summary-card .sc-tag{font-size:11px;font-weight:800;text-transform:uppercase;
     letter-spacing:1px;opacity:0.75;line-height:1.1;}
   .summary-card .sc-body{font-family:var(--font-display);font-weight:800;
-    font-size:10.5px;line-height:1.2;letter-spacing:-0.01em;
+    font-size:11.5px;line-height:1.2;letter-spacing:-0.01em;
     margin-top:auto;margin-bottom:0;position:relative;z-index:1;
     padding-right:2px;}
   .summary-card .sc-body .big{font-size:30px;display:block;line-height:1;
@@ -437,7 +437,7 @@
     font-family:var(--font-display);font-weight:800;font-size:24px;color:#0A0B0D;}
   .grp-card-info{text-align:center;width:100%;}
   .grp-card-name{font-size:13.5px;font-weight:800;letter-spacing:-0.01em;line-height:1.1;}
-  .grp-card-count{font-size:10px;color:var(--muted);font-weight:600;margin-top:3px;
+  .grp-card-count{font-size:11px;color:var(--muted);font-weight:600;margin-top:3px;
     text-transform:uppercase;letter-spacing:0.4px;}
 
     
@@ -468,7 +468,7 @@
   .grp-expanded-row:hover{background:var(--surface);}
   .grp-expanded-row .name{font-weight:600;flex:1;min-width:0;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .grp-expanded-row .equip{font-size:9.5px;color:var(--muted);margin-left:8px;
+  .grp-expanded-row .equip{font-size:11px;color:var(--muted);margin-left:8px;
     text-transform:uppercase;letter-spacing:0.4px;font-weight:700;}
   .grp-expanded-all{display:block;text-align:center;margin-top:6px;padding:10px 8px;
     color:var(--lime);font-weight:700;font-size:12px;cursor:pointer;
@@ -500,11 +500,11 @@
      CALENDÁRIO MENSAL (histórico)
   ═══════════════════════════════════════════════════════════ */
   .hc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-  .hc-weekdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;
-    font-size:10px;color:var(--muted);text-align:center;font-weight:700;
+  .hc-weekdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;width:100%;
+    font-size:11px;color:var(--muted);text-align:center;font-weight:700;
     text-transform:uppercase;margin-bottom:6px;letter-spacing:0.5px;}
-  .hc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;}
-  .hc-day{min-width:0;width:100%;aspect-ratio:1;border-radius:9px;background:var(--surface-2);
+  .hc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;width:100%;max-width:100%;}
+  .hc-day{min-width:0;width:100%;max-width:100%;overflow:hidden;aspect-ratio:1;border-radius:9px;background:var(--surface-2);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:2px;cursor:pointer;position:relative;border:1.5px solid transparent;
     transition:transform .12s ease,background-color .2s ease;
@@ -519,15 +519,33 @@
   .hc-day.today{border-color:var(--lime);border-width:2px;}
   .hc-day.today .hc-num{font-weight:800;}
   .hc-dots{display:flex;gap:2px;align-items:center;margin-top:1px;}
-  .hc-dots span{width:4px;height:4px;border-radius:50%;display:block;}
+  .hc-dots span{width:5px;height:5px;border-radius:50%;display:block;}
   .hc-dots .dot-force{background:var(--orange);}
-  .hc-dots .dot-cardio{background:#22D3EE;}
-
+  .hc-dots .dot-cardio{background:#22D3EE;border-radius:1.5px;}
+  .mini-cal .day .dots .dot-cardio{border-radius:1.5px;}
+  .hc-day.rest{border-style:dashed;border-color:var(--blue);}
+  .hc-day.today{border-style:solid;}
+  .mini-cal .day.rest{outline:2px dashed rgba(255,255,255,0.75);outline-offset:-5px;}
+  :root[data-theme="light"] .hc-day.trained .hc-num{color:#4F6A00;}
+  :root[data-theme="light"] .hc-day.rest .hc-num{color:#185FA5;}
+  :root[data-theme="light"] .mini-cal .day.rest{background:#2468B0;border-color:#2468B0;}
+  .icon-btn.mini{position:relative;}
+  .icon-btn.mini:not([style*="width:18px"])::after{content:'';position:absolute;inset:-8px;}
+  .hc-title{display:flex;align-items:center;gap:8px;min-width:0;}
+  .hc-today{position:relative;background:var(--lime-dim);color:var(--lime);border:1px solid var(--lime);
+    border-radius:999px;font-size:11px;font-weight:800;padding:3px 10px;cursor:pointer;font-family:'Inter';}
+  .hc-today::after{content:'';position:absolute;inset:-8px;}
+  :root[data-theme="light"] .hc-today{color:#4F6A00;}
+  .hc-grid.slide-r{animation:hcR .22s ease-out;}
+  .hc-grid.slide-l{animation:hcL .22s ease-out;}
+  @keyframes hcR{from{transform:translateX(24px);opacity:0;}to{transform:none;opacity:1;}}
+  @keyframes hcL{from{transform:translateX(-24px);opacity:0;}to{transform:none;opacity:1;}}
+  @media (prefers-reduced-motion:reduce){.hc-grid.slide-r,.hc-grid.slide-l{animation:none;}}
   @media (max-width:360px){
-  .hc-grid,.hc-weekdays{gap:3px;}
-  .hc-day{border-radius:8px;}
-  .hc-day .hc-num{font-size:12px;}
-}
+    .hc-grid,.hc-weekdays{gap:3px;}
+    .hc-day{border-radius:8px;}
+    .hc-day .hc-num{font-size:12px;}
+  }
 
   /* ═══════════════════════════════════════════════════════════
      BOTTOM SHEET (modais arrastáveis)
@@ -597,12 +615,12 @@
   .exec-ex-head .toggle-btn svg{width:16px;height:16px;transition:transform .2s;}
   .exec-ex-card.collapsed .toggle-btn svg{transform:rotate(-90deg);}
   .superset-badge{display:inline-block;background:#7C3AED;color:#fff;
-    padding:2px 8px;border-radius:8px;font-weight:800;font-size:10px;letter-spacing:0.5px;}
+    padding:2px 8px;border-radius:8px;font-weight:800;font-size:11px;letter-spacing:0.5px;}
   .exec-ex-card.superset-1{border-left:4px solid #8B5CF6;}
   .exec-ex-card.superset-2{border-left:4px solid #F472B6;}
   .exec-ex-card.superset-3{border-left:4px solid #22D3EE;}
   .grp-chip{display:inline-block;padding:2px 7px;border-radius:6px;font-weight:800;
-    font-size:9.5px;letter-spacing:0.5px;color:#0A0B0D;text-transform:uppercase;}
+    font-size:11px;letter-spacing:0.5px;color:#0A0B0D;text-transform:uppercase;}
   [data-grp="Peito"]{background:var(--grp-Peito);color:#0A0B0D;}
   [data-grp="Costas"]{background:var(--grp-Costas);color:#0A0B0D;}
   [data-grp="Ombros"]{background:var(--grp-Ombros);color:#0A0B0D;}
@@ -616,7 +634,7 @@
   [data-grp="Cardio"]{background:var(--grp-Cardio);color:#0A0B0D;}
   [data-grp="Outros"]{background:var(--grp-Outros);color:#0A0B0D;}
   [data-grp="Personalizado"]{background:var(--grp-Personalizado);color:#0A0B0D;}
-  .rm-preview{font-size:10.5px;color:var(--blue);text-align:center;margin-top:2px;font-weight:600;}
+  .rm-preview{font-size:11.5px;color:var(--blue);text-align:center;margin-top:2px;font-weight:600;}
   .compare-badge{font-size:11px;padding:4px 8px;border-radius:8px;font-weight:700;}
   .compare-badge.up{background:rgba(201,255,77,0.15);color:var(--lime);}
   .compare-badge.down{background:rgba(255,90,90,0.15);color:var(--danger);}
@@ -643,7 +661,7 @@
   .timer-banner .t-ring-fg{fill:none;stroke:var(--orange);stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset 1s linear;}
   .timer-banner .t-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
   .timer-banner .t-ring-center .t-num{font-family:var(--font-display);font-weight:800;font-size:40px;line-height:1;color:#fff;}
-  .timer-banner .t-ring-center .t-unit{font-size:10px;color:rgba(255,255,255,0.55);letter-spacing:0.3px;margin-top:3px;}
+  .timer-banner .t-ring-center .t-unit{font-size:11px;color:rgba(255,255,255,0.55);letter-spacing:0.3px;margin-top:3px;}
   .timer-banner .t-stop{background:rgba(255,255,255,0.12);border:none;color:#fff;
     border-radius:12px;padding:10px 26px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Inter';letter-spacing:0.5px;margin-top:2px;}
   .session-clock{text-align:center;color:var(--muted);font-size:13px;margin-bottom:14px;}
@@ -672,7 +690,7 @@
     margin-top:4px;opacity:0.92;}
   .hist-note{font-size:12.5px;color:var(--text);background:var(--surface-2);
     padding:8px 10px;border-radius:8px;margin-top:10px;border-left:2px solid var(--lime);}
-  .tipo-tag{font-size:10px;font-weight:800;text-transform:uppercase;
+  .tipo-tag{font-size:11px;font-weight:800;text-transform:uppercase;
     letter-spacing:0.5px;padding:3px 8px;border-radius:6px;}
   .tipo-tag.forca{background:var(--lime-dim);color:var(--lime);}
   .tipo-tag.cardio{background:rgba(255,90,54,0.15);color:var(--orange);}
@@ -680,7 +698,7 @@
   .cardio-item{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
   .interval-block{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:12px;background:var(--surface-2);position:relative;}
   .interval-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;}
-  .interval-grid label{font-size:10px;color:var(--muted);font-weight:700;display:block;margin-bottom:4px;}
+  .interval-grid label{font-size:11px;color:var(--muted);font-weight:700;display:block;margin-bottom:4px;}
   .dash-box{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center;}
   .dash-box .val{font-family:var(--font-display);font-weight:700;font-size:30px;color:var(--lime);line-height:1;}
   .dash-box .lbl{font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:0.5px;}
@@ -749,7 +767,7 @@
   .celebrate-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;opacity:0;animation:titleIn .5s ease-out 1.35s forwards;}
   .celebrate-stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 6px;}
   .celebrate-stat .v{font-family:var(--font-display);font-weight:700;font-size:20px;color:var(--lime);line-height:1;}
-  .celebrate-stat .l{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-top:6px;font-weight:700;}
+  .celebrate-stat .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-top:6px;font-weight:700;}
   .celebrate-actions{display:flex;gap:8px;opacity:0;animation:titleIn .5s ease-out 1.55s forwards;}
   .celebrate-actions .btn{flex:1;}
   .heatmap-wrap{overflow-x:auto;padding:6px 0;}
@@ -793,10 +811,14 @@
     cursor:pointer; z-index:60; border:none;
     box-shadow:0 8px 22px rgba(0,0,0,0.5);
     font-family:'Inter'; font-weight:800; font-size:13px;
-    transition:transform .15s;
+    transition:transform .2s, opacity .2s;
     color:#0A0B0D;
   }
   .fab-action.show{ display:flex; }
+  .fab-action.fab-away{ opacity:0; transform:translateY(16px) scale(.9); pointer-events:none; }
+  .fab-action.fab-compact{ padding:0; width:52px; min-width:52px; }
+  .fab-action.fab-compact span{ display:none; }
+  #view.has-fab{ padding-bottom:190px; }
   .fab-action:active{ transform:scale(0.94); }
   .fab-action svg{ width:22px; height:22px; flex-shrink:0; }
   .fab-action.rest{ background:linear-gradient(135deg,#C9FF4D,#7FA800); color:#0A0B0D; }
@@ -1657,8 +1679,8 @@ function buildSvgLineChart(points, opts={}){
     <line x1="${pad}" y1="${h-pad}" x2="${w-pad}" y2="${h-pad}" stroke="var(--line)" stroke-width="1"/>
     <path d="${path}" fill="none" stroke="#C9FF4D" stroke-width="2.5"/>
     ${dots}
-    <text x="${pad}" y="${h-6}" fill="var(--muted)" font-size="10" font-family="Inter">${escapeHtml(fL)}</text>
-    <text x="${w-pad}" y="${h-6}" fill="var(--muted)" font-size="10" font-family="Inter" text-anchor="end">${escapeHtml(lL)}</text>
+    <text x="${pad}" y="${h-6}" fill="var(--muted)" font-size="11" font-family="Inter">${escapeHtml(fL)}</text>
+    <text x="${w-pad}" y="${h-6}" fill="var(--muted)" font-size="11" font-family="Inter" text-anchor="end">${escapeHtml(lL)}</text>
     <text x="${pad}" y="14" fill="var(--text)" font-size="11" font-family="Inter" font-weight="700">${maxY}${opts.unit||''}</text>
     <text x="${pad}" y="${h-pad-4}" fill="var(--text)" font-size="11" font-family="Inter" font-weight="700">${minY}${opts.unit||''}</text>
   </svg>`;
@@ -2161,7 +2183,7 @@ function render(){
 /* ============================================================
    FAB
 ============================================================ */
-function updateFAB(){
+function _updateFABCore(){
   const fab = document.getElementById('fab-action');
   if(!fab) return;
   if(_fabInterval){ clearInterval(_fabInterval); _fabInterval = null; }
@@ -2196,6 +2218,29 @@ function updateFAB(){
   }
   fab.classList.remove('show');
 }
+
+function updateFAB(){
+  _updateFABCore();
+  const f = document.getElementById('fab-action'), v = document.getElementById('view');
+  if(!f) return;
+  if(v) v.classList.toggle('has-fab', f.classList.contains('show'));
+  if(f.classList.contains('cardio')) f.classList.toggle('fab-compact', ROUTE.name === 'historico');
+}
+(function(){
+  let lastY = 0, idle = null;
+  document.addEventListener('scroll', e=>{
+    const t = e.target;
+    if(t !== document && !(t && t.id === 'view')) return;
+    const y = (t === document) ? (window.scrollY || 0) : t.scrollTop;
+    const f = document.getElementById('fab-action');
+    if(!f || !f.classList.contains('show')){ lastY = y; return; }
+    if(y > lastY + 6 && y > 80) f.classList.add('fab-away');
+    else if(y < lastY - 6) f.classList.remove('fab-away');
+    lastY = y;
+    clearTimeout(idle);
+    idle = setTimeout(()=>{ const g = document.getElementById('fab-action'); if(g) g.classList.remove('fab-away'); }, 1200);
+  }, true);
+})();
 
 /* ============================================================
    MODAL (bottom sheet com drag-to-close)
@@ -2362,14 +2407,14 @@ function renderMiniCalendar(){
   const today = new Date(); today.setHours(0,0,0,0);
   const days = [];
   for(let i=6; i>=0; i--){ const d = new Date(today); d.setDate(d.getDate()-i); days.push(d); }
-    const wd = ['D','S','T','Q','Q','S','S'];
+    const wd = ['dom','seg','ter','qua','qui','sex','sáb'];
   const hojeK = todayKey();
     const daysForce = new Set(DB.historico.filter(h => h.tipo === 'forca').map(h => todayKey(h.data)));
   const daysCardio = new Set(DB.historico.filter(h => h.tipo === 'cardio').map(h => todayKey(h.data)));
   return `<div class="card" style="padding:14px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
       <span class="section-label" style="margin:0;">Últimos 7 dias</span>
-      <span style="font-size:10.5px;color:var(--muted);font-weight:600;">${trained.size ? [...trained].filter(k=> days.some(d=> todayKey(d)===k)).length + '/7' : '0/7'}</span>
+      <span style="font-size:11.5px;color:var(--muted);font-weight:600;">${trained.size ? [...trained].filter(k=> days.some(d=> todayKey(d)===k)).length + '/7' : '0/7'}</span>
     </div>
     <div class="mini-cal">
       ${days.map(d=>{
@@ -2388,13 +2433,13 @@ function renderMiniCalendar(){
         </div>`;
       }).join('')}
     </div>
-    <div class="mini-cal-legend" style="display:flex;gap:12px;margin-top:10px;font-size:10.5px;color:var(--muted);justify-content:center;align-items:center;flex-wrap:wrap;">
+    <div class="mini-cal-legend" style="display:flex;gap:12px;margin-top:10px;font-size:11.5px;color:var(--muted);justify-content:center;align-items:center;flex-wrap:wrap;">
       <span style="display:inline-flex;align-items:center;gap:5px;">
         <span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--lime);flex-shrink:0;"></span>
         Treinou
       </span>
       <span style="display:inline-flex;align-items:center;gap:5px;">
-        <span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--blue);flex-shrink:0;"></span>
+        <span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:color-mix(in srgb,var(--blue) 25%,transparent);border:1.5px dashed var(--blue);box-sizing:border-box;flex-shrink:0;"></span>
         Descanso
       </span>
       <span style="display:inline-flex;align-items:center;gap:5px;">
@@ -2402,7 +2447,7 @@ function renderMiniCalendar(){
         Força
       </span>
       <span style="display:inline-flex;align-items:center;gap:5px;">
-        <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#22D3EE;flex-shrink:0;"></span>
+        <span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#22D3EE;flex-shrink:0;"></span>
         Cardio
       </span>
     </div>
@@ -2556,7 +2601,7 @@ function TreinarScreen(){
         <div class="progress-bar" style="height:5px;">
           <div class="fill" style="width:${metaPct}%;background:var(--orange);"></div>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:6px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:6px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">
           <span>Meta semanal</span>
           <span style="color:var(--text);">${weekCnt}/${metaSem}</span>
         </div>
@@ -2565,19 +2610,19 @@ function TreinarScreen(){
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line-soft);">
         <div style="text-align:center;">
           <div style="font-family:var(--font-display);font-weight:800;font-size:17px;color:var(--lime);line-height:1;">${volLabel}</div>
-          <div style="font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;margin-top:5px;">Vol. semana</div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;margin-top:5px;">Vol. semana</div>
         </div>
         <div style="text-align:center;border-left:1px solid var(--line-soft);border-right:1px solid var(--line-soft);">
           <div style="font-family:var(--font-display);font-weight:800;font-size:17px;color:var(--gold);line-height:1;">${prCount}</div>
-          <div style="font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;margin-top:5px;">PRs mês</div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;margin-top:5px;">PRs mês</div>
         </div>
         <div style="text-align:center;">
           <div style="font-family:var(--font-display);font-weight:800;font-size:17px;color:${lateCount > 0 ? 'var(--orange)' : 'var(--lime)'};line-height:1;">${lateCount}</div>
-          <div style="font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;margin-top:5px;">Atrasados</div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;margin-top:5px;">Atrasados</div>
         </div>
       </div>
 
-      ${lateCount > 0 ? `<div style="font-size:10.5px;color:var(--muted);margin-top:12px;line-height:1.4;text-align:center;">
+      ${lateCount > 0 ? `<div style="font-size:11.5px;color:var(--muted);margin-top:12px;line-height:1.4;text-align:center;">
         ${lateGroups.slice(0,3).map(g => `<span style="color:var(--orange);font-weight:800;">${escapeHtml(g.group)}</span> <span style="font-weight:600;">${g.days ? g.days+'d' : 'novo'}</span>`).join(' <span style="color:var(--muted-2);">·</span> ')}
         ${lateCount > 3 ? ` <span style="color:var(--muted-2);">·</span> <span>+${lateCount-3}</span>` : ''}
       </div>` : ''}
@@ -2732,7 +2777,7 @@ function ExerciseBlockHtml(di, ei, ex){
 
   const muscleField = `
     <div style="margin-top:10px;">
-      <label style="font-size:10px;color:var(--muted);font-weight:700;display:block;margin-bottom:4px;">
+      <label style="font-size:11px;color:var(--muted);font-weight:700;display:block;margin-bottom:4px;">
         Músculo
         ${isKnown
           ? `<span style="color:var(--muted-2);font-weight:600;">· ${isCustom?'personalizado':'biblioteca'}</span>`
@@ -2747,7 +2792,7 @@ function ExerciseBlockHtml(di, ei, ex){
       </div>
       ${!isKnown && ex.nome ? `
       <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;">
-        ${COMMON_GROUPS.map(g => `<span class="chip ${muscleValue===g?'active':''}" data-muscle-pick="${g}" data-di="${di}" data-ei="${ei}" style="margin:0;font-size:10px;padding:4px 8px;">${g}</span>`).join('')}
+        ${COMMON_GROUPS.map(g => `<span class="chip ${muscleValue===g?'active':''}" data-muscle-pick="${g}" data-di="${di}" data-ei="${ei}" style="margin:0;font-size:11px;padding:4px 8px;">${g}</span>`).join('')}
       </div>
       ` : ''}
     </div>
@@ -2874,7 +2919,7 @@ function renderExerciciosGroupGrid(searchBar){
       </button>
       <div class="grp-card-art">${art}</div>
       <div class="grp-card-info">
-        <div class="grp-card-name">${escapeHtml(group)}${inj?' <span style="font-size:9px;color:var(--danger);font-weight:800;">⚠</span>':''}</div>
+        <div class="grp-card-name">${escapeHtml(group)}${inj?' <span style="font-size:11px;color:var(--danger);font-weight:800;">⚠</span>':''}</div>
         <div class="grp-card-count">${list.length} exercício${list.length!==1?'s':''}</div>
       </div>
       ${expandedContent}
@@ -2937,7 +2982,7 @@ function renderExerciciosGroupList(searchBar){
         <b>${fav?'<span style="color:var(--gold);">★</span> ':''}${escapeHtml(name)}${isInj?' <span class="banned-tag">EVITAR</span>':''}</b>
         ${meta ? `<small>${escapeHtml(meta)}</small>` : ''}
       </div>
-      ${isCustomExercise(name) ? `<span style="font-size:10px;color:var(--lime);font-weight:700;margin-right:6px;">CUSTOM</span>`:''}
+      ${isCustomExercise(name) ? `<span style="font-size:11px;color:var(--lime);font-weight:700;margin-right:6px;">CUSTOM</span>`:''}
       <span style="color:var(--muted-2);">${ICONS.chevron}</span>
     </div>`;
   }).join('');
@@ -2988,7 +3033,7 @@ function renderExerciciosSearchResults(){
         <b>${fav?'<span style="color:var(--gold);">★</span> ':''}${escapeHtml(e.name)}${isInj?' <span class="banned-tag">EVITAR</span>':''}</b>
         ${meta ? `<small>${escapeHtml(meta)}</small>` : ''}
       </div>
-      <span style="font-size:10px;color:var(--muted-2);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">${escapeHtml(e.group)}</span>
+      <span style="font-size:11px;color:var(--muted-2);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">${escapeHtml(e.group)}</span>
     </div>`;
   }).join('');
 
@@ -3270,7 +3315,7 @@ function ExecucaoScreen(treinoId, divisaoId){
         <td style="white-space:nowrap;min-width:56px;">
           <div style="font-family:var(--font-display);font-weight:800;font-size:14px;color:${st.warmup?'var(--orange)':'var(--text)'};">#${numSeries}</div>
           <div class="set-actions">
-            ${!st.warmup ? `<button class="icon-btn mini" style="padding:0;width:18px;height:18px;font-weight:800;font-size:10px;" data-mark-warmup="${exi}:${si}" title="Aquecimento">A</button>` : `<button class="icon-btn mini" style="padding:0;width:18px;height:18px;font-size:10px;" data-unmark-warmup="${exi}:${si}" title="Remover A">A</button>`}
+            ${!st.warmup ? `<button class="icon-btn mini" style="padding:0;width:18px;height:18px;font-weight:800;font-size:11px;" data-mark-warmup="${exi}:${si}" title="Aquecimento">A</button>` : `<button class="icon-btn mini" style="padding:0;width:18px;height:18px;font-size:11px;" data-unmark-warmup="${exi}:${si}" title="Remover A">A</button>`}
             ${!st.warmup ? `<button class="icon-btn mini" style="padding:0;width:18px;height:18px;" data-del-set="${exi}:${si}" title="Excluir">✕</button>` : ''}
           </div>
         </td>
@@ -3404,7 +3449,7 @@ function editSessionModal(sessionId){
             <button class="icon-btn mini" data-edit-del-ex="${ei}">${ICONS.trash}</button>
           </div>
           <table style="width:100%;border-collapse:collapse;">
-            <tr><th style="font-size:10px;color:var(--muted);text-align:center;">Série</th><th style="font-size:10px;color:var(--muted);text-align:center;">Reps</th><th style="font-size:10px;color:var(--muted);text-align:center;">Carga</th></tr>
+            <tr><th style="font-size:11px;color:var(--muted);text-align:center;">Série</th><th style="font-size:11px;color:var(--muted);text-align:center;">Reps</th><th style="font-size:11px;color:var(--muted);text-align:center;">Carga</th></tr>
             ${(e.setsDetalhados||[]).filter(s=>!s.warmup).map((s, si)=>`
               <tr>
                 <td style="text-align:center;font-size:12px;padding:4px;">${si+1}</td>
@@ -3559,6 +3604,10 @@ function renderHistoryCalendar(){
   const lastDay = new Date(CAL_YEAR, CAL_MONTH+1, 0).getDate();
   const startWd = (first.getDay()+6)%7; // segunda = 0
   const hoje = todayKey();
+  const _now = new Date();
+  const isCurrentMonth = CAL_MONTH === _now.getMonth() && CAL_YEAR === _now.getFullYear();
+  const slideCls = window._hcDir ? (window._hcDir > 0 ? 'slide-r' : 'slide-l') : '';
+  window._hcDir = 0;
 
   const daysForce  = new Set(DB.historico.filter(h => h.tipo === 'forca').map(h => todayKey(h.data)));
   const daysCardio = new Set(DB.historico.filter(h => h.tipo === 'cardio').map(h => todayKey(h.data)));
@@ -3577,7 +3626,7 @@ function renderHistoryCalendar(){
     const dots = (hasForce || hasCardio)
       ? `<div class="hc-dots">${hasForce?'<span class="dot-force"></span>':''}${hasCardio?'<span class="dot-cardio"></span>':''}</div>`
       : '';
-    cells.push(`<div class="${cls}" data-day-key="${k}" title="${k}"><span class="hc-num">${d}</span>${dots}</div>`);
+    cells.push(`<div class="${cls}" data-day-key="${k}" title="${k}" role="button" aria-label="${d} de ${monthNames[CAL_MONTH]}${hasForce?', treino de força':''}${hasCardio?', cardio':''}${(isRest && !hasForce)?', descanso':''}${isToday?', hoje':''}"><span class="hc-num">${d}</span>${dots}</div>`);
   }
 
   const monthStart = new Date(CAL_YEAR, CAL_MONTH, 1).getTime();
@@ -3591,21 +3640,21 @@ function renderHistoryCalendar(){
   const monthTagColor = t => t==='cardio' ? 'var(--orange)' : t==='descanso' ? 'var(--muted)' : 'var(--lime)';
 
   return `
-    <div class="card" style="padding:14px 12px;">
+    <div class="card" data-hc-swipe style="padding:14px 12px;touch-action:pan-y;">
       <div class="hc-header">
-        <button class="icon-btn mini" data-hc-prev>${ICONS.back}</button>
-        <b style="font-size:15px;">${monthNames[CAL_MONTH]} ${CAL_YEAR}</b>
-        <button class="icon-btn mini" data-hc-next style="transform:rotate(180deg);">${ICONS.back}</button>
+        <button class="icon-btn mini" data-hc-prev aria-label="Mês anterior">${ICONS.back}</button>
+        <div class="hc-title"><b style="font-size:15px;">${monthNames[CAL_MONTH]} ${CAL_YEAR}</b>${isCurrentMonth ? '' : '<button class="hc-today" data-hc-today>Hoje</button>'}</div>
+        <button class="icon-btn mini" data-hc-next aria-label="Próximo mês" style="transform:rotate(180deg);">${ICONS.back}</button>
       </div>
-      <div class="hc-weekdays"><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span><span>D</span></div>
-      <div class="hc-grid">${cells.join('')}</div>
-      <div style="display:flex;gap:12px;margin-top:14px;font-size:10.5px;color:var(--muted);justify-content:center;align-items:center;flex-wrap:wrap;">
+      <div class="hc-weekdays"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div>
+      <div class="hc-grid ${slideCls}">${cells.join('')}</div>
+      <div style="display:flex;gap:12px;margin-top:14px;font-size:11.5px;color:var(--muted);justify-content:center;align-items:center;flex-wrap:wrap;">
         <span style="display:inline-flex;align-items:center;gap:5px;">
           <span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--lime);flex-shrink:0;"></span>
           Treinou
         </span>
         <span style="display:inline-flex;align-items:center;gap:5px;">
-          <span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--blue);flex-shrink:0;"></span>
+          <span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:color-mix(in srgb,var(--blue) 25%,transparent);border:1.5px dashed var(--blue);box-sizing:border-box;flex-shrink:0;"></span>
           Descanso
         </span>
         <span style="display:inline-flex;align-items:center;gap:5px;">
@@ -3613,7 +3662,7 @@ function renderHistoryCalendar(){
           Força
         </span>
         <span style="display:inline-flex;align-items:center;gap:5px;">
-          <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#22D3EE;flex-shrink:0;"></span>
+          <span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#22D3EE;flex-shrink:0;"></span>
           Cardio
         </span>
       </div>
@@ -3635,8 +3684,8 @@ function renderHistoryCalendar(){
           <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line-soft);">
             <div style="flex:1;min-width:0;">
               <b style="font-size:13px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(h.treinoNome||'—')}${h.divisaoLetra? ' · '+escapeHtml(h.divisaoLetra):''}</b>
-              <span style="font-size:10.5px;color:${monthTagColor(h.tipo)};font-weight:800;text-transform:uppercase;letter-spacing:0.5px;">${monthTag(h.tipo)}</span>
-              <span style="font-size:10.5px;color:var(--muted);font-weight:600;margin-left:8px;">${new Date(h.data).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}</span>
+              <span style="font-size:11.5px;color:${monthTagColor(h.tipo)};font-weight:800;text-transform:uppercase;letter-spacing:0.5px;">${monthTag(h.tipo)}</span>
+              <span style="font-size:11.5px;color:var(--muted);font-weight:600;margin-left:8px;">${new Date(h.data).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}</span>
             </div>
             <span style="font-family:var(--font-display);font-size:12px;color:var(--muted);font-weight:700;flex-shrink:0;">${formatSeconds(h.duracaoSegundos||0)}</span>
           </div>
@@ -4039,7 +4088,7 @@ function openDemoModal(name){
       <div class="ex-images-wrap" style="aspect-ratio:1;">
         <img src="${edb.gifUrl}" alt="${escapeHtml(name)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:8px;" loading="lazy" onerror="this.parentElement.style.display='none'">
       </div>
-      <div style="font-size:10.5px;color:var(--muted);text-align:center;margin-top:-8px;margin-bottom:10px;">GIF via ExerciseDB · ${escapeHtml(edb.target || edb.bodyPart || '')}</div>`;
+      <div style="font-size:11.5px;color:var(--muted);text-align:center;margin-top:-8px;margin-bottom:10px;">GIF via ExerciseDB · ${escapeHtml(edb.target || edb.bodyPart || '')}</div>`;
   })();
 
   bg.querySelector('#fav-toggle').addEventListener('click', ()=>{
@@ -4225,7 +4274,7 @@ function renderPerfilDados(p){
           if(primeira !== undefined && primeira !== null) delta = atual - primeira;
         }
         return `<div>
-          <label style="font-size:10px;color:var(--muted);font-weight:700;">${l} ${delta !== null ? `<span style="color:${delta>0?'var(--lime)':(delta<0?'var(--orange)':'var(--muted)')};">${delta>0?'+':''}${delta.toFixed(1)}</span>` : ''}</label>
+          <label style="font-size:11px;color:var(--muted);font-weight:700;">${l} ${delta !== null ? `<span style="color:${delta>0?'var(--lime)':(delta<0?'var(--orange)':'var(--muted)')};">${delta>0?'+':''}${delta.toFixed(1)}</span>` : ''}</label>
           <input type="number" step="0.1" min="0" inputmode="decimal" id="med-${k}" value="${atual??''}">
         </div>`;
       }).join('')}
@@ -4495,7 +4544,7 @@ function renderResumoSummary(){
   <div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr;">
     ${mini('Séries', d.sets, d.setsSerie)}
     ${mini('Repetições', d.reps, d.repsSerie)}
-    ${mini('Carga', `${Math.round(d.carga).toLocaleString('pt-BR')}<small style="font-size:10.5px;color:var(--muted);"> kg</small>`, d.cargaSerie)}
+    ${mini('Carga', `${Math.round(d.carga).toLocaleString('pt-BR')}<small style="font-size:11.5px;color:var(--muted);"> kg</small>`, d.cargaSerie)}
   </div>
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;">
@@ -4577,6 +4626,38 @@ function bodySvgHighlightDay(view, groups){
     ${zoneMarkup}
   </svg>`;
 }
+function openEmptyDay(k){
+  const [yy, mm, dd] = k.split('-').map(Number);
+  const dt = new Date(yy, mm-1, dd);
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const diff = Math.round((dt - hoje) / 86400000);
+  const label = dt.toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long' });
+  let msg, actions = '';
+  if(diff > 0){ msg = 'Esse dia ainda não chegou.'; }
+  else if(diff === 0){
+    msg = 'Você ainda não registrou nada hoje.';
+    actions = '<button class="btn" id="ed-train">Escolher treino</button><button class="btn secondary" id="ed-rest" style="margin-top:8px;">Marcar descanso</button>';
+  } else {
+    msg = 'Nenhum treino registrado neste dia.';
+    actions = '<button class="btn secondary" id="ed-rest">Marcar como descanso</button>';
+  }
+  const bg = openModal(`
+    <button class="close-x">&times;</button>
+    <h3 style="margin-bottom:2px;text-transform:capitalize;">${escapeHtml(label)}</h3>
+    <p style="color:var(--muted);font-size:13px;margin:0 0 16px 0;">${msg}</p>
+    ${actions}
+    <button class="btn ghost" id="ed-close" style="margin-top:8px;">Fechar</button>
+  `);
+  bg.querySelector('.close-x').onclick = ()=> closeModal(bg);
+  bg.querySelector('#ed-close').onclick = ()=> closeModal(bg);
+  const tr = bg.querySelector('#ed-train'); if(tr) tr.onclick = ()=>{ closeModal(bg); go('treinar'); };
+  const rs = bg.querySelector('#ed-rest');
+  if(rs) rs.onclick = ()=>{
+    toggleRestDay(k);
+    DB.historico.push({ id:uid(), tipo:'descanso', treinoNome:'Descanso planejado', divisaoLetra:'', data:new Date(yy, mm-1, dd, 12).getTime(), duracaoSegundos:0, exercicios:[] });
+    saveHistorico(); closeModal(bg); showToast('Descanso marcado ✓'); render();
+  };
+}
 function openDayDetail(dateKey){
   const groups = muscleHighlightsForDay(dateKey);
   const sessionList = DB.historico.filter(h => todayKey(h.data) === dateKey).sort((a,b) => a.data - b.data);
@@ -4592,8 +4673,8 @@ function openDayDetail(dateKey){
     <p style="color:var(--muted);font-size:12.5px;margin:0 0 14px 0;">${sessionList.length} ${sessionList.length===1?'sessão':'sessões'}${sessionList.length} sessão${sessionList.length!==1?'ões':''} · ${Math.round(totalVol).toLocaleString('pt-BR')} kg de volume</p>
     ${groupEntries.length ? `
       <div style="padding:6px 0 10px 0;display:flex;justify-content:center;gap:6px;">
-        <div style="text-align:center;flex:1;">${bodySvgHighlightDay('front', groups)}<div style="font-size:10.5px;color:var(--muted);margin-top:2px;">Frente</div></div>
-        <div style="text-align:center;flex:1;">${bodySvgHighlightDay('back', groups)}<div style="font-size:10.5px;color:var(--muted);margin-top:2px;">Costas</div></div>
+        <div style="text-align:center;flex:1;">${bodySvgHighlightDay('front', groups)}<div style="font-size:11.5px;color:var(--muted);margin-top:2px;">Frente</div></div>
+        <div style="text-align:center;flex:1;">${bodySvgHighlightDay('back', groups)}<div style="font-size:11.5px;color:var(--muted);margin-top:2px;">Costas</div></div>
       </div>
       <div class="divider"></div>
       <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:8px;">Músculos trabalhados</div>
@@ -4616,7 +4697,7 @@ function openDayDetail(dateKey){
           <b style="font-size:13.5px;">${escapeHtml(h.treinoNome||'—')}${h.divisaoLetra? ' · '+escapeHtml(h.divisaoLetra):''}</b>
           <span style="font-size:11.5px;color:var(--muted);font-family:var(--font-display);font-weight:700;">${formatSeconds(h.duracaoSegundos||0)}</span>
         </div>
-        <div style="font-size:10px;color:${tagColor};margin-top:4px;text-transform:uppercase;letter-spacing:0.8px;font-weight:800;">${tag}</div>
+        <div style="font-size:11px;color:${tagColor};margin-top:4px;text-transform:uppercase;letter-spacing:0.8px;font-weight:800;">${tag}</div>
       </div>`;
     }).join('')}
     <button class="btn secondary" style="margin-top:12px;" id="day-close">Fechar</button>
@@ -4647,9 +4728,9 @@ function renderTopMusclesRank(){
           <div style="font-size:12.5px;font-weight:700;text-align:center;margin-top:2px;">${escapeHtml(m.group)}</div>
           <div style="display:flex;align-items:baseline;gap:4px;margin-top:2px;">
             <span style="font-family:var(--font-display);font-weight:800;font-size:20px;line-height:1;">${m.count}</span>
-            <span style="font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">exerc.</span>
+            <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">exerc.</span>
           </div>
-          <div style="font-size:10.5px;color:var(--muted);font-weight:600;white-space:nowrap;">${volLabel}</div>
+          <div style="font-size:11.5px;color:var(--muted);font-weight:600;white-space:nowrap;">${volLabel}</div>
         </div>`;
       }).join('')}
     </div>
@@ -5794,8 +5875,8 @@ function bindScreenEvents(){
   view.querySelectorAll('[data-day-key]').forEach(el => el.addEventListener('click', ()=>{
     const k = el.dataset.dayKey;
     const temDados = DB.historico.some(h => todayKey(h.data) === k) || isRestDay(k);
-    if(!temDados){ haptic('tap'); return; }
     haptic('tap');
+    if(!temDados){ openEmptyDay(k); return; }
     openDayDetail(k);
   }));
 
@@ -6762,14 +6843,27 @@ view.querySelectorAll('[data-del-set]').forEach(el=> el.addEventListener('click'
     haptic('tap');
     render();
   }));
-  view.querySelectorAll('[data-hc-prev]').forEach(el => el.addEventListener('click', ()=>{
-    CAL_MONTH--; if(CAL_MONTH<0){CAL_MONTH=11;CAL_YEAR--;}
-    render();
+  const hcStep = (dir)=>{
+    CAL_MONTH += dir;
+    if(CAL_MONTH<0){CAL_MONTH=11;CAL_YEAR--;}
+    if(CAL_MONTH>11){CAL_MONTH=0;CAL_YEAR++;}
+    window._hcDir = dir; haptic('tap'); render();
+  };
+  view.querySelectorAll('[data-hc-prev]').forEach(el => el.addEventListener('click', ()=> hcStep(-1)));
+  view.querySelectorAll('[data-hc-next]').forEach(el => el.addEventListener('click', ()=> hcStep(1)));
+  view.querySelectorAll('[data-hc-today]').forEach(el => el.addEventListener('click', ()=>{
+    const n = new Date();
+    window._hcDir = (n.getFullYear()*12+n.getMonth()) > (CAL_YEAR*12+CAL_MONTH) ? 1 : -1;
+    CAL_MONTH = n.getMonth(); CAL_YEAR = n.getFullYear(); haptic('tap'); render();
   }));
-  view.querySelectorAll('[data-hc-next]').forEach(el => el.addEventListener('click', ()=>{
-    CAL_MONTH++; if(CAL_MONTH>11){CAL_MONTH=0;CAL_YEAR++;}
-    render();
-  }));
+  view.querySelectorAll('[data-hc-swipe]').forEach(el=>{
+    let sx=0, sy=0, t0=0;
+    el.addEventListener('touchstart', e=>{ const t=e.touches[0]; sx=t.clientX; sy=t.clientY; t0=Date.now(); }, {passive:true});
+    el.addEventListener('touchend', e=>{
+      const t=e.changedTouches[0]; const dx=t.clientX-sx, dy=t.clientY-sy;
+      if(Math.abs(dx)>50 && Math.abs(dx)>Math.abs(dy)*1.5 && Date.now()-t0<600) hcStep(dx<0 ? 1 : -1);
+    }, {passive:true});
+  });
 
   
   view.querySelectorAll('[data-hist-tipo]').forEach(c=> c.addEventListener('click', ()=>{ HIST_FILTER.tipo = c.dataset.histTipo; render(); }));

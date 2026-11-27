@@ -141,7 +141,7 @@
   .stat-box{background:var(--surface);border:1px solid var(--line);border-radius:12px;
     padding:12px 8px;text-align:center;font-family:'Inter';color:var(--text);cursor:pointer;}
   .stat-box .v{font-family:var(--font-display);font-weight:700;font-size:19px;color:var(--lime);line-height:1;}
-  .stat-box .l{font-size:11px;color:var(--muted);text-transform:uppercase;
+  .stat-box .l{font-size:11px;color:var(--muted);
     letter-spacing:0.5px;margin-top:4px;font-weight:700;}
   .stat-box:active{transform:scale(0.97);}
   .page-title{font-size:24px;margin-bottom:4px;}
@@ -364,10 +364,8 @@
   .mini-cal-legend{display:flex;gap:10px;margin-top:10px;font-size:11px;
     color:var(--muted);justify-content:center;align-items:center;flex-wrap:wrap;}
   .mini-cal-legend > span{display:inline-flex;align-items:center;gap:5px;}
-  .mini-cal-legend .dot{display:inline-block;width:9px;height:9px;border-radius:50%;
-      .mini-cal-legend .dot-square{display:inline-block;width:11px;height:11px;
-    border-radius:3px;flex-shrink:0;}
-    flex-shrink:0;}
+  .mini-cal-legend .dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .mini-cal-legend .dot-square{display:inline-block;width:11px;height:11px;border-radius:3px;flex-shrink:0;}
 
       /* ═══ Resumo mensal (carrossel de cartões) ═══ */
   .summary-bg{position:fixed;inset:0;z-index:500;
@@ -502,7 +500,7 @@
   .hc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
   .hc-weekdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;width:100%;
     font-size:11px;color:var(--muted);text-align:center;font-weight:700;
-    text-transform:uppercase;margin-bottom:6px;letter-spacing:0.5px;}
+    margin-bottom:6px;letter-spacing:0.5px;}
   .hc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;width:100%;max-width:100%;}
   .hc-day{min-width:0;width:100%;max-width:100%;overflow:hidden;aspect-ratio:1;border-radius:9px;background:var(--surface-2);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -529,6 +527,31 @@
   :root[data-theme="light"] .hc-day.trained .hc-num{color:#4F6A00;}
   :root[data-theme="light"] .hc-day.rest .hc-num{color:#185FA5;}
   :root[data-theme="light"] .mini-cal .day.rest{background:#2468B0;border-color:#2468B0;}
+  .hc-filters{display:flex;gap:6px;margin-bottom:10px;}
+  .hc-filters .chip{margin:0;}
+  .hc-day.trained.lv1{background:color-mix(in srgb,var(--lime) 14%,var(--surface-2));}
+  .hc-day.trained.lv2{background:color-mix(in srgb,var(--lime) 30%,var(--surface-2));}
+  .hc-day.trained.lv3{background:color-mix(in srgb,var(--lime) 52%,var(--surface-2));}
+  :root:not([data-theme="light"]) .hc-day.trained.lv3 .hc-num{color:#0A0B0D;}
+  :root[data-theme="light"] .hc-day.trained.lv3 .hc-num{color:#2F4200;}
+  .hc-day.cd{background:color-mix(in srgb,#22D3EE 22%,var(--surface-2));}
+  .hc-day.cd .hc-num{font-weight:800;}
+  .hc-sum{margin-top:14px;padding-top:12px;border-top:1px solid var(--line-soft);}
+  .hc-sum-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;text-align:center;}
+  .hc-sum-grid b{display:block;font-family:var(--font-display);font-size:17px;}
+  .hc-sum-grid span{font-size:11px;color:var(--muted);}
+  .hc-goal{margin-top:12px;font-size:12px;color:var(--muted);}
+  .hc-goal-top{display:flex;justify-content:space-between;margin-bottom:5px;}
+  .hc-goal-top b{color:var(--text);}
+  .hc-goal-bar{height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden;}
+  .hc-goal-bar i{display:block;height:100%;background:var(--lime);border-radius:99px;}
+  .empty{padding:36px 20px;text-align:center;color:var(--muted);font-size:13px;line-height:1.5;}
+  .empty svg{width:34px;height:34px;padding:15px;box-sizing:content-box;border-radius:50%;background:var(--surface-2);color:var(--muted);margin-bottom:12px;}
+  .empty .e-title{font-size:15px;color:var(--text);font-weight:700;margin-bottom:4px;}
+  .empty .btn{max-width:240px;margin:16px auto 0;}
+  #view.view-in{animation:viewIn .16s ease-out;}
+  @keyframes viewIn{from{opacity:0;}to{opacity:1;}}
+  @media (prefers-reduced-motion:reduce){#view.view-in{animation:none;}}
   .icon-btn.mini{position:relative;}
   .icon-btn.mini:not([style*="width:18px"])::after{content:'';position:absolute;inset:-8px;}
   .hc-title{display:flex;align-items:center;gap:8px;min-width:0;}
@@ -767,7 +790,7 @@
   .celebrate-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;opacity:0;animation:titleIn .5s ease-out 1.35s forwards;}
   .celebrate-stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 6px;}
   .celebrate-stat .v{font-family:var(--font-display);font-weight:700;font-size:20px;color:var(--lime);line-height:1;}
-  .celebrate-stat .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-top:6px;font-weight:700;}
+  .celebrate-stat .l{font-size:11px;color:var(--muted);letter-spacing:0.4px;margin-top:6px;font-weight:700;}
   .celebrate-actions{display:flex;gap:8px;opacity:0;animation:titleIn .5s ease-out 1.55s forwards;}
   .celebrate-actions .btn{flex:1;}
   .heatmap-wrap{overflow-x:auto;padding:6px 0;}
@@ -2174,6 +2197,7 @@ function render(){
     console.error('[86gym render]', err);
     view.innerHTML = `<div class="empty">${ICONS.empty}<div>Erro ao carregar. Recarregue o app.</div></div>`;
   }
+  if(window._lastRoute !== ROUTE.name){ view.classList.remove('view-in'); void view.offsetWidth; view.classList.add('view-in'); window._lastRoute = ROUTE.name; }
   bindScreenEvents();
   updateFAB();
   if(ROUTE.name==='treino_exec' || ROUTE.name==='cardio_exec') requestWakeLock();
@@ -2226,6 +2250,7 @@ function updateFAB(){
   if(v) v.classList.toggle('has-fab', f.classList.contains('show'));
   if(f.classList.contains('cardio')) f.classList.toggle('fab-compact', ROUTE.name === 'historico');
 }
+document.addEventListener('click', e=>{ const b = e.target.closest && e.target.closest('[data-go]'); if(b) go(b.dataset.go); });
 (function(){
   let lastY = 0, idle = null;
   document.addEventListener('scroll', e=>{
@@ -2601,7 +2626,7 @@ function TreinarScreen(){
         <div class="progress-bar" style="height:5px;">
           <div class="fill" style="width:${metaPct}%;background:var(--orange);"></div>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:6px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:6px;font-weight:700;">
           <span>Meta semanal</span>
           <span style="color:var(--text);">${weekCnt}/${metaSem}</span>
         </div>
@@ -2610,15 +2635,15 @@ function TreinarScreen(){
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line-soft);">
         <div style="text-align:center;">
           <div style="font-family:var(--font-display);font-weight:800;font-size:17px;color:var(--lime);line-height:1;">${volLabel}</div>
-          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;margin-top:5px;">Vol. semana</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:700;margin-top:5px;">Vol. semana</div>
         </div>
         <div style="text-align:center;border-left:1px solid var(--line-soft);border-right:1px solid var(--line-soft);">
           <div style="font-family:var(--font-display);font-weight:800;font-size:17px;color:var(--gold);line-height:1;">${prCount}</div>
-          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;margin-top:5px;">PRs mês</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:700;margin-top:5px;">PRs mês</div>
         </div>
         <div style="text-align:center;">
           <div style="font-family:var(--font-display);font-weight:800;font-size:17px;color:${lateCount > 0 ? 'var(--orange)' : 'var(--lime)'};line-height:1;">${lateCount}</div>
-          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;margin-top:5px;">Atrasados</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:700;margin-top:5px;">Atrasados</div>
         </div>
       </div>
 
@@ -2653,7 +2678,7 @@ function TreinarScreen(){
   </div>`:''}
 
   ${alertas.length ? `<div class="card" style="padding:12px 0 4px 0;">
-    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;padding:0 14px 8px 14px;">Avisos</div>
+    <div style="font-size:11px;color:var(--muted);font-weight:700;padding:0 14px 8px 14px;">Avisos</div>
     <div style="display:flex;gap:10px;overflow-x:auto;padding:0 14px 10px 14px;scroll-snap-type:x mandatory;">
       ${alertas.map(a=>`<div style="min-width:260px;max-width:280px;scroll-snap-align:start;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px;">
         <b style="font-size:13px;display:block;margin-bottom:4px;">${a.icon} ${escapeHtml(a.title)}</b>
@@ -3033,7 +3058,7 @@ function renderExerciciosSearchResults(){
         <b>${fav?'<span style="color:var(--gold);">★</span> ':''}${escapeHtml(e.name)}${isInj?' <span class="banned-tag">EVITAR</span>':''}</b>
         ${meta ? `<small>${escapeHtml(meta)}</small>` : ''}
       </div>
-      <span style="font-size:11px;color:var(--muted-2);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">${escapeHtml(e.group)}</span>
+      <span style="font-size:11px;color:var(--muted-2);font-weight:700;">${escapeHtml(e.group)}</span>
     </div>`;
   }).join('');
 
@@ -3612,6 +3637,14 @@ function renderHistoryCalendar(){
   const daysForce  = new Set(DB.historico.filter(h => h.tipo === 'forca').map(h => todayKey(h.data)));
   const daysCardio = new Set(DB.historico.filter(h => h.tipo === 'cardio').map(h => todayKey(h.data)));
   const restDays = loadRestDays();
+  const filt = window._hcFilter || 'todos';
+  const dayVol = {};
+  DB.historico.filter(h=>h.tipo==='forca').forEach(h=>{
+    const kk = todayKey(h.data);
+    dayVol[kk] = (dayVol[kk]||0) + (h.exercicios||[]).reduce((x,e)=> x + (Number(e.carga)||0)*(Number(e.setsFeitas)||0)*(Number(e.repsMedias)||0), 0);
+  });
+  const monthMax = Math.max(0, ...Array.from({length:lastDay}, (_,i)=> dayVol[todayKey(new Date(CAL_YEAR,CAL_MONTH,i+1))]||0));
+  const lvOf = k => { if(!monthMax) return 'lv2'; const r=(dayVol[k]||0)/monthMax; return r<0.4?'lv1':(r<0.75?'lv2':'lv3'); };
 
   const cells = [];
   for(let i=0;i<startWd;i++) cells.push('<div class="hc-day empty"></div>');
@@ -3619,10 +3652,10 @@ function renderHistoryCalendar(){
     const dt = new Date(CAL_YEAR, CAL_MONTH, d);
     const k = todayKey(dt);
     const isToday = k === hoje;
-    const hasForce = daysForce.has(k);
-    const hasCardio = daysCardio.has(k);
+    const hasForce = filt!=='cardio' && daysForce.has(k);
+    const hasCardio = filt!=='forca' && daysCardio.has(k);
     const isRest = !!restDays[k];
-    const cls = ['hc-day', hasForce ? 'trained' : '', (isRest && !hasForce) ? 'rest' : '', isToday ? 'today' : ''].filter(Boolean).join(' ');
+    const cls = ['hc-day', hasForce ? 'trained '+lvOf(k) : ((filt==='cardio' && hasCardio) ? 'cd' : ''), (isRest && !hasForce) ? 'rest' : '', isToday ? 'today' : ''].filter(Boolean).join(' ');
     const dots = (hasForce || hasCardio)
       ? `<div class="hc-dots">${hasForce?'<span class="dot-force"></span>':''}${hasCardio?'<span class="dot-cardio"></span>':''}</div>`
       : '';
@@ -3636,6 +3669,12 @@ function renderHistoryCalendar(){
   const monthCardio = monthSessions.filter(h => h.tipo === 'cardio');
   const monthVol = monthForce.reduce((a,h) => a + (h.exercicios||[]).reduce((x,e) => x + (Number(e.carga)||0)*(Number(e.setsFeitas)||0)*(Number(e.repsMedias)||0), 0), 0);
 
+  const monthRestDays = Object.keys(restDays).filter(k=>{ const [y,m]=k.split('-').map(Number); return y===CAL_YEAR && m-1===CAL_MONTH; }).length;
+  const _wk = new Date(); _wk.setHours(0,0,0,0); _wk.setDate(_wk.getDate() - ((_wk.getDay()+6)%7));
+  const weekCnt = new Set(DB.historico.filter(h=>h.tipo==='forca' && h.data>=_wk.getTime()).map(h=>todayKey(h.data))).size;
+  const goal = loadPerfil().metaTreinos || 4;
+  const goalPct = Math.min(100, Math.round(weekCnt/goal*100));
+  const volLabel = monthVol >= 10000 ? Math.round(monthVol/1000)+'t' : Math.round(monthVol).toLocaleString('pt-BR');
   const monthTag = t => t==='cardio' ? 'Cardio' : t==='descanso' ? 'Descanso' : 'Força';
   const monthTagColor = t => t==='cardio' ? 'var(--orange)' : t==='descanso' ? 'var(--muted)' : 'var(--lime)';
 
@@ -3646,12 +3685,13 @@ function renderHistoryCalendar(){
         <div class="hc-title"><b style="font-size:15px;">${monthNames[CAL_MONTH]} ${CAL_YEAR}</b>${isCurrentMonth ? '' : '<button class="hc-today" data-hc-today>Hoje</button>'}</div>
         <button class="icon-btn mini" data-hc-next aria-label="Próximo mês" style="transform:rotate(180deg);">${ICONS.back}</button>
       </div>
+      <div class="hc-filters">${[['todos','Tudo'],['forca','Força'],['cardio','Cardio']].map(([v,l])=>`<span class="chip ${filt===v?'active':''}" data-hc-filter="${v}">${l}</span>`).join('')}</div>
       <div class="hc-weekdays"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div>
       <div class="hc-grid ${slideCls}">${cells.join('')}</div>
       <div style="display:flex;gap:12px;margin-top:14px;font-size:11.5px;color:var(--muted);justify-content:center;align-items:center;flex-wrap:wrap;">
         <span style="display:inline-flex;align-items:center;gap:5px;">
-          <span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--lime);flex-shrink:0;"></span>
-          Treinou
+          <span style="display:inline-flex;gap:2px;"><span style="width:11px;height:11px;border-radius:3px;background:color-mix(in srgb,var(--lime) 14%,var(--surface-2));"></span><span style="width:11px;height:11px;border-radius:3px;background:color-mix(in srgb,var(--lime) 30%,var(--surface-2));"></span><span style="width:11px;height:11px;border-radius:3px;background:color-mix(in srgb,var(--lime) 52%,var(--surface-2));"></span></span>
+          Treinou (mais intenso)
         </span>
         <span style="display:inline-flex;align-items:center;gap:5px;">
           <span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:color-mix(in srgb,var(--blue) 25%,transparent);border:1.5px dashed var(--blue);box-sizing:border-box;flex-shrink:0;"></span>
@@ -3666,16 +3706,22 @@ function renderHistoryCalendar(){
           Cardio
         </span>
       </div>
-    </div>
-
-    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);margin-top:14px;">
-      <div class="stat-box"><div class="v">${monthForce.length}</div><div class="l">Treinos</div></div>
-      <div class="stat-box"><div class="v">${monthCardio.length}</div><div class="l">Cardios</div></div>
-      <div class="stat-box"><div class="v">${monthVol >= 10000 ? Math.round(monthVol/1000)+'t' : Math.round(monthVol).toLocaleString('pt-BR')}</div><div class="l">Volume</div></div>
+      <div class="hc-sum">
+        <div class="hc-sum-grid">
+          <div><b>${monthForce.length}</b><span>Treinos</span></div>
+          <div><b>${monthCardio.length}</b><span>Cardios</span></div>
+          <div><b>${monthRestDays}</b><span>Descansos</span></div>
+          <div><b>${volLabel}</b><span>Volume</span></div>
+        </div>
+        <div class="hc-goal">
+          <div class="hc-goal-top"><span>Meta da semana</span><b>${weekCnt}/${goal}${weekCnt>=goal?' ✓':''}</b></div>
+          <div class="hc-goal-bar"><i style="width:${goalPct}%;"></i></div>
+        </div>
+      </div>
     </div>
 
     <div class="card" style="margin-top:14px;">
-      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:8px;">
+      <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:8px;">
         ${monthSessions.length} ${monthSessions.length===1?'sessão':'sessões'} no mês
       </div>
       ${monthSessions.length === 0
@@ -3727,7 +3773,7 @@ const toggleChips = `<div style="display:flex;gap:6px;margin-bottom:14px;">
     <h3 style="font-size:14px; margin-bottom:10px;">Ver evolução</h3>
     <div>${exHist.slice(0, 30).map(n=>`<span class="chip" data-ver-evolucao="${escapeHtml(n)}">${escapeHtml(n)}</span>`).join('')}</div>
   </div>`:'';
-  const body = visiveis.length===0 ? `<div class="empty">${ICONS.empty}<div>Nenhuma sessão encontrada.</div></div>` :
+  const body = visiveis.length===0 ? `${DB.historico.length===0 ? `<div class="empty">${ICONS.empty}<div class="e-title">Nada por aqui ainda</div><div>Seus treinos aparecem aqui assim que você terminar o primeiro.</div><button class="btn" data-go="treinar">Ir para Treinar</button></div>` : `<div class="empty">${ICONS.empty}<div class="e-title">Nenhuma sessão encontrada</div><div>Tente outro filtro ou outra busca.</div></div>`}` :
     visiveis.map(h=>{
       const isCardio = h.tipo==='cardio';
       const isRest = h.tipo==='descanso';
@@ -4043,7 +4089,7 @@ function openDemoModal(name){
       <div class="card" style="margin:0;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;">Carga máxima</div><div style="font-family:var(--font-display);font-weight:700;font-size:22px;color:var(--lime);">${b.carga} kg × ${b.reps}</div><div style="color:var(--muted);font-size:11.5px;margin-top:2px;">em ${dateShort(b.ts)}</div></div>
-          <div style="text-align:right;"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;">1RM estimado</div><div style="font-family:var(--font-display);font-weight:700;font-size:22px;">${b.oneRm.toFixed(1)} kg</div><div style="color:var(--muted);font-size:11.5px;margin-top:2px;">Epley</div></div>
+          <div style="text-align:right;"><div style="font-size:11px;color:var(--muted);">1RM estimado</div><div style="font-family:var(--font-display);font-weight:700;font-size:22px;">${b.oneRm.toFixed(1)} kg</div><div style="color:var(--muted);font-size:11.5px;margin-top:2px;">Epley</div></div>
         </div>
       </div>` : ''}
     ${renderPRTimeline(name)}
@@ -4670,14 +4716,14 @@ function openDayDetail(dateKey){
   const bg = openModal(`
     <button class="close-x">&times;</button>
     <h3 style="margin-bottom:2px;text-transform:capitalize;">${escapeHtml(dateLabel)}</h3>
-    <p style="color:var(--muted);font-size:12.5px;margin:0 0 14px 0;">${sessionList.length} ${sessionList.length===1?'sessão':'sessões'}${sessionList.length} sessão${sessionList.length!==1?'ões':''} · ${Math.round(totalVol).toLocaleString('pt-BR')} kg de volume</p>
+    <p style="color:var(--muted);font-size:12.5px;margin:0 0 14px 0;">${sessionList.length} ${sessionList.length===1?'sessão':'sessões'} · ${Math.round(totalVol).toLocaleString('pt-BR')} kg de volume</p>
     ${groupEntries.length ? `
       <div style="padding:6px 0 10px 0;display:flex;justify-content:center;gap:6px;">
         <div style="text-align:center;flex:1;">${bodySvgHighlightDay('front', groups)}<div style="font-size:11.5px;color:var(--muted);margin-top:2px;">Frente</div></div>
         <div style="text-align:center;flex:1;">${bodySvgHighlightDay('back', groups)}<div style="font-size:11.5px;color:var(--muted);margin-top:2px;">Costas</div></div>
       </div>
       <div class="divider"></div>
-      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:8px;">Músculos trabalhados</div>
+      <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:8px;">Músculos trabalhados</div>
       ${groupEntries.map(([g, v]) => `
         <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line-soft);">
           <span class="grp-chip" data-grp="${escapeHtml(g)}">${escapeHtml(g)}</span>
@@ -4687,7 +4733,7 @@ function openDayDetail(dateKey){
       `).join('')}
     ` : '<div class="empty" style="padding:20px;">Sem exercícios registrados</div>'}
     <div class="divider"></div>
-    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:8px;">Sessões</div>
+    <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:8px;">Sessões</div>
     ${sessionList.map(h => {
       const t = h.tipo;
       const tag = t === 'cardio' ? 'Cardio' : t === 'descanso' ? 'Descanso' : 'Força';
@@ -4728,7 +4774,7 @@ function renderTopMusclesRank(){
           <div style="font-size:12.5px;font-weight:700;text-align:center;margin-top:2px;">${escapeHtml(m.group)}</div>
           <div style="display:flex;align-items:baseline;gap:4px;margin-top:2px;">
             <span style="font-family:var(--font-display);font-weight:800;font-size:20px;line-height:1;">${m.count}</span>
-            <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">exerc.</span>
+            <span style="font-size:11px;color:var(--muted);font-weight:700;">exerc.</span>
           </div>
           <div style="font-size:11.5px;color:var(--muted);font-weight:600;white-space:nowrap;">${volLabel}</div>
         </div>`;
@@ -5313,7 +5359,7 @@ function renderPerfilSobre(){
     <p style="color:var(--muted);font-size:12.5px;margin:0;">Versão 9.2 — UI/UX</p>
   </div>
   <div class="card">
-    <h3 style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px;">Bibliotecas</h3>
+    <h3 style="font-size:12px;color:var(--muted);margin-bottom:10px;">Bibliotecas</h3>
     <p style="color:var(--muted);font-size:12px;line-height:1.55;margin:0 0 8px 0;"><b style="color:var(--text);">Base:</b> <a href="https://github.com/yuhonas/free-exercise-db" target="_blank" rel="noopener" style="color:var(--blue);">free-exercise-db</a>.</p>
     <p style="color:var(--muted);font-size:12px;line-height:1.55;margin:0;"><b style="color:var(--text);">GIFs:</b> <a href="https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb" target="_blank" rel="noopener" style="color:var(--blue);">ExerciseDB</a> via RapidAPI.</p>
   </div>
@@ -6843,6 +6889,7 @@ view.querySelectorAll('[data-del-set]').forEach(el=> el.addEventListener('click'
     haptic('tap');
     render();
   }));
+  view.querySelectorAll('[data-hc-filter]').forEach(el => el.addEventListener('click', ()=>{ window._hcFilter = el.dataset.hcFilter; haptic('tap'); render(); }));
   const hcStep = (dir)=>{
     CAL_MONTH += dir;
     if(CAL_MONTH<0){CAL_MONTH=11;CAL_YEAR--;}

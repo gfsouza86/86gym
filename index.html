@@ -552,6 +552,16 @@
   #view.view-in{animation:viewIn .16s ease-out;}
   @keyframes viewIn{from{opacity:0;}to{opacity:1;}}
   @media (prefers-reduced-motion:reduce){#view.view-in{animation:none;}}
+  .tempo-div{display:flex;align-items:center;gap:10px;margin:28px 0 12px;color:var(--muted);font-size:12px;font-weight:700;}
+  .tempo-div::before,.tempo-div::after{content:'';flex:1;height:1px;background:var(--line);}
+  .tempo-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+  .tempo-chips .chip{margin:0;}
+  .plank-timer .l{text-transform:none;letter-spacing:0;font-size:12px;}
+  .tempo-pr{margin-bottom:12px;padding:12px;border-radius:12px;text-align:center;background:color-mix(in srgb,var(--gold) 18%,var(--surface-2));border:1px solid var(--gold);}
+  .tempo-pr b{display:block;font-family:var(--font-display);font-size:22px;margin:2px 0;}
+  .tempo-pr span{font-size:12px;color:var(--muted);}
+  .tempo-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-top:1px solid var(--line-soft);font-size:13px;}
+  .tempo-row .tt{font-family:var(--font-display);font-weight:700;font-size:15px;}
   .icon-btn.mini{position:relative;}
   .icon-btn.mini:not([style*="width:18px"])::after{content:'';position:absolute;inset:-8px;}
   .hc-title{display:flex;align-items:center;gap:8px;min-width:0;}
@@ -979,7 +989,7 @@ const KEYS = {
   onboarded:'86gym_onboarded_v9', lastBackup:'86gym_last_backup_v9',
   exdbCache:'86gym_exdb_cache_v1',
   favs:'86gym_favs_v1', exNotes:'86gym_exnotes_v1',
-  restDays:'86gym_rest_days_v1', injuries:'86gym_injuries_v1',
+  restDays:'86gym_rest_days_v1', injuries:'86gym_injuries_v1', tempos:'86gym_tempos_v1',
   pendingNotif:'86gym_pending_notif_v1', learningDone:'86gym_learning_v1',
   libViewed:'86gym_lib_viewed_v1',
   edbCache:'86gym_edb_cache_v2',
@@ -1104,6 +1114,8 @@ function setExNote(name, text){
   saveExNotes(n);
 }
 const loadRestDays = () => safeJSON(KEYS.restDays, {});
+const loadTempos = () => safeJSON(KEYS.tempos, []);
+const saveTempos = a => { safeSet(KEYS.tempos, JSON.stringify(a)); touchLocalModified(); scheduleGistSync(); };
 const saveRestDays = r => { safeSet(KEYS.restDays, JSON.stringify(r)); touchLocalModified(); scheduleGistSync(); };
 function isRestDay(k){ return !!loadRestDays()[k || todayKey()]; }
 function toggleRestDay(k){
@@ -2200,7 +2212,7 @@ function render(){
   if(window._lastRoute !== ROUTE.name){ view.classList.remove('view-in'); void view.offsetWidth; view.classList.add('view-in'); window._lastRoute = ROUTE.name; }
   bindScreenEvents();
   updateFAB();
-  if(ROUTE.name==='treino_exec' || ROUTE.name==='cardio_exec') requestWakeLock();
+  if(ROUTE.name==='treino_exec' || ROUTE.name==='cardio_exec' || TEMPO) requestWakeLock();
   else releaseWakeLock();
 }
 
@@ -2412,7 +2424,7 @@ async function requestWakeLock(){
 function releaseWakeLock(){ try{ if(wakeLock){ wakeLock.release(); wakeLock = null; } }catch(e){} }
 document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState==='visible'){
-    if(ROUTE.name==='treino_exec' || ROUTE.name==='cardio_exec') requestWakeLock();
+    if(ROUTE.name==='treino_exec' || ROUTE.name==='cardio_exec' || TEMPO) requestWakeLock();
     checkPendingNotification();
     updateFAB();
   }
@@ -3831,7 +3843,7 @@ function seedDefaultCardio(){
   }
   safeSet(KEYS.seeded, '1');
 }
-function CardioListScreen(){
+function _CardioListBase(){
   const cardios = DB.cardios;
   if(!cardios.length){
     return `<div class="top-actions"><button class="icon-btn" id="btn-back-treinar">${ICONS.back}</button><h1 class="page-title" style="margin:0;">Cardio</h1><div style="width:38px;"></div></div>
@@ -3854,6 +3866,88 @@ function CardioListScreen(){
       </div>`;
     }).join('')}`;
 }
+
+/* ============================================================
+   CRONÔMETRO DE ISOMÉTRICOS (prancha etc.)
+============================================================ */
+let TEMPO = safeJSON('86gym_tempo_run_v1', null);
+let TEMPO_NOME = (TEMPO && TEMPO.nome) || 'Prancha';
+let TEMPO_LAST = null, _tempoTick = null;
+const TEMPO_PRESETS = ['Prancha','Prancha lateral','Hollow hold','Dead hang'];
+function tempoElapsed(){ return TEMPO ? Math.max(0, Math.floor((Date.now() - TEMPO.startedAt)/1000)) : 0; }
+function tempoStartTick(){
+  clearInterval(_tempoTick);
+  _tempoTick = setInterval(()=>{ const el = document.getElementById('tempo-time'); if(el) el.textContent = formatSeconds(tempoElapsed()); }, 250);
+}
+function endTempo(){
+  clearInterval(_tempoTick); TEMPO = null;
+  try{ localStorage.removeItem('86gym_tempo_run_v1'); }catch(e){}
+  releaseWakeLock();
+}
+if(TEMPO) tempoStartTick();
+document.addEventListener('click', e=>{
+  const t = e.target.closest && e.target.closest('[data-tempo]'); if(!t) return;
+  const a = t.dataset.tempo;
+  if(a === 'pick'){ if(TEMPO) return; TEMPO_NOME = t.dataset.nome; TEMPO_LAST = null; render(); }
+  else if(a === 'start'){
+    TEMPO = { nome: TEMPO_NOME, startedAt: Date.now() }; TEMPO_LAST = null;
+    safeSet('86gym_tempo_run_v1', JSON.stringify(TEMPO));
+    haptic('tap'); tempoStartTick(); requestWakeLock(); render();
+  }
+  else if(a === 'cancel'){ endTempo(); showToast('Cronômetro descartado'); render(); }
+  else if(a === 'stop'){
+    if(!TEMPO) return;
+    const seg = tempoElapsed(), nome = TEMPO.nome; endTempo();
+    if(seg < 3){ showToast('Tempo muito curto, não foi salvo'); render(); return; }
+    const lista = loadTempos();
+    const prev = Math.max(0, ...lista.filter(x=> x.nome === nome).map(x=> x.segundos));
+    const pr = prev > 0 && seg > prev;
+    lista.push({ id: uid(), nome, segundos: seg, data: Date.now(), pr });
+    saveTempos(lista);
+    TEMPO_LAST = { nome, seg, pr, prev, first: prev === 0 };
+    haptic('tap'); if(pr){ try{ playBeep(2); }catch(err){} }
+    render();
+  }
+  else if(a === 'del'){
+    confirmDialog('Apagar este tempo?', {title:'Apagar', okText:'Apagar', danger:true}).then(ok=>{
+      if(!ok) return; saveTempos(loadTempos().filter(x=> x.id !== t.dataset.id)); render();
+    });
+  }
+});
+function TempoSection(){
+  const running = !!TEMPO, nome = TEMPO_NOME;
+  const lista = loadTempos().filter(x=> x.nome === nome).sort((a,b)=> b.data - a.data);
+  const best = lista.reduce((m,x)=> Math.max(m, x.segundos), 0);
+  const chips = TEMPO_PRESETS.map(n=> `<span class="chip ${n===nome?'active':''}" data-tempo="pick" data-nome="${n}" ${running?'style="opacity:.5;pointer-events:none;"':''}>${n}</span>`).join('');
+  let res = '';
+  if(TEMPO_LAST && TEMPO_LAST.nome === nome && !running){
+    const L = TEMPO_LAST;
+    res = L.pr
+      ? `<div class="tempo-pr">🏆 Novo recorde pessoal!<b>${formatSeconds(L.seg)}</b><span>Anterior: ${formatSeconds(L.prev)} (+${L.seg - L.prev}s)</span></div>`
+      : (L.first
+        ? `<div class="tempo-pr" style="border-color:var(--line);background:var(--surface-2);">Primeiro tempo registrado<b>${formatSeconds(L.seg)}</b><span>Esse é o seu ponto de partida.</span></div>`
+        : `<div class="tempo-pr" style="border-color:var(--line);background:var(--surface-2);">Tempo salvo<b>${formatSeconds(L.seg)}</b><span>Seu recorde: ${formatSeconds(best)}</span></div>`);
+  }
+  const rows = lista.slice(0, 10).map(x=> `<div class="tempo-row">
+      <span style="color:var(--muted);">${new Date(x.data).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}</span>
+      <span class="tt">${x.segundos === best ? '🏆 ' : ''}${formatSeconds(x.segundos)}</span>
+      <button class="icon-btn mini" data-tempo="del" data-id="${x.id}" aria-label="Apagar tempo">${ICONS.trash}</button>
+    </div>`).join('');
+  return `<div class="tempo-div"><span>Cronômetro de isométricos</span></div>
+  <div class="card" style="padding:14px;">
+    <div class="tempo-chips">${chips}</div>
+    <div class="plank-timer ${running?'running':''}">
+      <div class="t" id="tempo-time">${formatSeconds(tempoElapsed())}</div>
+      <div class="l">${escapeHtml(nome)} · Recorde ${best ? formatSeconds(best) : '—'}</div>
+    </div>
+    ${res}
+    ${running
+      ? `<div class="row"><button class="btn" data-tempo="stop" style="flex:1;">Parar e salvar</button><button class="btn secondary" data-tempo="cancel" style="flex:1;">Descartar</button></div>`
+      : `<button class="btn" data-tempo="start">${ICONS.play} Iniciar</button>`}
+    ${lista.length ? `<div style="font-size:12px;color:var(--muted);font-weight:700;margin:16px 0 4px 0;">Histórico · ${escapeHtml(nome)}</div>${rows}` : ''}
+  </div>`;
+}
+function CardioListScreen(){ return _CardioListBase() + TempoSection(); }
 function newCardioDraft(id){
   if(id){ const ex = DB.cardios.find(c=>c.id===id); DRAFT_CARDIO = ex ? JSON.parse(JSON.stringify(ex)) : null; }
   else DRAFT_CARDIO = { id: uid(), nome:'', observacoes:{dicas:[],porque:[]}, intervalos:[] };
@@ -5452,7 +5546,7 @@ function buildBackupPayload(){
     checkin: safeJSON(KEYS.checkin, {}), badges: loadBadges(),
     challenges: safeJSON(KEYS.challenges, {}), annual: loadAnnual(), goals: loadGoals(),
     favs: loadFavs(), exNotes: loadExNotes(),
-    restDays: loadRestDays(), injuries: loadInjuries()
+    restDays: loadRestDays(), injuries: loadInjuries(), tempos: loadTempos()
   };
 }
 async function pickBackupFile(){
@@ -5675,6 +5769,7 @@ function applySyncPayload(data){
     if(data.favs) saveFavs(data.favs);
     if(data.exNotes) saveExNotes(data.exNotes);
     if(data.restDays) saveRestDays(data.restDays);
+    if(Array.isArray(data.tempos)) saveTempos(data.tempos);
     if(data.injuries) saveInjuries(data.injuries);
     if(data.annual) saveAnnual(data.annual); else rebuildAnnualRecords();
   } finally { _suppressGistSync = false; }

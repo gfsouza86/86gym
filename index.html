@@ -74,7 +74,7 @@
   }
   #app{max-width:520px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1;}
   h1,h2,h3{margin:0;font-weight:800;}
-  #view{flex:1;padding:20px 18px 104px 18px;overflow-y:auto;}
+  #view{flex:1;min-width:0;padding:20px 18px 104px 18px;overflow-y:auto;overflow-x:hidden;}
   nav.tabbar{position:fixed;bottom:0;left:0;right:0;max-width:520px;margin:0 auto;
     background:color-mix(in srgb,var(--surface) 94%,transparent);backdrop-filter:blur(10px);
     border-top:1px solid var(--line);display:flex;
@@ -500,11 +500,11 @@
      CALENDÁRIO MENSAL (histórico)
   ═══════════════════════════════════════════════════════════ */
   .hc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-  .hc-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;
+  .hc-weekdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;
     font-size:10px;color:var(--muted);text-align:center;font-weight:700;
     text-transform:uppercase;margin-bottom:6px;letter-spacing:0.5px;}
-  .hc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-  .hc-day{aspect-ratio:1;border-radius:9px;background:var(--surface-2);
+  .hc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;}
+  .hc-day{min-width:0;width:100%;aspect-ratio:1;border-radius:9px;background:var(--surface-2);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:2px;cursor:pointer;position:relative;border:1.5px solid transparent;
     transition:transform .12s ease,background-color .2s ease;
@@ -522,6 +522,12 @@
   .hc-dots span{width:4px;height:4px;border-radius:50%;display:block;}
   .hc-dots .dot-force{background:var(--orange);}
   .hc-dots .dot-cardio{background:#22D3EE;}
+
+  @media (max-width:360px){
+  .hc-grid,.hc-weekdays{gap:3px;}
+  .hc-day{border-radius:8px;}
+  .hc-day .hc-num{font-size:12px;}
+}
 
   /* ═══════════════════════════════════════════════════════════
      BOTTOM SHEET (modais arrastáveis)
